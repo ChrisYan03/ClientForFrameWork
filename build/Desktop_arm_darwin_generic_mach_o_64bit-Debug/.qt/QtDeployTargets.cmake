@@ -1,4 +1,0 @@
-set(__QT_DEPLOY_TARGET_ClientForFrame_FILE /Users/chrisyan/ClientForFrameWork/build/Desktop_arm_darwin_generic_mach_o_64bit-Debug/bin/ClientForFrame.app/Contents/MacOS/ClientForFrame)
-set(__QT_DEPLOY_TARGET_ClientForFrame_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_PicPlayer_FILE /Users/chrisyan/ClientForFrameWork/build/Desktop_arm_darwin_generic_mach_o_64bit-Debug/lib/libPicPlayer.dylib)
-set(__QT_DEPLOY_TARGET_PicPlayer_TYPE SHARED_LIBRARY)
