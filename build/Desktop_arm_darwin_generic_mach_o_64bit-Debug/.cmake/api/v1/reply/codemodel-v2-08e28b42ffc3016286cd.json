@@ -1,0 +1,144 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "ClientForFrame",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-ClientForFrame-Debug-33955d1c9e209ccf37b0.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "ClientForFrame",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				},
+				{
+					"build" : "PicPlayer",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-PicPlayer-Debug-24085ade662e1bb15074.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "PicPlayer",
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "ClientForFrameWork"
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "ClientForFrame",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "PicPlayer",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "ClientForFrame::@f16f3eb2693b121f8b95",
+					"jsonFile" : "target-ClientForFrame-Debug-620d2be93ec712951b3d.json",
+					"name" : "ClientForFrame",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ClientForFrame_autogen::@f16f3eb2693b121f8b95",
+					"jsonFile" : "target-ClientForFrame_autogen-Debug-9ab073f045462b56f858.json",
+					"name" : "ClientForFrame_autogen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ClientForFrame_autogen_timestamp_deps::@f16f3eb2693b121f8b95",
+					"jsonFile" : "target-ClientForFrame_autogen_timestamp_deps-Debug-3be97b0bd26ffb23d66f.json",
+					"name" : "ClientForFrame_autogen_timestamp_deps",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "PicPlayer::@740935b6897e6e0dc643",
+					"jsonFile" : "target-PicPlayer-Debug-d44d9483bd7226b34c60.json",
+					"name" : "PicPlayer",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/chrisyan/ClientForFrameWork/build/Desktop_arm_darwin_generic_mach_o_64bit-Debug",
+		"source" : "/Users/chrisyan/ClientForFrameWork"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+cac9f9aa657ad41b7c031a56e49e1ab2 ClientForFrame/CMakeFiles/ClientForFrame_autogen
+87bf9b4bcdcaf4df4ac29993b78ff2ef ClientForFrame/ClientForFrame_autogen/timestamp
