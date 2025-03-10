@@ -5,8 +5,8 @@
 ClientMainWidget::ClientMainWidget(QWidget *parent)
     : QWidget(parent)
 {
-    PicPlayerApi a;
-    a.play();
+    PicPlayer_Init();
+    PicPlayer_Play(1);
     QLabel *qlab = new QLabel(this);
     qlab->setText("player....");
 }
