@@ -23,7 +23,7 @@ PICPLAYER_API int PICPLAYER_CALL PicPlayer_CreateInstance(int cacheNum = 10);
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_DestroyInstance(int handle);
 
 // 注册窗口句柄
-PICPLAYER_API int PICPLAYER_CALL PicPlayer_RegisterWindow(int handle, Window_ShowID winshowId);
+PICPLAYER_API bool PICPLAYER_CALL PicPlayer_RegisterWindow(int handle, Window_ShowID winshowId);
 
 // 开始播放
 PICPLAYER_API void PICPLAYER_CALL PicPlayer_Play(int handle);

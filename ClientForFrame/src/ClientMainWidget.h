@@ -10,5 +10,10 @@ class ClientMainWidget : public QWidget
 public:
     ClientMainWidget(QWidget *parent = nullptr);
     ~ClientMainWidget();
+
+    void hhhhhh();
+
+private:
+    int m_handle;
 };
 #endif // CLIENTMAINWIDGET_H

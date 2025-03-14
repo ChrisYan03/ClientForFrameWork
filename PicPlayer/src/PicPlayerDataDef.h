@@ -12,7 +12,6 @@ typedef void(PICPLAYER_CALL *PlayerMsgCallback)(int handle, int iMsg, int iRes, 
 using Window_ShowID = decltype(sizeof(void*));
 
 
-
 #ifdef __cplusplus
 }
 #endif

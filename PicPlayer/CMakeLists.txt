@@ -23,17 +23,18 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # 定义第三方库路径
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/ext)
-# 查找CoreFoundation库
-find_library(COREFOUNDATION_LIBRARY CoreFoundation REQUIRED)
-# 查找其他必要的系统库
-find_library(COCOA_LIBRARY Cocoa REQUIRED)
-find_library(IOKIT_LIBRARY IOKit REQUIRED)
-find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
+
+# 查找OpenGL库
+find_package(OpenGL REQUIRED)
+if(NOT OPENGL_FOUND)
+    message(FATAL_ERROR "OpenGL library not found")
+endif()
 
 # 添加第三方库的头文件路径
 include_directories(${EXT_DIR}/include
                     ${EXT_DIR}/include/GL
-                    ${EXT_DIR}/include/GLFW)
+                    ${EXT_DIR}/include/GLFW
+                    ${OPENGL_INCLUDE_DIR})
 # 添加内部头文件路径
 include_directories(${EVENTLOOP_DIR}
                     ${UTILS_DIR}
@@ -45,58 +46,40 @@ include_directories(${EVENTLOOP_DIR}
 link_directories(
     ${EXT_DIR}/lib/glew
     ${EXT_DIR}/lib/glfw
+    ${OPENGL_LIBRARY_DIRS}
 )
 
-# 定义源码文件
-set(PROJECT_SOURCES
-    ${SOURCE_DIR}/PicPlayerApi.cpp
-    ${SOURCE_DIR}/PicPlayerApi.h
-    ${SOURCE_DIR}/PicPlayerGlobal.h
-    ${SOURCE_DIR}/PicPlayerDataDef.h
-    ${EVENTLOOP_DIR}/CallableObject.h
-    ${EVENTLOOP_DIR}/EventMessage.h
-    ${EVENTLOOP_DIR}/EventLoop.h
-    ${EVENTLOOP_DIR}/EventLoop.cpp
-    ${UTILS_DIR}/IDGenerator.h
-    ${UTILS_DIR}/HandleRegister.h
-    ${UTILS_DIR}/Singleton.h
-    ${PLAYERINS_DIR}/PicPlayer.h
-    ${PLAYERINS_DIR}/PicPlayer.cpp
-    ${PLAYERINS_DIR}/PicPlayerCtrlBase.h
-    ${PLAYERINS_DIR}/PicPlayerCtrlBase.cpp
-    ${PLAYERINS_DIR}/PicPlayerCtrlDelegate.h
-    ${PLAYERINS_DIR}/PicPlayerCtrlDelegate.cpp
-    ${PLAYERINS_DIR}/PicPlayerGui.h
-    ${PLAYERINS_DIR}/PicPlayerGui.cpp
-    ${PLAYERINS_DIR}/PicPlayerHandleManager.h
-    ${PLAYERINS_DIR}/PicPlayerHandleManager.cpp
-    ${PLAYERINS_DIR}/PicPlayerShowWindow.h
-    ${PLAYERINS_DIR}/PicPlayerShowWindow.cpp
-    ${IMGUI_DIR}/glad/glad.h
-    ${IMGUI_DIR}/glad/glad.c
-    ${IMGUI_DIR}/glad/KHR/khrplatform.h
-    ${IMGUI_DIR}/imconfig.h
-    ${IMGUI_DIR}/imstb_textedit.h
-    ${IMGUI_DIR}/imgui.h
-    ${IMGUI_DIR}/imgui.cpp
-    ${IMGUI_DIR}/imgui_draw.cpp
-    ${IMGUI_DIR}/imgui_impl_opengl3.h
-    ${IMGUI_DIR}/imgui_impl_opengl3.cpp
-    ${IMGUI_DIR}/imgui_impl_glfw.h
-    ${IMGUI_DIR}/imgui_impl_glfw.cpp
-    ${IMGUI_DIR}/imgui_impl_opengl3_loader.h
-    ${IMGUI_DIR}/imgui_internal.h
-    ${IMGUI_DIR}/imgui_tables.cpp
-    ${IMGUI_DIR}/imgui_widgets.cpp
-    ${RENDER_DIR}/PicPlayerRender.h
-    ${RENDER_DIR}/PicPlayerRender.cpp
-    ${RENDER_DIR}/PicPlayerScene.h
-    ${RENDER_DIR}/PicPlayerScene.cpp
-    ${RENDER_DIR}/PicPlayerRenderSync.h
-    ${RENDER_DIR}/PicPlayerRenderSync.cpp
-    ${NODES_DIR}/NodesData.h
-    ${NODES_DIR}/NodesData.cpp
+# 使用 file(GLOB ...) 自动收集源文件
+file(GLOB PROJECT_SOURCES
+    "${SOURCE_DIR}/*.cpp"
+    "${SOURCE_DIR}/*.h"
+    "${EVENTLOOP_DIR}/*.cpp"
+    "${EVENTLOOP_DIR}/*.h"
+    "${UTILS_DIR}/*.cpp"
+    "${UTILS_DIR}/*.h"
+    "${PLAYERINS_DIR}/*.cpp"
+    "${PLAYERINS_DIR}/*.h"
+    "${IMGUI_DIR}/*.cpp"
+    "${IMGUI_DIR}/*.h"
+    "${RENDER_DIR}/*.cpp"
+    "${RENDER_DIR}/*.h"
+    "${NODES_DIR}/*.cpp"
+    "${NODES_DIR}/*.h"
 )
+
+if(APPLE)
+    # 添加 PicPlayerWindowForMac.mm 文件
+    list(APPEND PROJECT_SOURCES "${PLAYERINS_DIR}/PicPlayerWindowForMac.mm")
+endif()
+
+# 使用 file(GLOB_RECURSE ...) 递归收集 IMGUI_DIR 中的所有 .cpp /.c 和 .h 文件
+file(GLOB_RECURSE IMGUI_SOURCES
+    "${IMGUI_DIR}/*.cpp"
+    "${IMGUI_DIR}/*.c"
+    "${IMGUI_DIR}/*.h"
+)
+# 将 IMGUI_SOURCES 添加到 PROJECT_SOURCES
+list(APPEND PROJECT_SOURCES ${IMGUI_SOURCES})
 
 # 创建共享库
 add_library(PicPlayer SHARED ${PROJECT_SOURCES})
@@ -105,11 +88,29 @@ add_library(PicPlayer SHARED ${PROJECT_SOURCES})
 target_link_libraries(PicPlayer PRIVATE
     glfw3
     GLEW
-    ${COREFOUNDATION_LIBRARY}
-    ${COCOA_LIBRARY}
-    ${IOKIT_LIBRARY}
-    ${COREVIDEO_LIBRARY}
+    OpenGL::GL
 )
+
+# 在 macOS 上添加 CoreGraphics 和 CoreFoundation 库
+if(APPLE)
+    # 查找CoreFoundation库
+    find_library(COREFOUNDATION_LIBRARY CoreFoundation REQUIRED)
+    # 查找其他必要的系统库
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(IOKIT_LIBRARY IOKit REQUIRED)
+    find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
+    find_library(COREGRAPHICS_LIBRARY CoreGraphics REQUIRED)
+    find_library(FOUNDATION_LIBRARY Foundation REQUIRED)
+    target_link_libraries(PicPlayer PRIVATE
+        ${COREFOUNDATION_LIBRARY}
+        ${COCOA_LIBRARY}
+        ${IOKIT_LIBRARY}
+        ${COREVIDEO_LIBRARY}
+        ${COREGRAPHICS_LIBRARY}
+        ${FOUNDATION_LIBRARY}
+    )
+endif()
+
 # 设置目标属性
 set_target_properties(PicPlayer PROPERTIES
     POSITION_INDEPENDENT_CODE ON
