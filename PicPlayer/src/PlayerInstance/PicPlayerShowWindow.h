@@ -4,7 +4,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#include "glew.h"
 #include "PicPlayerGui.h"
+#include <chrono>
 
 struct GLFWwindow;
 class PicPlayerShowWindow : public PicPlayerGui
@@ -23,7 +25,7 @@ public:
     void OnResize(int width, int height);
 
 protected:
-    void CreateRenderWindow();
+    bool CreateRenderWindow();
     void Draw();
     void Render();
     void DestroyRenderWindow();
@@ -35,6 +37,7 @@ private:
     HWND m_hParent;
     #else
     Window_ShowID m_hParent;
+    std::chrono::high_resolution_clock::time_point m_lastFrameTime;
     #endif
 };
 

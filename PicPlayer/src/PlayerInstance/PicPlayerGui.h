@@ -18,9 +18,9 @@ public:
     ~PicPlayerGui();
 
     static PicPlayerGui* Create(Window_ShowID wid);
-    virtual void Destroy() {};
-    virtual int RunRendLoop() {};
-    virtual void Quit() {};
+    virtual void Destroy() = 0;
+    virtual int RunRendLoop() = 0;
+    virtual void Quit() = 0;
 
     void SetIRenderFactory(IRenderFactory* renderFactory);
     void RenderScene();

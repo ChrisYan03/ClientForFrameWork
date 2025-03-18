@@ -1,24 +1,15 @@
 #include "ClientMainWidget.h"
-#include "PicPlayerApi.h"
-#include <QLabel>
-#include <QWindow>
+#include <iostream>
 
 ClientMainWidget::ClientMainWidget(QWidget *parent)
     : QWidget(parent)
+    , m_pPicMatchWidget(new PicMatchWidget(this))
 {
-    setMinimumSize(800, 600);
-    setStyleSheet("background-color: #ccffcc;");
-    PicPlayer_Init();
-    m_handle = PicPlayer_CreateInstance();
+    m_pPicMatchWidget->InitUI();
 }
 
 ClientMainWidget::~ClientMainWidget()
 {
-
-}
-
-void ClientMainWidget::hhhhhh()
-{
-    PicPlayer_RegisterWindow(m_handle, static_cast<Window_ShowID>(this->winId()));
-    PicPlayer_Play(m_handle);
+    delete m_pPicMatchWidget; // 手动释放内存
+    std::cout << "~ClientMainWidget";
 }

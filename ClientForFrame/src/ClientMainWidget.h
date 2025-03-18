@@ -2,6 +2,7 @@
 #define CLIENTMAINWIDGET_H
 
 #include <QWidget>
+#include "PicMatchComponent/PicMatchWidget.h"
 
 class ClientMainWidget : public QWidget
 {
@@ -11,9 +12,7 @@ public:
     ClientMainWidget(QWidget *parent = nullptr);
     ~ClientMainWidget();
 
-    void hhhhhh();
-
 private:
-    int m_handle;
+    PicMatchWidget* m_pPicMatchWidget;
 };
 #endif // CLIENTMAINWIDGET_H

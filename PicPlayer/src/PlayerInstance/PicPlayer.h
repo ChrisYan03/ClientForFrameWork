@@ -30,10 +30,11 @@ protected:
     void RenderThreadProc();
     void PicDataThreadProc();
 
-
 private:
     int m_cacheNum;
     int m_handle;
+
+    bool m_bStop;
 
     Window_ShowID m_wid;
 
