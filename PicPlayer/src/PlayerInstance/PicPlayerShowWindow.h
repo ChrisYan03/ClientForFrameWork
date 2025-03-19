@@ -6,7 +6,6 @@
 #endif
 #include "glew.h"
 #include "PicPlayerGui.h"
-#include <chrono>
 
 struct GLFWwindow;
 class PicPlayerShowWindow : public PicPlayerGui
@@ -37,7 +36,6 @@ private:
     HWND m_hParent;
     #else
     Window_ShowID m_hParent;
-    std::chrono::high_resolution_clock::time_point m_lastFrameTime;
     #endif
 };
 

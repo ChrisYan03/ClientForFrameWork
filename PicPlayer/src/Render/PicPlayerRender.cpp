@@ -22,14 +22,15 @@ void PicPlayerRender::PlayRender()
     }
 
     if (m_playScene) {
-
+        m_playScene->Advance();
+        m_playScene->SceneRender();
     }
 }
 
 void PicPlayerRender::ClearRenderCache()
 {
     if (m_playScene) {
-
+        m_playScene->ClearRenderData();
     }
 }
 
@@ -48,11 +49,11 @@ std::shared_ptr<PicPlayerRenderSync> PicPlayerRender::GetSynchronizer() const
 void PicPlayerRender::UpdateViewport(int width, int height)
 {
     if (m_playScene) {
-
+        m_playScene->SetDisplayRect(ImRect(0, 0, width, height));
     }
 }
 
-PicPlayerScence* PicPlayerRender::GetScene() const
+PicPlayerScene* PicPlayerRender::GetScene() const
 {
     return m_playScene.get();
 }

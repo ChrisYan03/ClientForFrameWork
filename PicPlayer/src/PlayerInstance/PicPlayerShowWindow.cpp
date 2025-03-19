@@ -11,10 +11,12 @@
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
-    PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
-    if (pThis){
-        pThis->OnResize(width, height);
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
+        if (pThis){
+            pThis->OnResize(width, height);
+        }
+    });
 }
 
 PicPlayerShowWindow::PicPlayerShowWindow(Window_ShowID hParent, int iCacheNum)
@@ -50,11 +52,9 @@ int PicPlayerShowWindow::RunRendLoop()
             }
         }
 
-        m_lastFrameTime = std::chrono::high_resolution_clock::now();
         while (!glfwWindowShouldClose(m_window)) {
-            glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            //GetRender()->InitFramerate(ImGui::GetIO().Framerate);
+            GetRender()->InitFramerate(ImGui::GetIO().Framerate);
             glfwPollEvents();
             Draw();
             Render();
@@ -75,7 +75,7 @@ void PicPlayerShowWindow::Quit()
 
 void PicPlayerShowWindow::OnResize(int width, int height)
 {
-    //GetRender()->UpdateViewport(width, height);
+    GetRender()->UpdateViewport(width, height);
 }
 
 bool PicPlayerShowWindow::CreateRenderWindow()
@@ -117,7 +117,7 @@ bool PicPlayerShowWindow::CreateRenderWindow()
             return false;
         }
     }
-    //GetRender()->GetSynchronizer()->SetEnable(true);
+    GetRender()->GetSynchronizer()->SetEnable(true);
     glfwSetWindowUserPointer(m_window, this);
     glfwSetWindowSizeCallback(m_window, PicPlayerShowWindow::WindowSizeCallback);
     glfwMakeContextCurrent(m_window);
@@ -138,7 +138,7 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     ImGui::StyleColorsDark();
     ImGuiStyle& imguiStyle = ImGui::GetStyle();
     imguiStyle.WindowRounding = 0.0f;
-    imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.2, 0.8, 0.2, 1.0);
+    imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.6, 0.2, 0.6, 0.4);
     imguiStyle.WindowPadding = ImVec2(0, 0);
     imguiStyle.WindowBorderSize = 0.0;
     imguiStyle.DisplayWindowPadding = ImVec2(0, 0);
@@ -147,39 +147,23 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     const char* glslVersion = "#version 150";
     ImGui_ImplOpenGL3_Init(glslVersion);
-    ImGui::StyleColorsLight();
 
     int width, height;
     glfwGetWindowSize(m_window, &width, &height);
     glfwSetWindowPos(m_window, 4, 6);
     glfwSetWindowSize(m_window, width - 4, height - 6);
-    //GetRender()->InitScene(ImRect(4, 6, width - 4, height - 6));
+    GetRender()->InitScene(ImRect(4, 6, width - 4, height - 6));
 
     return true;
 }
 
 void PicPlayerShowWindow::Draw()
 {
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float deltaTime = std::chrono::duration<float>(currentTime - m_lastFrameTime).count();
-    m_lastFrameTime = currentTime;
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    int width, height;
-    glfwGetWindowSize(m_window, &width, &height);
-    //ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
-
-    ImGui::Begin("Debug Info");
-    ImGui::Text("Framerate: %.1f FPS", 1.0f / deltaTime);
-    ImGui::Text("Hello");
-    ImGui::End();
-
     RenderScene();
-    ImGuiStyle& curStyle = ImGui::GetStyle();
-    curStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.2, 0.8, 0.2, 1.0);
 }
 
 void PicPlayerShowWindow::Render()

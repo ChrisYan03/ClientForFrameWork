@@ -19,10 +19,10 @@ public:
     virtual void UpdateRenderNodesData(RenderNodesData* data);
     std::shared_ptr<PicPlayerRenderSync> GetSynchronizer() const;
     void UpdateViewport(int width, int height);
-    PicPlayerScence* GetScene() const;
+    PicPlayerScene* GetScene() const;
 
 protected:
-    std::unique_ptr<PicPlayerScence> m_playScene;
+    std::unique_ptr<PicPlayerScene> m_playScene;
     std::shared_ptr<PicPlayerRenderSync> m_renderSync;
 };
 

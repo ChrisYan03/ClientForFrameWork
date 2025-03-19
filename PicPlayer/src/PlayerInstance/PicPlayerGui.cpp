@@ -4,6 +4,7 @@
 #include "glfw3native.h"
 #endif
 #include "PicPlayerShowWindow.h"
+#include "PicPlayerRender.h"
 
 PicPlayerGui::PicPlayerGui()
     : m_renderFactory(nullptr)
@@ -33,7 +34,7 @@ void PicPlayerGui::RenderScene()
     if (m_renderFactory) {
         PicPlayerRender* render = m_renderFactory->GetRender();
         if (render){
-            //render->Render();
+            render->PlayRender();
         }
     }
 }
