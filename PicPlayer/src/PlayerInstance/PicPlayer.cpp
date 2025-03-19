@@ -103,7 +103,7 @@ void PicPlayer::StopControllerThread()
 void PicPlayer::RenderThreadProc()
 {
     if (nullptr == m_guiPtr) {
-        m_guiPtr = std::shared_ptr<PicPlayerGui>(PicPlayerGui::Create(GetWid()));
+        m_guiPtr = PicPlayerGui::Create(GetWid());
     }
     if (!m_guiPtr)
         return;

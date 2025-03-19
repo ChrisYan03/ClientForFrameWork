@@ -18,10 +18,9 @@ PicPlayerGui::~PicPlayerGui()
 }
 
 
-PicPlayerGui* PicPlayerGui::Create(Window_ShowID wid)
-{
-    PicPlayerShowWindow* windowGui = new PicPlayerShowWindow(wid);
-    return windowGui;
+std::shared_ptr<PicPlayerGui> PicPlayerGui::Create(Window_ShowID wid)
+{   
+    return std::make_shared<PicPlayerShowWindow>(wid);
 }
 
 void PicPlayerGui::SetIRenderFactory(IRenderFactory* renderFactory)

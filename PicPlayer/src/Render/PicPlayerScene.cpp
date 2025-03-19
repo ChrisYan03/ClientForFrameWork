@@ -7,11 +7,6 @@ PicPlayerScene::PicPlayerScene(const ImRect& rc, int cacheNum)
 
 }
 
-PicPlayerScene::~PicPlayerScene()
-{
-
-}
-
 void PicPlayerScene::SetDisplayRect(const ImRect& rect)
 {
     m_displayRect = rect;

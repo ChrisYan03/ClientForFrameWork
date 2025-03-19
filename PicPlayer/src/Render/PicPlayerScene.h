@@ -9,7 +9,7 @@ class PicPlayerScene
 {
 public:
     PicPlayerScene(const ImRect& rc, int cacheNum);
-    ~PicPlayerScene();
+    virtual ~PicPlayerScene() = default;
 
     virtual void Advance() = 0;
     virtual void ClearRenderData() = 0;

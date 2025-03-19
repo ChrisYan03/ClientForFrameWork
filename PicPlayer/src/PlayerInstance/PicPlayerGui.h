@@ -2,6 +2,7 @@
 #define PICPLAYERGUI_H
 
 #include "../PicPlayerDataDef.h"
+#include <memory>
 
 class PicPlayerRender;
 class PicPlayerGui
@@ -15,9 +16,9 @@ public:
 
 public:
     PicPlayerGui();
-    ~PicPlayerGui();
+    virtual ~PicPlayerGui();
 
-    static PicPlayerGui* Create(Window_ShowID wid);
+    static std::shared_ptr<PicPlayerGui> Create(Window_ShowID wid);
     virtual void Destroy() = 0;
     virtual int RunRendLoop() = 0;
     virtual void Quit() = 0;

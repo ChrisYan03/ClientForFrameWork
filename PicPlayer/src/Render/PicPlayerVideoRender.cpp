@@ -14,7 +14,7 @@ PicPlayerVideoRender::~PicPlayerVideoRender()
 
 void PicPlayerVideoRender::InitScene(const ImRect& rc)
 {
-    m_playScene = std::unique_ptr<PicPlayerScene>(new PicPlayerMovieByScene(rc, m_cacheNum));
+    m_playScene = std::make_unique<PicPlayerMovieByScene>(rc, m_cacheNum);
 }
 
 void PicPlayerVideoRender::InitFramerate(float frame)
