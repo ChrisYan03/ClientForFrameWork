@@ -18,6 +18,24 @@ void PicPlayerCtrlDelegate::SetPicCallbackByDelegate(PlayerMsgCallback callback,
 
 }
 
+void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
+{
+    if (showData == nullptr) {
+        return;
+    }
+    if (type == 1) {
+        //
+        auto curShowData = (PicShowInfo*)showData;
+        PicShowInfo* showDataPtr = (PicShowInfo*)malloc(sizeof(PicShowInfo));
+        *showDataPtr = *curShowData;
+        showDataPtr->imageRgbaData = (char*)malloc(showDataPtr->imageRgbaLen);
+        memcpy(showDataPtr->imageRgbaData, curShowData->imageRgbaData, curShowData->imageRgbaLen);
+        m_loop.asyncInvokeAny([this, showDataPtr](){
+            m_playerBasePtr->InputPicData(showDataPtr);
+        });
+    }
+}
+
 void PicPlayerCtrlDelegate::Quit()
 {
     m_loop.quit();
@@ -30,10 +48,12 @@ void PicPlayerCtrlDelegate::RunEventLoop()
             m_firstIdleCondition.notify_all();
             m_firstIdlePassed = true;
         }
-        //m_playerBasePtr->
+        m_playerBasePtr->CheckSyncRenderData();
     });
     m_loop.exec();
 }
+
+
 
 void PicPlayerCtrlDelegate::WaitFirstIdleEvent()
 {
@@ -49,7 +69,7 @@ void PicPlayerCtrlDelegate::SetRenderSync(std::shared_ptr<PicPlayerRenderSync> s
     if (syncPtr) {
         m_loop.asyncInvokeAny([syncPtr, this](){
             m_playerBasePtr->SetRenderSync(syncPtr);
-            //syncPtr->RenderComCallback(std::bind(&PicPlayerCtrlDelegate::OnRenderComCallback, this, std::placeholders::_1));
+            syncPtr->SetRenderComCallback(std::bind(&PicPlayerCtrlDelegate::OnRenderComCallback, this, std::placeholders::_1));
         });
     }
 }

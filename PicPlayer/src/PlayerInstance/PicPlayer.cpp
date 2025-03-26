@@ -12,7 +12,7 @@ PicPlayer::PicPlayer(int cacheNum)
     , m_ctrlDelPtr(std::make_shared<PicPlayerCtrlDelegate>())
     , m_renderPtr(nullptr)
 {
-    StartControllerThread();
+
 }
 
 PicPlayer::~PicPlayer()
@@ -20,6 +20,7 @@ PicPlayer::~PicPlayer()
     std::cout << "~PicPlayer";
     StopControllerThread();
     StopPlayer();
+    std::cout << "~PicPlayer suc";
 }
 
 void PicPlayer::SetHandle(int handle)
@@ -36,6 +37,15 @@ void PicPlayer::SetPicCallback(PlayerMsgCallback callback, void* pUser)
 
 bool PicPlayer::InputPicData(int type, void* showData)
 {
+    if (m_bStop) {
+        return false;
+    }
+    if (showData == nullptr) {
+        return false;
+    }
+    if (m_ctrlDelPtr) {
+        m_ctrlDelPtr->InputPicData(type, showData);
+    }
     return true;
 }
 
@@ -44,6 +54,7 @@ bool PicPlayer::StartPlayer()
     if (!m_bStop)
         return false;
     m_bStop = false;
+    StartControllerThread();
     m_renderPtr = std::make_shared<PicPlayerVideoRender>(m_cacheNum);
     if (m_ctrlDelPtr) {
         m_ctrlDelPtr->SetRenderSync(m_renderPtr->GetSynchronizer());

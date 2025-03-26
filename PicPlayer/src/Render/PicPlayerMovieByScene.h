@@ -2,6 +2,7 @@
 #define PICPLAYERMOVIEBYSCENE_H
 
 #include "PicPlayerScene.h"
+#include "DrawPicByImgui/PicRenderForDraw.h"
 
 class PicPlayerMovieByScene : public PicPlayerScene
 {
@@ -11,13 +12,27 @@ public:
 
     virtual void Advance() override;
     virtual void ClearRenderData() override;
+    virtual void UpdateRenderNodeData(std::shared_ptr<RenderNodesData> nodeData) override;
 
 protected:
     virtual void OnDisplayRectChanged() override;
     virtual void DrawScene() override;
+    void MoveStep();
+    void CheckDrawCache();
+    std::shared_ptr<PicRenderForDraw> GetPicDrawPtr(int index) const;
+
+private:
+    bool CheckRunSafety();
+    int CalculateRemainLen(const std::vector<std::shared_ptr<PicRenderForDraw>>& picVec);
+    void SetGeometryCallback(std::shared_ptr<PicRenderForDraw> picDrawPtr);
+    void SetPicInfoToComponent(int index);
 
 protected:
-    int m_cacheNum;
+    std::list<std::shared_ptr<PicRenderForDraw>> m_picList;
+    int m_curIndex;
+    // 移动相关
+    int m_moveSpeed;
+    int m_picMovePos;
 };
 
 #endif // PICPLAYERMOVIEBYSCENE_H

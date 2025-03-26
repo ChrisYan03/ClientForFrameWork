@@ -16,7 +16,7 @@ public:
 
 private:
     PicPlayerHandleManager();
-    ~PicPlayerHandleManager();
+    virtual ~PicPlayerHandleManager();
 
 private:
     HandleRegister<PicPlayer> m_handleRegister;

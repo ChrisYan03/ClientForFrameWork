@@ -2,7 +2,6 @@
 #define PICPLAYERVIDEORENDER_H
 
 #include "PicPlayerRender.h"
-#include "../NodeDataDef/NodesData.h"
 #include "imgui_internal.h"
 
 class PicPlayerVideoRender : public PicPlayerRender

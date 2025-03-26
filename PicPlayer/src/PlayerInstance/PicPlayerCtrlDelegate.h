@@ -2,6 +2,7 @@
 #define PICPLAYERCTRLDELEGATE_H
 
 #include "../PicPlayerDataDef.h"
+#include "../NodeDataDef/NodesData.h"
 #include "NodesData.h"
 #include "EventLoop.h"
 #include <mutex>
@@ -16,6 +17,7 @@ public:
     ~PicPlayerCtrlDelegate();
 
     void SetPicCallbackByDelegate(PlayerMsgCallback callback, void* pUser);
+    void InputPicData(int type, void* showData);
 
     void Quit();
     void RunEventLoop();

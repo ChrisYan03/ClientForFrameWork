@@ -1,16 +1,31 @@
 #include "PicPlayerScene.h"
+#include "../NodeDataDef/NodesDataForDraw.h"
 
 PicPlayerScene::PicPlayerScene(const ImRect& rc, int cacheNum)
     : m_displayRect(rc)
     , m_cacheNum(cacheNum)
+    , m_directionLTR(true)
 {
 
+}
+
+void PicPlayerScene::SetRenderSync(std::shared_ptr<PicPlayerRenderSync> renderSync)
+{
+    m_pRenderSync = renderSync;
 }
 
 void PicPlayerScene::SetDisplayRect(const ImRect& rect)
 {
     m_displayRect = rect;
     OnDisplayRectChanged();
+}
+
+void PicPlayerScene::SyncRemovePic(const std::string& picId)
+{
+    PicRemove cmdPicRemove(picId);
+    if (m_pRenderSync) {
+        m_pRenderSync->RenderComCallback(&cmdPicRemove);
+    }
 }
 
 void PicPlayerScene::SetCurFramerate(float fixframe)
@@ -32,4 +47,10 @@ void PicPlayerScene::SceneRender()
     DrawScene();
 
     ImGui::End();
+}
+
+// todo:待实现
+void PicPlayerScene::DoScale()
+{
+
 }

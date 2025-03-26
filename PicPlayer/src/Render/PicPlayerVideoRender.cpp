@@ -15,6 +15,7 @@ PicPlayerVideoRender::~PicPlayerVideoRender()
 void PicPlayerVideoRender::InitScene(const ImRect& rc)
 {
     m_playScene = std::make_unique<PicPlayerMovieByScene>(rc, m_cacheNum);
+    m_playScene->SetRenderSync(GetSynchronizer());
 }
 
 void PicPlayerVideoRender::InitFramerate(float frame)

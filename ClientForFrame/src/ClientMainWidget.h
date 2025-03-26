@@ -12,7 +12,14 @@ public:
     ClientMainWidget(QWidget *parent = nullptr);
     ~ClientMainWidget();
 
+    void DemoInit();
+    void DemoRun();
+
 private:
+    void InitMainUI();
+
+private:
+    QWidget* m_titleWidget;
     PicMatchWidget* m_pPicMatchWidget;
 };
 #endif // CLIENTMAINWIDGET_H

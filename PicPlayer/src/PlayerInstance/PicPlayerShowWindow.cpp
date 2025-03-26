@@ -7,6 +7,7 @@
 #include "PicPlayerWindowForMac.h"
 #include <dispatch/dispatch.h>
 #endif
+#include "../Render/DrawPicByImgui/PicTexture.h"
 #include <iostream>
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
@@ -147,6 +148,8 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     const char* glslVersion = "#version 150";
     ImGui_ImplOpenGL3_Init(glslVersion);
+
+    PicTexture::instance()->InitPicTexturePool(m_iCacheNum);
 
     int width, height;
     glfwGetWindowSize(m_window, &width, &height);

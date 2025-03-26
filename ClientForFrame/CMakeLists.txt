@@ -14,12 +14,18 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # 设置源码目录
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src)
+set(PICMATCH_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent)
+set(STBIMAGE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent/StbImage)
 
 # 定义源码文件
-set(PROJECT_SOURCES
-    ${SOURCE_DIR}/main.cpp
-    ${SOURCE_DIR}/ClientMainWidget.cpp
-    ${SOURCE_DIR}/ClientMainWidget.h
+# 使用 file(GLOB ...) 自动收集源文件
+file(GLOB PROJECT_SOURCES
+    "${SOURCE_DIR}/*.cpp"
+    "${SOURCE_DIR}/*.h"
+    "${PICMATCH_DIR}/*.cpp"
+    "${PICMATCH_DIR}/*.h"
+    "${STBIMAGE_DIR}/*.cpp"
+    "${STBIMAGE_DIR}/*.h"
 )
 
 # 添加 PicPlayer 库路径
