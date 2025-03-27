@@ -26,12 +26,10 @@ void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
     if (type == 1) {
         //
         auto curShowData = (PicShowInfo*)showData;
-        PicShowInfo* showDataPtr = (PicShowInfo*)malloc(sizeof(PicShowInfo));
-        *showDataPtr = *curShowData;
-        showDataPtr->imageRgbaData = (char*)malloc(showDataPtr->imageRgbaLen);
-        memcpy(showDataPtr->imageRgbaData, curShowData->imageRgbaData, curShowData->imageRgbaLen);
-        m_loop.asyncInvokeAny([this, showDataPtr](){
-            m_playerBasePtr->InputPicData(showDataPtr);
+        PicShowInfo* showData = new PicShowInfo();
+        *showData = *curShowData;
+        m_loop.asyncInvokeAny([this, showData](){
+            m_playerBasePtr->InputPicData(showData);
         });
     }
 }

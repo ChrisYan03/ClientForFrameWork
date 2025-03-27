@@ -71,3 +71,8 @@ void PicGeometry::SetSelectionCallback(std::function<void(const std::string&)>&&
 {
     m_selectCallback = std::move(func);
 }
+
+float PicGeometry::GetPicContentScale(float displayHeight)
+{
+    return displayHeight / m_picHeight;
+}

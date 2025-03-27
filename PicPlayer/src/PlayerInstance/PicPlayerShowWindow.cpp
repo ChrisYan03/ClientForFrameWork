@@ -192,30 +192,3 @@ void PicPlayerShowWindow::DestroyRenderWindow()
         }
     });
 }
-
-
-// bool PicPlayerShowWindow::LoadImage(const char* imagePath)
-// {
-//     int imageChannels;
-//     unsigned char* imageData = stbi_load(imagePath, &m_imageWidth, &m_imageHeight, &imageChannels, 0);
-//     if (!imageData) {
-//         std::cerr << "Failed to load image: " << imagePath << std::endl;
-//         return false;
-//     }
-
-//     glGenTextures(1, &m_textureID);
-//     glBindTexture(GL_TEXTURE_2D, m_textureID);
-
-//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-//     GLenum format = imageChannels == 3 ? GL_RGB : GL_RGBA;
-//     glTexImage2D(GL_TEXTURE_2D, 0, format, m_imageWidth, m_imageHeight, 0, format, GL_UNSIGNED_BYTE, imageData);
-
-//     stbi_image_free(imageData);
-//     glBindTexture(GL_TEXTURE_2D, 0);
-
-//     return true;
-// }

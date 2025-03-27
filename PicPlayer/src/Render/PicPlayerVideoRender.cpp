@@ -2,7 +2,8 @@
 #include "PicPlayerMovieByScene.h"
 
 PicPlayerVideoRender::PicPlayerVideoRender(int cacheNum)
-    :m_cacheNum(cacheNum)
+    : PicPlayerRender()
+    , m_cacheNum(cacheNum)
 {
 
 }

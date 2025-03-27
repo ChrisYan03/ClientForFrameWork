@@ -25,6 +25,8 @@ public:
     // 获取图片的高
     int GetPicHeight() const { return m_picHeight; }
 
+    float GetPicContentScale(float displayHeight);
+
 private:
     ImVec2 m_uvMin;
     ImVec2 m_uvMax;

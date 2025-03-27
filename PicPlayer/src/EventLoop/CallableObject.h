@@ -6,8 +6,10 @@
 struct CallableObject
 {
     CallableObject(std::function<void(void)> f)
-        :fn(f) {}
-    void call(){
+        :fn(f)    {}
+
+    void call()
+    {
         if (fn){
             fn();
         }

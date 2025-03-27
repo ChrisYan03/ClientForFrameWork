@@ -9,10 +9,10 @@ PicPlayer::PicPlayer(int cacheNum)
     , m_bStop(true)
     , m_wid(0)
     , m_guiPtr(nullptr)
-    , m_ctrlDelPtr(std::make_shared<PicPlayerCtrlDelegate>())
+    , m_ctrlDelPtr(nullptr)
     , m_renderPtr(nullptr)
 {
-
+    StartControllerThread();
 }
 
 PicPlayer::~PicPlayer()
@@ -54,7 +54,7 @@ bool PicPlayer::StartPlayer()
     if (!m_bStop)
         return false;
     m_bStop = false;
-    StartControllerThread();
+
     m_renderPtr = std::make_shared<PicPlayerVideoRender>(m_cacheNum);
     if (m_ctrlDelPtr) {
         m_ctrlDelPtr->SetRenderSync(m_renderPtr->GetSynchronizer());
@@ -97,6 +97,7 @@ PicPlayerRender* PicPlayer::GetRender() const
 
 void PicPlayer::StartControllerThread()
 {
+    m_ctrlDelPtr = std::make_shared<PicPlayerCtrlDelegate>();
     m_tPicCtrlThread = std::thread(std::bind(&PicPlayer::PicDataThreadProc, this));
     m_ctrlDelPtr->WaitFirstIdleEvent();
 }

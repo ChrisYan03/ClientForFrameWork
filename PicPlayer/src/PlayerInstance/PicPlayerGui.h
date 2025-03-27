@@ -25,7 +25,9 @@ public:
 
     void SetIRenderFactory(IRenderFactory* renderFactory);
     void RenderScene();
-    PicPlayerRender* GetRender();
+
+protected:
+    PicPlayerRender* GetRender() const ;
 
 protected:
     IRenderFactory* m_renderFactory;

@@ -4,6 +4,7 @@
 PicRenderForDraw::PicRenderForDraw(const std::string& picId)
     : m_imageTime(0)
     , m_moveSpeed(4)
+    , m_scale(1.0)
     , m_ImageId(picId)
 {
     m_imageGeo = std::make_shared<PicGeometry>();
@@ -13,6 +14,12 @@ PicRenderForDraw::~PicRenderForDraw()
 {
 
 }
+
+void PicRenderForDraw::SetPicShowScale(float displayHeight)
+{
+    m_scale = m_imageGeo->GetPicContentScale(displayHeight);
+}
+
 
 void PicRenderForDraw::SetPicInfo(const PicShowInfo& data)
 {
@@ -27,5 +34,5 @@ int PicRenderForDraw::GetPicWidth() const
 
 int PicRenderForDraw::GetPicHeight() const
 {
-    return m_imageGeo->GetPicHeight();
+    return m_imageGeo->GetPicHeight() * m_scale;
 }

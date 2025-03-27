@@ -11,7 +11,7 @@ public:
     explicit PicPlayerCtrlBase();
     ~PicPlayerCtrlBase();
 
-    void SetRenderSync(const std::shared_ptr<PicPlayerRenderSync>& syncPtr);
+    void SetRenderSync(std::shared_ptr<PicPlayerRenderSync> syncPtr);
     void CheckSyncRenderData();
     void InputPicData(PicShowInfo* showData);
 

@@ -38,7 +38,7 @@ void PicPlayerGui::RenderScene()
     }
 }
 
-PicPlayerRender* PicPlayerGui::GetRender()
+PicPlayerRender* PicPlayerGui::GetRender() const
 {
     if (m_renderFactory) {
         PicPlayerRender* render = m_renderFactory->GetRender();

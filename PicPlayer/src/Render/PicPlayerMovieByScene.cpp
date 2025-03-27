@@ -71,12 +71,11 @@ void PicPlayerMovieByScene::DrawScene()
     }
 
     auto curPic = picVec[m_curIndex];
-    double scale = 1.0;
+    float scale = curPic->GetShowScale();
     double displayWidth = (double)curPic->GetPicWidth();
     double displayPos = m_picMovePos * scale;
 
     double nodePostion = 0.0;
-    auto curDisplayH = m_displayRect.GetHeight();
     if (m_directionLTR) {
         nodePostion = m_displayRect.Min.x - (displayWidth - displayPos);
         auto curIndex = m_curIndex;
@@ -98,7 +97,7 @@ void PicPlayerMovieByScene::DrawScene()
             displayWidth = (double)curPic->GetPicWidth();
             if (curIndex != m_curIndex)
                 nodePostion -= displayWidth;
-            ImVec2 moveStart(nodePostion, m_displayRect.Min.y + 20);
+            ImVec2 moveStart(nodePostion, m_displayRect.Min.y  + 20);
             ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicHeight());
             curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, scale);
             --curIndex;
@@ -112,11 +111,13 @@ void PicPlayerMovieByScene::MoveStep()
         return;
 
     std::vector<std::shared_ptr<PicRenderForDraw>> picVec;
-    for(auto& iterPic : m_picList) {
-        picVec.push_back(iterPic);
+    for (auto iterPic = m_picList.begin(); iterPic != m_picList.end(); ++iterPic) {
+        iterPic->get()->SetPicShowScale(m_displayRect.GetHeight() - 40);
+        picVec.push_back(*iterPic);
     }
 
-    double scale = 1.0;
+    auto curPic = picVec[m_curIndex];
+    float scale = curPic->GetShowScale();
     // 滚动模式
     {
         int remainLen = CalculateRemainLen(picVec);
@@ -126,7 +127,6 @@ void PicPlayerMovieByScene::MoveStep()
         m_moveSpeed = std::min<int>(remainLen, m_fixMoveSpeed);
         displayPos += m_moveSpeed;
 
-        auto curPic = picVec[m_curIndex];
         auto displayWidth = curPic->GetPicWidth();
         while (ceil(displayPos) >= displayWidth && m_curIndex < picVec.size() - 1) {
             displayPos -= displayWidth;

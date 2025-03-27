@@ -10,7 +10,10 @@ public:
     ~PicRenderForDraw();
 
     const std::string& GetPicId() const { return m_ImageId; }
+    double GetShowScale() const { return m_scale; }
+
     std::shared_ptr<PicGeometry> GetPicGeoPtr() const { return m_imageGeo; }
+    void SetPicShowScale(float displayHeight);
     void SetPicInfo(const PicShowInfo& data);
     int GetPicWidth() const;
     int GetPicHeight() const;
@@ -18,6 +21,7 @@ public:
 protected:
     uint32_t m_imageTime;
     uint32_t m_moveSpeed;
+    float m_scale;
     std::string m_ImageId;
     std::shared_ptr<PicGeometry> m_imageGeo;
 };

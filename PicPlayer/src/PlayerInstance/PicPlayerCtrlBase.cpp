@@ -11,7 +11,7 @@ PicPlayerCtrlBase::~PicPlayerCtrlBase()
 
 }
 
-void PicPlayerCtrlBase::SetRenderSync(const std::shared_ptr<PicPlayerRenderSync>& syncPtr)
+void PicPlayerCtrlBase::SetRenderSync(std::shared_ptr<PicPlayerRenderSync> syncPtr)
 {
     m_syncPtr = syncPtr;
 }
@@ -32,9 +32,6 @@ void PicPlayerCtrlBase::InputPicData(PicShowInfo* showData)
         // 使用拷贝构造函数进行深拷贝
         picShowPtr->picShowData = *showData;
         m_renderNodesPtr->AppendComData(std::move(picShowPtr));
-        free(showData->imageRgbaData);
-        showData->imageRgbaData = nullptr;
-        free(showData);
-        showData = nullptr;
+        delete showData;
     }
 }
