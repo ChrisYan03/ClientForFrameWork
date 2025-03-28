@@ -28,11 +28,12 @@ private:
     void SetPicInfoToComponent(int index);
 
 protected:
-    std::list<std::shared_ptr<PicRenderForDraw>> m_picList;
     int m_curIndex;
     // 移动相关
     int m_moveSpeed;
     int m_picMovePos;
+    std::string m_curShowid;
+    std::list<std::shared_ptr<PicRenderForDraw>> m_picList;
 };
 
 #endif // PICPLAYERMOVIEBYSCENE_H

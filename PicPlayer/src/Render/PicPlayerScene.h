@@ -22,6 +22,8 @@ public:
     void SetDisplayRect(const ImRect& rect);
     void SyncRemovePic(const std::string& picId);
 
+    void OnCurPicChange(const std::string& picId);
+
 protected:
     virtual void OnDisplayRectChanged() = 0;
     virtual void DrawScene() = 0;
@@ -31,7 +33,7 @@ protected:
     ImRect m_displayRect;     // 可视范围
     float  m_fixframe;
     int m_cacheNum;
-    const int m_fixMoveSpeed = 4;
+    const int m_fixMoveSpeed = 2;
     bool m_directionLTR;
     std::shared_ptr<PicPlayerRenderSync> m_pRenderSync;
 };

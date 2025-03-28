@@ -1,5 +1,6 @@
 #include "PicPlayerCtrlDelegate.h"
 #include "PicPlayerCtrlBase.h"
+#include "../NodeDataDef/NodesDataForDraw.h"
 
 PicPlayerCtrlDelegate::PicPlayerCtrlDelegate()
     : m_firstIdlePassed(false)
@@ -15,7 +16,9 @@ PicPlayerCtrlDelegate::~PicPlayerCtrlDelegate()
 
 void PicPlayerCtrlDelegate::SetPicCallbackByDelegate(PlayerMsgCallback callback, void* pUser)
 {
-
+    if (m_playerBasePtr) {
+        m_playerBasePtr->SetCallback(callback, pUser);
+    }
 }
 
 void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
@@ -81,5 +84,16 @@ void PicPlayerCtrlDelegate::CreatePlayerController()
 
 void PicPlayerCtrlDelegate::OnRenderComCallback(RenderComData* cmd)
 {
+    if(cmd->RenderType() == (int)NodesType::PicChangeType) {
+        PicShowNow* curPtr = static_cast<PicShowNow*>(cmd);
+        if (curPtr) {
+            std::string showPicId = curPtr->picId;
+            m_loop.asyncInvokeAny([this, showPicId](){
+                m_playerBasePtr->ShowPicCallback(showPicId);
+            });
+        }
+    }
+    else if (cmd->RenderType() == (int)NodesType::PicChangeType) {
 
+    }
 }

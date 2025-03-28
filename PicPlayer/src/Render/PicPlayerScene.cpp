@@ -22,9 +22,17 @@ void PicPlayerScene::SetDisplayRect(const ImRect& rect)
 
 void PicPlayerScene::SyncRemovePic(const std::string& picId)
 {
-    PicRemove cmdPicRemove(picId);
     if (m_pRenderSync) {
+        PicRemove cmdPicRemove(picId);
         m_pRenderSync->RenderComCallback(&cmdPicRemove);
+    }
+}
+
+void PicPlayerScene::OnCurPicChange(const std::string& picId)
+{
+    if (m_pRenderSync) {
+        PicShowNow cmdPicShowNow(picId);
+        m_pRenderSync->RenderComCallback(&cmdPicShowNow);
     }
 }
 

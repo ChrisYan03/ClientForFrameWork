@@ -43,11 +43,15 @@ include_directories(${EVENTLOOP_DIR}
                     ${RENDER_DIR}
                     ${NODES_DIR})
 # 添加第三方库的库文件路径
-link_directories(
-    ${EXT_DIR}/lib/glew
-    ${EXT_DIR}/lib/glfw
-    ${OPENGL_LIBRARY_DIRS}
-)
+if(APPLE)
+    link_directories(
+        ${EXT_DIR}/lib/glew/Mac
+        ${EXT_DIR}/lib/glfw/Mac
+        ${OPENGL_LIBRARY_DIRS}
+    )
+else()
+
+endif()
 
 # 使用 file(GLOB ...) 自动收集源文件
 file(GLOB PROJECT_SOURCES

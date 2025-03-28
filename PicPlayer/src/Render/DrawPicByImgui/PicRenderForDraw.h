@@ -16,7 +16,7 @@ public:
     void SetPicShowScale(float displayHeight);
     void SetPicInfo(const PicShowInfo& data);
     int GetPicWidth() const;
-    int GetPicHeight() const;
+    int GetPicContentHeight() const;
 
 protected:
     uint32_t m_imageTime;

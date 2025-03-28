@@ -1,5 +1,6 @@
 #include "PicPlayerCtrlBase.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
+#include "../PicPlayerDataDef.h"
 
 PicPlayerCtrlBase::PicPlayerCtrlBase()
 {
@@ -9,6 +10,12 @@ PicPlayerCtrlBase::PicPlayerCtrlBase()
 PicPlayerCtrlBase::~PicPlayerCtrlBase()
 {
 
+}
+
+void PicPlayerCtrlBase::SetCallback(PlayerMsgCallback callback, void* pUser)
+{
+    m_callback = callback;
+    m_pUser = pUser;
 }
 
 void PicPlayerCtrlBase::SetRenderSync(std::shared_ptr<PicPlayerRenderSync> syncPtr)
@@ -34,4 +41,10 @@ void PicPlayerCtrlBase::InputPicData(PicShowInfo* showData)
         m_renderNodesPtr->AppendComData(std::move(picShowPtr));
         delete showData;
     }
+}
+
+void PicPlayerCtrlBase::ShowPicCallback(const std::string& showPicId)
+{
+    std::string showid = showPicId;
+    m_callback(0, (int)Callback_ShowPicId, (void*)showid.c_str(), m_pUser);
 }

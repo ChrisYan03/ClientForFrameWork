@@ -18,3 +18,12 @@ int PicRemove::RenderType() const
 {
     return (int)NodesType::PicRemoveType;
 }
+
+PicShowNow::PicShowNow(const std::string& curpicId)
+    : picId(curpicId)
+{}
+
+int PicShowNow::RenderType() const
+{
+    return (int)NodesType::PicChangeType;
+}

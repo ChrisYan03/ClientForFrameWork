@@ -11,12 +11,20 @@
 extern "C" {
 #endif
 
-typedef void(PICPLAYER_CALL *PlayerMsgCallback)(int handle, int iMsg, int iRes, void* pData, void* pUser);
+typedef void(PICPLAYER_CALL *PlayerMsgCallback)(int handle, int iMsg, void* pData, void* pUser);
 
 using Window_ShowID = decltype(sizeof(void*));
 
 #define IMAGE_ID_LEN 128
 
+// 输出
+enum CallbackType
+{
+    Callback_RemovePicId,
+    Callback_ShowPicId,
+};
+
+// 输入
 struct PicShowInfo
 {
     uint32_t picReadTime;

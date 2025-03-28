@@ -9,6 +9,7 @@ enum class NodesType
     PicDataType = RenderComData::UserRenderTypr + 1,
     PicRectType,
     PicRemoveType,
+    PicChangeType,
 };
 
 class PicData : public RenderComData
@@ -40,6 +41,18 @@ class PicRemove : public RenderComData
 public:
     PicRemove(const std::string& curpicId);
     virtual ~PicRemove()  = default;
+
+    virtual int RenderType() const  override;
+
+public:
+    std::string picId;
+};
+
+class PicShowNow : public RenderComData
+{
+public:
+    PicShowNow(const std::string& curpicId);
+    virtual ~PicShowNow()  = default;
 
     virtual int RenderType() const  override;
 

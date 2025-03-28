@@ -32,7 +32,7 @@ int PicRenderForDraw::GetPicWidth() const
     return m_imageGeo->GetPicWidth();
 }
 
-int PicRenderForDraw::GetPicHeight() const
+int PicRenderForDraw::GetPicContentHeight() const
 {
     return m_imageGeo->GetPicHeight() * m_scale;
 }

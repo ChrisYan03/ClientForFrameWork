@@ -4,8 +4,9 @@
 PicPlayerMovieByScene::PicPlayerMovieByScene(const ImRect& rc, int cacheNum)
     : PicPlayerScene(rc, cacheNum)
     , m_curIndex(0)
-    , m_moveSpeed(4)
+    , m_moveSpeed(2)
     , m_picMovePos(0)
+    , m_curShowid("")
 {
 
 }
@@ -37,12 +38,13 @@ void PicPlayerMovieByScene::ClearRenderData()
 
 void PicPlayerMovieByScene::UpdateRenderNodeData(std::shared_ptr<RenderNodesData> nodeData)
 {
+    if (nodeData->GetComDataList().empty())
+        return;
     auto& comdataList = nodeData->GetComDataList();
     auto iterCmd = comdataList.begin();
     while(iterCmd != comdataList.end()) {
-        auto& dataPtr = *iterCmd;
-        if (dataPtr->RenderType() == (int)NodesType::PicDataType) {
-            auto picDataPtr = static_cast<PicData*>(dataPtr.get());
+        if (iterCmd->get()->RenderType() == (int)NodesType::PicDataType) {
+            auto picDataPtr = static_cast<PicData*>(iterCmd->get());
             auto iterPtr = std::find_if(m_picList.begin(), m_picList.end(), [picDataPtr](std::shared_ptr<PicRenderForDraw> picPtr) {
                 return picDataPtr->picShowData.imageId == picPtr->GetPicId();
             });
@@ -66,8 +68,8 @@ void PicPlayerMovieByScene::DrawScene()
     if (!CheckRunSafety())
         return;
     std::vector<std::shared_ptr<PicRenderForDraw>> picVec;
-    for(auto& iterPic : m_picList) {
-        picVec.push_back(iterPic);
+    for (auto iterPic = m_picList.begin(); iterPic != m_picList.end(); ++iterPic) {
+        picVec.push_back(*iterPic);
     }
 
     auto curPic = picVec[m_curIndex];
@@ -83,7 +85,7 @@ void PicPlayerMovieByScene::DrawScene()
             curPic = picVec[curIndex];
             displayWidth = (double)curPic->GetPicWidth();
             ImVec2 moveStart(nodePostion, m_displayRect.Min.y + 20);
-            ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicHeight());
+            ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicContentHeight());
             curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, scale);
             nodePostion += displayWidth;
             --curIndex;
@@ -98,7 +100,7 @@ void PicPlayerMovieByScene::DrawScene()
             if (curIndex != m_curIndex)
                 nodePostion -= displayWidth;
             ImVec2 moveStart(nodePostion, m_displayRect.Min.y  + 20);
-            ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicHeight());
+            ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicContentHeight());
             curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, scale);
             --curIndex;
         }
@@ -196,7 +198,12 @@ void PicPlayerMovieByScene::SetGeometryCallback(std::shared_ptr<PicRenderForDraw
 void PicPlayerMovieByScene::SetPicInfoToComponent(int index)
 {
     auto curEndIndex = m_curIndex;
-    if (index != curEndIndex) {
+    if (m_curShowid.empty() || index != curEndIndex) {
         // id变化时回调数据
+        if (GetPicDrawPtr(index)) {
+            m_curShowid = GetPicDrawPtr(index)->GetPicId();
+            if (!m_curShowid.empty())
+                OnCurPicChange(m_curShowid);
+        }
     }
 }
