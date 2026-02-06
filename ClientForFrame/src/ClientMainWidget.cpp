@@ -13,7 +13,6 @@ ClientMainWidget::ClientMainWidget(QWidget *parent)
 
 ClientMainWidget::~ClientMainWidget()
 {
-    delete m_pPicMatchWidget; // 手动释放内存
     std::cout << "~ClientMainWidget";
 }
 

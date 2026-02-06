@@ -51,50 +51,85 @@ void PicMatchWidget::InitPicPlayer(QWidget* playerWidget)
 
 void PicMatchWidget::Run()
 {
-    PicShowInfo demodata; // 自带析构函数
-    std::string imagename = "beauty_20250216152514";
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
-    std::memcpy(demodata.imageId, imagename.c_str(), imagename.size());
-    demodata.picReadTime = 1;
+    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
+    std::string imagename = "WechatIMG30";
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/WechatIMG30.jpg";
+    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
+    demodata->picReadTime = 1;
     LoadJpegToRGBA(imagePath, demodata);
-    PicPlayer_InputPicData(m_handle, 1, (void*)&demodata);
+    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+}
+
+void PicMatchWidget::Run(int )
+{
+    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
+    std::string imagename = "mmexport1739695411204";
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/mmexport1739695411204.jpg";
+    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
+    demodata->picReadTime = 1;
+    LoadJpegToRGBA(imagePath, demodata);
+    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
 }
 
 void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser)
 {
-    if (nullptr != pData || nullptr != pUser) {
+    if (nullptr != pData && nullptr != pUser) {
         PicMatchWidget* pThis = reinterpret_cast<PicMatchWidget*>(pUser);
         if (Callback_ShowPicId == iMsg) {
             std::string showid((const char*)pData);
             qDebug()<< "showid : " << showid.data();
+            //pThis->Run(1);
         }
     }
     return nullptr;
 }
 
-void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo &demodata)
+void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata)
 {
+    // 参数校验
+    if (!imagePath || !demodata) {
+        std::cerr << "Invalid input parameters." << std::endl;
+        return;
+    }
+
     int channels, picWidth, picHeight;
     // 使用 stbi_load 加载图像，并确保输出为 RGBA 格式
     unsigned char* imageData = stbi_load(imagePath, &picWidth, &picHeight, &channels, 4);
     if (!imageData) {
-        std::cerr << "Failed to load image: " << imagePath << std::endl;
+        
+        std::cerr << "Failed to load image: " << imagePath << ". Reason: " 
+                  << (stbi_failure_reason() ? stbi_failure_reason() : "Unknown error") << std::endl;
         return;
     }
+
+   // 手动管理 stbi_load 分配的内存，使用 stbi_image_free 释放
+   struct StbiDeleter {
+        void operator()(unsigned char* ptr) { stbi_image_free(ptr); }
+    };
+    std::unique_ptr<unsigned char, StbiDeleter> imageDataPtr(imageData);
+
     // 假设图像需要旋转90度
     unsigned char* rotatedData = nullptr;
-    RotateImage90Degrees(imageData, rotatedData, picWidth, picHeight, 4);
+    RotateImage90Degrees(imageDataPtr.get(), rotatedData, picWidth, picHeight, 4);
 
-    demodata.imageRgbaLen = (picWidth) * (picHeight) * 4;
-    demodata.picWidth = picHeight;
-    demodata.picHeight = picWidth;
-    demodata.imageRgbaData = new char[demodata.imageRgbaLen];
-    // 将图像数据复制到指定的 rgbaData 地址
-    std::memcpy(demodata.imageRgbaData, rotatedData, demodata.imageRgbaLen);
-    delete[] rotatedData;
+    // 使用智能指针管理旋转后的数据
+    std::unique_ptr<unsigned char[]> rotatedDataPtr(rotatedData);
+    // 更新 PicShowInfo 数据
+    demodata->imageRgbaLen = picWidth * picHeight * 4;
+    demodata->picWidth = picHeight;
+    demodata->picHeight = picWidth;
+    // 分配目标内存并复制数据
+    auto rgbaDataPtr = std::make_unique<char[]>(demodata->imageRgbaLen);
+    if (!rgbaDataPtr) {
+        std::cerr << "Failed to allocate memory for image data." << std::endl;
+        return;
+    }
 
-    // 释放 stbi_load 分配的内存
-    stbi_image_free(imageData);
+   // 将图像数据复制到目标缓冲区
+   std::memcpy(rgbaDataPtr.get(), rotatedData, demodata->imageRgbaLen);
+
+   // 更新 demodata 指针
+   demodata->imageRgbaData = rgbaDataPtr.release(); // 转移所有权给 demodata
 }
 
 void PicMatchWidget::RotateImage90Degrees(unsigned char* imageData, unsigned char*& rotatedData, int width, int height, int channels) {
