@@ -1,4 +1,4 @@
-#include "PicPlayerRenderSync.h"
+﻿#include "PicPlayerRenderSync.h"
 #include <condition_variable>
 
 PicPlayerRenderSync::PicPlayerRenderSync()
@@ -20,7 +20,7 @@ bool PicPlayerRenderSync::SyncRenderNodesData(RenderNodesData* data)
         return false;
     if (data->Dirty()) {
         // 多线程重入保护
-        std::lock_guard<std::mutex> lock(m_multiSyncMutex);
+		std::lock_guard<std::mutex> lock(m_multiSyncMutex);
         m_curNoteData = data;
         m_waitingUpdate = true;
         bool waitRes = waitUpdateFinished();
@@ -81,3 +81,4 @@ void PicPlayerRenderSync::UpdateFinishedWakeUp()
 {
     m_condition.notify_one();
 }
+

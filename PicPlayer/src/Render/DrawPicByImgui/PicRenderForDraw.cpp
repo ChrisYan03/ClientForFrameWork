@@ -1,4 +1,4 @@
-#include "PicRenderForDraw.h"
+﻿#include "PicRenderForDraw.h"
 
 
 PicRenderForDraw::PicRenderForDraw(const std::string& picId)
@@ -21,9 +21,9 @@ void PicRenderForDraw::SetPicShowScale(float displayHeight)
 }
 
 
-void PicRenderForDraw::SetPicInfo(const PicShowInfo& data)
+void PicRenderForDraw::SetPicInfo(std::shared_ptr<PicShowInfo> data)
 {
-    m_imageTime = data.picReadTime;
+    m_imageTime = data->picReadTime;
     m_imageGeo->AddNewPic(data);
 }
 
@@ -36,3 +36,4 @@ int PicRenderForDraw::GetPicContentHeight() const
 {
     return m_imageGeo->GetPicHeight() * m_scale;
 }
+

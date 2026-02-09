@@ -1,4 +1,4 @@
-#include "NodesDataForDraw.h"
+﻿#include "NodesDataForDraw.h"
 
 int PicData::RenderType() const
 {
@@ -27,3 +27,4 @@ int PicShowNow::RenderType() const
 {
     return (int)NodesType::PicChangeType;
 }
+

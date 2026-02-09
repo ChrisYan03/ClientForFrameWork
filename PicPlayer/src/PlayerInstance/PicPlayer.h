@@ -1,4 +1,4 @@
-#ifndef PICPLAYER_H
+﻿#ifndef PICPLAYER_H
 #define PICPLAYER_H
 
 #include <thread>
@@ -18,7 +18,7 @@ public:
     void SetHandle(int handle);
     void SetPicCallback(PlayerMsgCallback callback, void* pUser);
 
-    // 塞入数据
+    // 濉炲叆鏁版嵁
     bool InputPicData(int type, void* showData);
     bool StartPlayer();
     bool StopPlayer();
@@ -46,3 +46,4 @@ private:
 };
 
 #endif // PICPLAYER_H
+

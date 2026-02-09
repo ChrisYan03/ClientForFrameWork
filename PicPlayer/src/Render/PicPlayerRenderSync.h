@@ -1,7 +1,8 @@
-#ifndef PICPLAYERRENDERSYNC_H
+﻿#ifndef PICPLAYERRENDERSYNC_H
 #define PICPLAYERRENDERSYNC_H
 
 #include "../NodeDataDef/NodesData.h"
+#include <functional>
 #include <mutex>
 
 class PicPlayerRenderSync
@@ -33,3 +34,4 @@ private:
 };
 
 #endif // PICPLAYERRENDERSYNC_H
+

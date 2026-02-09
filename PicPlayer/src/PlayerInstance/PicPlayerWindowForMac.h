@@ -1,4 +1,4 @@
-#ifndef PICPLAYERWINDOWFORMAC_H
+﻿#ifndef PICPLAYERWINDOWFORMAC_H
 #define PICPLAYERWINDOWFORMAC_H
 
 #ifdef __cplusplus
@@ -13,3 +13,4 @@ bool SetChildWindow(void* parentWnd, void* childWnd);
 #endif
 
 #endif // PICPLAYERWINDOWFORMAC_H
+

@@ -1,4 +1,4 @@
-#ifndef EVENTMESSAGE_H
+﻿#ifndef EVENTMESSAGE_H
 #define EVENTMESSAGE_H
 
 #include "CallableObject.h"
@@ -33,3 +33,4 @@ private:
 };
 
 #endif // EVENTMESSAGE_H
+

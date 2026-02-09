@@ -1,4 +1,4 @@
-#include "EventLoop.h"
+﻿#include "EventLoop.h"
 
 EventLoop::EventLoop()
 {
@@ -54,3 +54,4 @@ void EventLoop::idle()
         m_idleCallback->call();
     }
 }
+

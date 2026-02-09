@@ -1,4 +1,4 @@
-#include "PicPlayerMovieByScene.h"
+﻿#include "PicPlayerMovieByScene.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
 
 PicPlayerMovieByScene::PicPlayerMovieByScene(const ImRect& rc, int cacheNum)
@@ -46,10 +46,10 @@ void PicPlayerMovieByScene::UpdateRenderNodeData(std::shared_ptr<RenderNodesData
         if (iterCmd->get()->RenderType() == (int)NodesType::PicDataType) {
             auto picDataPtr = static_cast<PicData*>(iterCmd->get());
             auto iterPtr = std::find_if(m_picList.begin(), m_picList.end(), [picDataPtr](std::shared_ptr<PicRenderForDraw> picPtr) {
-                return picDataPtr->picShowData.imageId == picPtr->GetPicId();
+                return picDataPtr->picShowData->imageId == picPtr->GetPicId();
             });
             if (iterPtr == m_picList.end()) {
-                auto curPtr = std::make_shared<PicRenderForDraw>(picDataPtr->picShowData.imageId);
+                auto curPtr = std::make_shared<PicRenderForDraw>(picDataPtr->picShowData->imageId);
                 curPtr->SetPicInfo(picDataPtr->picShowData);
                 m_picList.emplace_back(curPtr);
             }
@@ -207,3 +207,4 @@ void PicPlayerMovieByScene::SetPicInfoToComponent(int index)
         }
     }
 }
+

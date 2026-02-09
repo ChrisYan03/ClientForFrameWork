@@ -1,4 +1,4 @@
-#include "PicPlayerScene.h"
+﻿#include "PicPlayerScene.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
 
 PicPlayerScene::PicPlayerScene(const ImRect& rc, int cacheNum)
@@ -62,3 +62,4 @@ void PicPlayerScene::DoScale()
 {
 
 }
+

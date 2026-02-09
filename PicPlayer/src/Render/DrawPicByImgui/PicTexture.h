@@ -1,4 +1,4 @@
-#ifndef PICTEXTURE_H
+﻿#ifndef PICTEXTURE_H
 #define PICTEXTURE_H
 
 #include "GL/glew.h"
@@ -64,7 +64,7 @@ public:
     uint32_t GetMaxTexHeight(uint32_t texId) const;
     void ReleaseTexId(uint32_t texId);
 
-    void SetPicTexture(uint32_t texId, const PicShowInfo& picData);
+    void SetPicTexture(uint32_t texId, std::shared_ptr<PicShowInfo> picData);
     void DrawPicTexture(uint32_t texId, const ImVec2& drawStart, const ImVec2& drawEnd,const ImVec2& uvStart, const ImVec2& uvEnd);
     void DrawRect(const ImVec2& drawStart, const ImVec2& drawEnd, const ImU32& drawCol);
 
@@ -85,3 +85,4 @@ private:
 };
 
 #endif // PICTEXTURE_H
+

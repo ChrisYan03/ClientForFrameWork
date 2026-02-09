@@ -1,4 +1,4 @@
-#ifndef NODESDATAFORDRAW_H
+﻿#ifndef NODESDATAFORDRAW_H
 #define NODESDATAFORDRAW_H
 
 #include "../PicPlayerDataDef.h"
@@ -21,7 +21,7 @@ public:
     virtual int RenderType() const  override;
 
 public:
-    PicShowInfo picShowData;
+    std::shared_ptr<PicShowInfo> picShowData;
 };
 
 class PicRect : public RenderComData
@@ -61,3 +61,4 @@ public:
 };
 
 #endif // NODESDATAFORDRAW_H
+

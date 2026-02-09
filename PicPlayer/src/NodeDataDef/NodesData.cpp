@@ -1,4 +1,4 @@
-#include "NodesData.h"
+﻿#include "NodesData.h"
 
 RenderNodesData::RenderNodesData()
     : m_dirty(false)
@@ -31,3 +31,4 @@ void RenderNodesData::ClearCacheComData()
     m_dataList.clear();
     m_dirty = false;
 }
+

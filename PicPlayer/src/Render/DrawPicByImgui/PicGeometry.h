@@ -1,10 +1,11 @@
-#ifndef PICGEOMETRY_H
+﻿#ifndef PICGEOMETRY_H
 #define PICGEOMETRY_H
 
 #include "../PicPlayerDataDef.h"
 #include "imgui.h"
 #include <string>
 #include <functional>
+#include <memory>
 
 class PicGeometry
 {
@@ -17,7 +18,7 @@ public:
     // 绘制矩形框
     void DrawRectForPic(const ImVec2& drawStart, const ImVec2& drawEnd);
     // 增加数据接口
-    void AddNewPic(const PicShowInfo& data);
+    void AddNewPic(std::shared_ptr<PicShowInfo> data);
     // 设置选中回调
     void SetSelectionCallback(std::function<void(const std::string&)>&& func);
     // 获取图片的宽
@@ -45,3 +46,4 @@ private:
 };
 
 #endif // PICGEOMETRY_H
+

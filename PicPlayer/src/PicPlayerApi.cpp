@@ -1,5 +1,6 @@
-#include "PicPlayerApi.h"
-#include "glfw3.h"
+﻿#include "PicPlayerApi.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "PicPlayerHandleManager.h"
 #include "PicPlayer.h"
 
@@ -68,3 +69,4 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputPicData(int handle, int iType, 
     }
     return false;
 }
+

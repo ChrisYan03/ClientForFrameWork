@@ -1,4 +1,4 @@
-#include "PicPlayerRender.h"
+﻿#include "PicPlayerRender.h"
 #include "imgui_impl_opengl3_loader.h"
 
 PicPlayerRender::PicPlayerRender()
@@ -58,3 +58,4 @@ PicPlayerScene* PicPlayerRender::GetScene() const
 {
     return m_playScene.get();
 }
+

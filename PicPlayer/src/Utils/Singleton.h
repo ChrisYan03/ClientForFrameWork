@@ -1,4 +1,4 @@
-#ifndef SINGLETON_H
+﻿#ifndef SINGLETON_H
 #define SINGLETON_H
 
 
@@ -56,3 +56,4 @@ std::once_flag Singleton<T>::m_onceFlag;
 #endif
 
 #endif // HANDLEREGISTER_H
+

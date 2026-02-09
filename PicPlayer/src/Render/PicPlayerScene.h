@@ -1,9 +1,10 @@
-#ifndef PICPLAYERSENCE_H
+﻿#ifndef PICPLAYERSENCE_H
 #define PICPLAYERSENCE_H
 
 #include "../NodeDataDef/NodesData.h"
 #include "PicPlayerRenderSync.h"
 #include "imgui_internal.h"
+#include <memory> 
 
 class PicPlayerScene
 {
@@ -39,3 +40,4 @@ protected:
 };
 
 #endif // PICPLAYERSENCE_H
+

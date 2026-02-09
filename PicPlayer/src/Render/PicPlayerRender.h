@@ -1,4 +1,4 @@
-#ifndef PICPLAYERRENDER_H
+﻿#ifndef PICPLAYERRENDER_H
 #define PICPLAYERRENDER_H
 
 #include "PicPlayerScene.h"
@@ -27,3 +27,4 @@ protected:
 };
 
 #endif // PICPLAYERRENDER_H
+

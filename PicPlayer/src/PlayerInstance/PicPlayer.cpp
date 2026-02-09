@@ -1,7 +1,10 @@
-#include "PicPlayer.h"
+﻿#include "PicPlayer.h"
 #include "PicPlayerVideoRender.h"
 #include "PicPlayerCtrlDelegate.h"
 #include <iostream>
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#endif
 
 PicPlayer::PicPlayer(int cacheNum)
     : m_cacheNum(cacheNum)
@@ -62,7 +65,7 @@ bool PicPlayer::StartPlayer()
     m_tRenderThread = std::thread(std::bind(&PicPlayer::RenderThreadProc, this));
     auto thread = m_tRenderThread.native_handle();
     #ifdef __APPLE__
-        //设置线程优先级
+        //璁剧疆绾跨▼浼樺厛绾?
         sched_param param;
         param.sched_priority = 99;
         if (0 != pthread_setschedparam(thread, SCHED_FIFO, &param)) {
@@ -114,6 +117,18 @@ void PicPlayer::StopControllerThread()
 
 void PicPlayer::RenderThreadProc()
 {
+#ifdef __APPLE__
+    // 鍒嗘淳浠诲姟鍒颁富绾跨▼鍒涘缓 NSWindow
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (nullptr == m_guiPtr) {
+            m_guiPtr = PicPlayerGui::Create(GetWid());
+        }
+        if (!m_guiPtr)
+            return;
+        m_guiPtr->SetIRenderFactory(this);
+        m_guiPtr->RunRendLoop();
+    });
+#else
     if (nullptr == m_guiPtr) {
         m_guiPtr = PicPlayerGui::Create(GetWid());
     }
@@ -121,6 +136,7 @@ void PicPlayer::RenderThreadProc()
         return;
     m_guiPtr->SetIRenderFactory(this);
     m_guiPtr->RunRendLoop();
+#endif
 }
 
 void PicPlayer::PicDataThreadProc()
@@ -129,3 +145,4 @@ void PicPlayer::PicDataThreadProc()
         m_ctrlDelPtr->RunEventLoop();
     }
 }
+

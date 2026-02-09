@@ -1,4 +1,4 @@
-#ifndef CALLABLEOBJECT_H
+﻿#ifndef CALLABLEOBJECT_H
 #define CALLABLEOBJECT_H
 
 #include <functional>
@@ -24,3 +24,4 @@ CallableObject* CreateCallableObj(F&& f, Args&& ...args)
 }
 
 #endif // CALLABLEOBJECT_H
+

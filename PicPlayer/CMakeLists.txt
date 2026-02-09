@@ -6,6 +6,13 @@ project(PicPlayer VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(WIN32)
+    set(CMAKE_CXX_FLAGS_RELEASE /Zi)   #设置C/C++调试信息格式
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE /DEBUG) #生成exe时生成调试信
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE /DEBUG) #生成dll时生成调试信
+    add_compile_options(-Od)
+endif()
+
 # 设置源码目录
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src)
 # 新增源码目录
@@ -50,7 +57,11 @@ if(APPLE)
         ${OPENGL_LIBRARY_DIRS}
     )
 else()
-
+    link_directories(
+        ${EXT_DIR}/lib/glew/Win64
+        ${EXT_DIR}/lib/glfw/Win64
+        ${OPENGL_LIBRARY_DIRS}
+    )
 endif()
 
 # 使用 file(GLOB ...) 自动收集源文件
@@ -94,12 +105,21 @@ list(APPEND PROJECT_SOURCES ${RENDER_SOURCES})
 # 创建共享库
 add_library(PicPlayer SHARED ${PROJECT_SOURCES})
 
-# 添加第三方库
-target_link_libraries(PicPlayer PRIVATE
-    glfw3
-    GLEW
-    OpenGL::GL
-)
+if(APPLE)
+    # 添加第三方库
+    target_link_libraries(PicPlayer PRIVATE
+        glfw3
+        GLEW
+        OpenGL::GL
+    )
+else()
+    target_compile_definitions(PicPlayer PRIVATE PICPLAYER_EXPORTS)
+    target_link_libraries(PicPlayer PRIVATE 
+        ${EXT_DIR}/lib/glew/Win64/glew32.lib
+        ${EXT_DIR}/lib/glfw/Win64/glfw3.lib
+        opengl32
+    )        
+endif()
 
 # 在 macOS 上添加 CoreGraphics 和 CoreFoundation 库
 if(APPLE)

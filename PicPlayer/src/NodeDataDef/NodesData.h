@@ -1,4 +1,4 @@
-#ifndef NODESDATA_H
+﻿#ifndef NODESDATA_H
 #define NODESDATA_H
 
 #include <list>
@@ -36,3 +36,4 @@ protected:
 };
 
 #endif // PICPLAYERRENDER_H
+

@@ -1,8 +1,10 @@
-#ifndef PICPLAYERMOVIEBYSCENE_H
+﻿#ifndef PICPLAYERMOVIEBYSCENE_H
 #define PICPLAYERMOVIEBYSCENE_H
 
 #include "PicPlayerScene.h"
 #include "DrawPicByImgui/PicRenderForDraw.h"
+#include <vector>
+#include <list> 
 
 class PicPlayerMovieByScene : public PicPlayerScene
 {
@@ -37,3 +39,4 @@ protected:
 };
 
 #endif // PICPLAYERMOVIEBYSCENE_H
+

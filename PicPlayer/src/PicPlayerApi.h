@@ -1,4 +1,4 @@
-#ifndef PICPLAYERAPI_H
+﻿#ifndef PICPLAYERAPI_H
 #define PICPLAYERAPI_H
 
 #include "PicPlayerDataDef.h"
@@ -37,3 +37,4 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputPicData(int handle, int iType, 
 #endif
 
 #endif // PICPLAYERAPI_H
+

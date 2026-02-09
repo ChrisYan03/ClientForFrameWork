@@ -1,4 +1,4 @@
-// dear imgui, v1.91.9 WIP
+﻿// dear imgui, v1.91.9 WIP
 // (main code and documentation)
 
 // Help:
@@ -17018,3 +17018,4 @@ void ImGui::DebugHookIdInfo(ImGuiID, ImGuiDataType, const void*, const void*) {}
 //-----------------------------------------------------------------------------
 
 #endif // #ifndef IMGUI_DISABLE
+

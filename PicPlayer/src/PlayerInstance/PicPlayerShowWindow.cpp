@@ -1,4 +1,4 @@
-#include "PicPlayerShowWindow.h"
+﻿#include "PicPlayerShowWindow.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "glfw3.h"
@@ -6,18 +6,29 @@
 #ifdef __APPLE__
 #include "PicPlayerWindowForMac.h"
 #include <dispatch/dispatch.h>
+#else
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 #endif
+
 #include "../Render/DrawPicByImgui/PicTexture.h"
 #include <iostream>
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
+#ifdef __APPLE__
     dispatch_async(dispatch_get_main_queue(), ^{
         PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
         if (pThis){
             pThis->OnResize(width, height);
         }
     });
+#else
+    PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
+    if (pThis) {
+        pThis->OnResize(width, height);
+    }
+#endif
 }
 
 PicPlayerShowWindow::PicPlayerShowWindow(Window_ShowID hParent, int iCacheNum)
@@ -44,34 +55,36 @@ void PicPlayerShowWindow::Destroy()
 
 int PicPlayerShowWindow::RunRendLoop()
 {
-    // 分派任务到主线程创建 NSWindow
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (m_window == nullptr) {
-            bool success = CreateRenderWindow();
-            if (!success){
-                std::cerr << "Failed GetWindowSizeForMac" << std::endl;
-            }
+    if (m_window == nullptr) {
+        bool success = CreateRenderWindow();
+        if (!success){
+            std::cerr << "Failed GetWindowSizeForMac" << std::endl;
         }
+    }
 
-        while (!glfwWindowShouldClose(m_window)) {
-            glClear(GL_COLOR_BUFFER_BIT);
-            GetRender()->InitFramerate(ImGui::GetIO().Framerate);
-            glfwPollEvents();
-            Draw();
-            Render();
-            glfwSwapBuffers(m_window);
-        }
-    });
+    while (!glfwWindowShouldClose(m_window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+        GetRender()->InitFramerate(ImGui::GetIO().Framerate);
+        glfwPollEvents();
+        Draw();
+        Render();
+        glfwSwapBuffers(m_window);
+    }
     DestroyRenderWindow();
     return 0;
 }
 
 void PicPlayerShowWindow::Quit()
 {
+#ifdef __APPLE__
     dispatch_async(dispatch_get_main_queue(), ^{
         if (m_window)
             glfwSetWindowShouldClose(m_window, 1);
     });
+#else
+    if (m_window)
+        glfwSetWindowShouldClose(m_window, 1);
+#endif
 }
 
 void PicPlayerShowWindow::OnResize(int width, int height)
@@ -83,14 +96,20 @@ bool PicPlayerShowWindow::CreateRenderWindow()
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // 没有边框和标题栏
+    // 娌℃湁杈规鍜屾爣棰樻爮
     glfwWindowHint(GLFW_DECORATED, GL_FALSE);
     glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
-    // 启用多重采样，抗锯齿
+    // 鍚敤澶氶噸閲囨牱锛屾姉閿娇
     glfwWindowHint(GLFW_SAMPLES, 4);
 #ifdef _WIN32
     if (m_hParent != NULL) {
-
+        RECT rect;
+        GetWindowRect(m_hParent, &rect);
+        m_window = glfwCreateWindow(rect.right - rect.left, rect.bottom - rect.top, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+        if (m_window == nullptr) {
+            return 0;
+        }
+        SetParent(glfwGetWin32Window(m_window), m_hParent);
     }
 #elif __APPLE__
     if (m_hParent != 0) {
@@ -122,7 +141,7 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     glfwSetWindowUserPointer(m_window, this);
     glfwSetWindowSizeCallback(m_window, PicPlayerShowWindow::WindowSizeCallback);
     glfwMakeContextCurrent(m_window);
-    glfwSwapInterval(1); // 启用垂直同步
+    glfwSwapInterval(1); // 鍚敤鍨傜洿鍚屾
 
     if (glewInit() != GLEW_OK) {
         return false;
@@ -182,13 +201,12 @@ void PicPlayerShowWindow::DestroyRenderWindow()
 {
     GetRender()->ClearRenderCache();
     GetRender()->GetSynchronizer()->SetEnable(false);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (m_window) {
-            ImGui_ImplOpenGL3_Shutdown();
-            ImGui_ImplGlfw_Shutdown();
-            ImGui::DestroyContext();
-            glfwDestroyWindow(m_window);
-            m_window = nullptr;
-        }
-    });
+    if (m_window) {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        glfwDestroyWindow(m_window);
+        m_window = nullptr;
+    }
 }
+

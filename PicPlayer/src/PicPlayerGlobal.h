@@ -1,4 +1,4 @@
-#ifndef PICPLAYER_GLOBAL_H
+﻿#ifndef PICPLAYER_GLOBAL_H
 #define PICPLAYER_GLOBAL_H
 
 #ifdef __cplusplus
@@ -19,3 +19,4 @@ extern "C" {
 }
 #endif
 #endif // PICPLAYER_GLOBAL_H
+

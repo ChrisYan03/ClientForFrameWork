@@ -1,4 +1,4 @@
-// dear imgui, v1.91.9 WIP
+﻿// dear imgui, v1.91.9 WIP
 // (headers)
 
 // Help:
@@ -3761,3 +3761,4 @@ namespace ImGui
 #endif
 
 #endif // #ifndef IMGUI_DISABLE
+

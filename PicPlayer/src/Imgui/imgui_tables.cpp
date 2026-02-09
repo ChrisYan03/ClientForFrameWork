@@ -1,4 +1,4 @@
-// dear imgui, v1.91.9 WIP
+﻿// dear imgui, v1.91.9 WIP
 // (tables and columns code)
 
 /*
@@ -4521,3 +4521,4 @@ void ImGui::Columns(int columns_count, const char* id, bool borders)
 //-------------------------------------------------------------------------
 
 #endif // #ifndef IMGUI_DISABLE
+

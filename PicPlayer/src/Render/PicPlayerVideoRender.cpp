@@ -1,4 +1,4 @@
-#include "PicPlayerVideoRender.h"
+﻿#include "PicPlayerVideoRender.h"
 #include "PicPlayerMovieByScene.h"
 
 PicPlayerVideoRender::PicPlayerVideoRender(int cacheNum)
@@ -25,3 +25,4 @@ void PicPlayerVideoRender::InitFramerate(float frame)
         m_playScene->SetCurFramerate(frame);
     }
 }
+

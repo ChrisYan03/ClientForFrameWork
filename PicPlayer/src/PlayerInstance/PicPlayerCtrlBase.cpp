@@ -1,4 +1,4 @@
-#include "PicPlayerCtrlBase.h"
+﻿#include "PicPlayerCtrlBase.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
 #include "../PicPlayerDataDef.h"
 
@@ -32,14 +32,12 @@ void PicPlayerCtrlBase::CheckSyncRenderData()
     }
 }
 
-void PicPlayerCtrlBase::InputPicData(PicShowInfo* showData)
+void PicPlayerCtrlBase::InputPicData(std::shared_ptr<PicShowInfo> showData)
 {
     if (showData) {
         auto picShowPtr = std::make_unique<PicData>();
-        // 使用拷贝构造函数进行深拷贝
-        picShowPtr->picShowData = *showData;
+        picShowPtr->picShowData = showData;
         m_renderNodesPtr->AppendComData(std::move(picShowPtr));
-        delete showData;
     }
 }
 
@@ -48,3 +46,4 @@ void PicPlayerCtrlBase::ShowPicCallback(const std::string& showPicId)
     std::string showid = showPicId;
     m_callback(0, (int)Callback_ShowPicId, (void*)showid.c_str(), m_pUser);
 }
+

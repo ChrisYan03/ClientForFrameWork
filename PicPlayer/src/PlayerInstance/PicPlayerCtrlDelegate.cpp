@@ -1,4 +1,4 @@
-#include "PicPlayerCtrlDelegate.h"
+﻿#include "PicPlayerCtrlDelegate.h"
 #include "PicPlayerCtrlBase.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
 
@@ -27,12 +27,9 @@ void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
         return;
     }
     if (type == 1) {
-        //
-        auto curShowData = (PicShowInfo*)showData;
-        PicShowInfo* showData = new PicShowInfo();
-        *showData = *curShowData;
-        m_loop.asyncInvokeAny([this, showData](){
-            m_playerBasePtr->InputPicData(showData);
+        std::shared_ptr<PicShowInfo> sharedShowData(static_cast<PicShowInfo*>(showData), [](PicShowInfo* p) { delete p; });
+        m_loop.asyncInvokeAny([this, sharedShowData](){
+            m_playerBasePtr->InputPicData(sharedShowData);
         });
     }
 }
@@ -97,3 +94,4 @@ void PicPlayerCtrlDelegate::OnRenderComCallback(RenderComData* cmd)
 
     }
 }
+

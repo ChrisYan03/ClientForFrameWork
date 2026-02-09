@@ -1,4 +1,4 @@
-#ifndef IDGENERATOR_H
+﻿#ifndef IDGENERATOR_H
 #define IDGENERATOR_H
 
 #include <atomic>
@@ -50,3 +50,4 @@ private:
 };
 
 #endif // IDGENERATOR_H
+

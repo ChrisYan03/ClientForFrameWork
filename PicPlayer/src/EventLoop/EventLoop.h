@@ -1,4 +1,4 @@
-#ifndef EVENTLOOP_H
+﻿#ifndef EVENTLOOP_H
 #define EVENTLOOP_H
 
 #include "CallableObject.h"
@@ -40,3 +40,4 @@ protected:
 };
 
 #endif // EVENTLOOP_H
+

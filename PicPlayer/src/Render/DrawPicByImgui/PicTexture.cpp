@@ -1,4 +1,4 @@
-#include "PicTexture.h"
+﻿#include "PicTexture.h"
 
 PicTexture::PicTexture()
     : m_cacheNum(10)
@@ -93,19 +93,19 @@ void PicTexture::ReleaseTexId(uint32_t texId)
     m_availIds.push(texId);
 }
 
-void PicTexture::SetPicTexture(uint32_t texId, const PicShowInfo& picData)
+void PicTexture::SetPicTexture(uint32_t texId, std::shared_ptr<PicShowInfo> picData)
 {
     auto iter = std::find_if(m_texInfoVec.begin(), m_texInfoVec.end(), [texId](const TexInfo& texData){
         return texData.m_texId == texId;
     });
     if (iter != m_texInfoVec.end()) {
         glBindTexture(GL_TEXTURE_2D, (GLuint)texId);
-        if (picData.picWidth > iter->m_maxTexWidth || picData.picHeight > iter->m_maxTexHeight) {
-            ResizeTex(iter->m_maxTexWidth, iter->m_maxTexHeight, picData.picWidth, picData.picHeight);
-            iter->m_maxTexWidth = picData.picWidth;
-            iter->m_maxTexHeight = picData.picHeight;
+        if (picData->picWidth > iter->m_maxTexWidth || picData->picHeight > iter->m_maxTexHeight) {
+            ResizeTex(iter->m_maxTexWidth, iter->m_maxTexHeight, picData->picWidth, picData->picHeight);
+            iter->m_maxTexWidth = picData->picWidth;
+            iter->m_maxTexHeight = picData->picHeight;
         }
-        UpdateTex((void *)picData.imageRgbaData, picData.imageRgbaLen, picData.picWidth, picData.picHeight);
+        UpdateTex((void *)picData->imageRgbaData, picData->imageRgbaLen, picData->picWidth, picData->picHeight);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
@@ -158,3 +158,4 @@ void PicTexture::ResizeTex(uint32_t texTureW, uint32_t texTureH, uint32_t newW, 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
+

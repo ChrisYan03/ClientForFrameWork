@@ -1,4 +1,4 @@
-#ifndef HANDLEREGISTER_H
+﻿#ifndef HANDLEREGISTER_H
 #define HANDLEREGISTER_H
 
 #include "IDGenerator.h"
@@ -60,3 +60,4 @@ private:
 
 
 #endif // HANDLEREGISTER_H
+

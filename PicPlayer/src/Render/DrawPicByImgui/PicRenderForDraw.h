@@ -1,7 +1,8 @@
-#ifndef PICRENDERFORDRAW_H
+﻿#ifndef PICRENDERFORDRAW_H
 #define PICRENDERFORDRAW_H
 
 #include "PicGeometry.h"
+#include <memory> 
 
 class PicRenderForDraw
 {
@@ -14,7 +15,7 @@ public:
 
     std::shared_ptr<PicGeometry> GetPicGeoPtr() const { return m_imageGeo; }
     void SetPicShowScale(float displayHeight);
-    void SetPicInfo(const PicShowInfo& data);
+    void SetPicInfo(std::shared_ptr<PicShowInfo> data);
     int GetPicWidth() const;
     int GetPicContentHeight() const;
 
@@ -27,3 +28,4 @@ protected:
 };
 
 #endif // PICRENDERFORDRAW_H
+

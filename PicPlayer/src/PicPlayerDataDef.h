@@ -1,19 +1,29 @@
-#ifndef PICPLAYERDATADEF_H
+﻿#ifndef PICPLAYERDATADEF_H
 #define PICPLAYERDATADEF_H
 
 #include "PicPlayerGlobal.h"
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
+#ifdef _WIN32
+    #include <stddef.h>
+    #include <stdint.h>
+    #include <string>
+#else
+    #include <cstddef>
+    #include <cstdint>
+    #include <cstdlib>
+    #include <cstring>
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 typedef void(PICPLAYER_CALL *PlayerMsgCallback)(int handle, int iMsg, void* pData, void* pUser);
 
+#ifdef __APPLE__
 using Window_ShowID = decltype(sizeof(void*));
+#else
+typedef size_t Window_ShowID;
+#endif
 
 #define IMAGE_ID_LEN 128
 
@@ -33,6 +43,7 @@ struct PicShowInfo
     char imageId[IMAGE_ID_LEN];
     char* imageRgbaData;
     size_t imageRgbaLen;
+
     PicShowInfo()
         : picReadTime(0), picWidth(0), picHeight()
         , imageRgbaData(nullptr), imageRgbaLen(0)
@@ -72,9 +83,11 @@ struct PicShowInfo
         }
         return *this;
     }
+
     ~PicShowInfo() {
         clear();
     }
+
     // 辅助函数：清除并释放内存
     void clear() {
         free(imageRgbaData);
@@ -83,8 +96,8 @@ struct PicShowInfo
     }
 };
 
-
 #ifdef __cplusplus
 }
 #endif
 #endif // PICPLAYERDATADEF_H
+

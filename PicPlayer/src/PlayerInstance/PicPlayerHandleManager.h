@@ -1,4 +1,4 @@
-#ifndef PICPLAYERHANDLEMANAGER_H
+﻿#ifndef PICPLAYERHANDLEMANAGER_H
 #define PICPLAYERHANDLEMANAGER_H
 
 #include "PicPlayer.h"
@@ -23,3 +23,4 @@ private:
 };
 
 #endif // PICPLAYERHANDLEMANAGER_H
+

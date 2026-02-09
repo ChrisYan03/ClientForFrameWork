@@ -1,4 +1,4 @@
-#include "PicGeometry.h"
+﻿#include "PicGeometry.h"
 #include "PicTexture.h"
 #include "imgui_internal.h"
 
@@ -46,11 +46,11 @@ void PicGeometry::DrawRectForPic(const ImVec2& drawStart, const ImVec2& drawEnd)
 }
 
 // 增加数据接口
-void PicGeometry::AddNewPic(const PicShowInfo &data)
+void PicGeometry::AddNewPic(std::shared_ptr<PicShowInfo> data)
 {
-    if (data.imageRgbaData){
-        m_picWidth = (int)data.picWidth;
-        m_picHeight = (int)data.picHeight;
+    if (data->imageRgbaData){
+        m_picWidth = (int)data->picWidth;
+        m_picHeight = (int)data->picHeight;
         if (0 == m_uTexId) {
             // 获取一个纹理
             m_uTexId = PicTexture::instance()->GenTexId();
@@ -58,8 +58,8 @@ void PicGeometry::AddNewPic(const PicShowInfo &data)
         // 更新纹理
         PicTexture::instance()->SetPicTexture(m_uTexId, data);
         // 获取uv
-        m_uvMin.y = m_topPos / (float)data.picHeight;
-        m_uvMax.y = (data.picHeight - m_bomPos) / (float)data.picHeight;
+        m_uvMin.y = m_topPos / (float)data->picHeight;
+        m_uvMax.y = (data->picHeight - m_bomPos) / (float)data->picHeight;
         if (m_directionLTR) {
             m_uvMin.x = 0.0f;
             m_uvMax.x = 1.0f;//(实际宽度/图片宽度)
@@ -76,3 +76,4 @@ float PicGeometry::GetPicContentScale(float displayHeight)
 {
     return displayHeight / m_picHeight;
 }
+

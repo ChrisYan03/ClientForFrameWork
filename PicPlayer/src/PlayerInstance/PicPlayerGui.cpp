@@ -1,7 +1,9 @@
-#include "PicPlayerGui.h"
+﻿#include "PicPlayerGui.h"
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include "glfw3native.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #endif
 #include "PicPlayerShowWindow.h"
 #include "PicPlayerRender.h"
@@ -46,3 +48,4 @@ PicPlayerRender* PicPlayerGui::GetRender() const
     }
     return nullptr;
 }
+

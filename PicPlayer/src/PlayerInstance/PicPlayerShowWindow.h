@@ -1,8 +1,8 @@
-#ifndef PICPLAYERSHOWWINDOW_H
+﻿#ifndef PICPLAYERSHOWWINDOW_H
 #define PICPLAYERSHOWWINDOW_H
 
 #ifdef _WIN32
-#include <Windows.h>
+    #include <Windows.h>
 #endif
 #include "glew.h"
 #include "PicPlayerGui.h"
@@ -35,8 +35,9 @@ private:
     #ifdef _WIN32
     HWND m_hParent;
     #else
-    Window_ShowID m_hParent;
+        Window_ShowID m_hParent;
     #endif
 };
 
 #endif // PICPLAYERSHOWWINDOW_H
+

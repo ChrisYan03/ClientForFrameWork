@@ -1,4 +1,4 @@
-#ifndef PICPLAYERCTRLDELEGATE_H
+﻿#ifndef PICPLAYERCTRLDELEGATE_H
 #define PICPLAYERCTRLDELEGATE_H
 
 #include "../PicPlayerDataDef.h"
@@ -37,3 +37,4 @@ private:
 };
 
 #endif // PICPLAYERCTRLDELEGATE_H
+

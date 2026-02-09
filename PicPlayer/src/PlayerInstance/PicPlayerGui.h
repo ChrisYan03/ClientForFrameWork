@@ -1,4 +1,4 @@
-#ifndef PICPLAYERGUI_H
+﻿#ifndef PICPLAYERGUI_H
 #define PICPLAYERGUI_H
 
 #include "../PicPlayerDataDef.h"
@@ -34,3 +34,4 @@ protected:
 };
 
 #endif // PICPLAYERGUI_H
+
