@@ -18,6 +18,8 @@ public:
     void Run();
     void Run(int );
 
+    void Quit();
+
 private:
     static void* PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser);
     void LoadJpegToRGBA(const char* imagePath, PicShowInfo* demodata);

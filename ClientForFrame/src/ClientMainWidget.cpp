@@ -37,3 +37,8 @@ void ClientMainWidget::DemoRun()
 {
     m_pPicMatchWidget->Run();
 }
+
+void ClientMainWidget::DemoQuit()
+{
+    m_pPicMatchWidget->Quit();
+}

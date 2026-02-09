@@ -52,12 +52,22 @@ void PicMatchWidget::InitPicPlayer(QWidget* playerWidget)
 void PicMatchWidget::Run()
 {
     PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
-    std::string imagename = "WechatIMG30";
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/WechatIMG30.jpg";
+    std::string imagename = "beauty_20250216152514";
+    #ifdef __APPLE__
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
+#else
+    const char* imagePath = "E:/NewStart/ClientForFrameWork/beauty_20250216152514.jpg";
+#endif
     std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
     demodata->picReadTime = 1;
     LoadJpegToRGBA(imagePath, demodata);
     PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+}
+
+void PicMatchWidget::Quit()
+{
+    if(m_handle != -1)
+        PicPlayer_DestroyInstance(m_handle);
 }
 
 void PicMatchWidget::Run(int )

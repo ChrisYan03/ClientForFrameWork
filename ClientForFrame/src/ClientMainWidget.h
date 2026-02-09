@@ -14,6 +14,7 @@ public:
 
     void DemoInit();
     void DemoRun();
+    void DemoQuit();
 
 private:
     void InitMainUI();

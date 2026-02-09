@@ -1,14 +1,17 @@
 #include "ClientMainWidget.h"
-
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
     ClientMainWidget w;
     w.show();
     w.raise();
     w.DemoInit();
+    QObject::connect(&app, &QApplication::aboutToQuit, [&w](){
+        qDebug() << "Performing cleanup...";
+        w.DemoQuit();
+    });
     w.DemoRun();
-    return a.exec();
+    return app.exec();
 }
