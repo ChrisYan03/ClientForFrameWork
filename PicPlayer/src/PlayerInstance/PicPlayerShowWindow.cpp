@@ -105,11 +105,18 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     if (m_hParent != NULL) {
         RECT rect;
         GetWindowRect(m_hParent, &rect);
+        std::cout << rect.right - rect.left;
         m_window = glfwCreateWindow(rect.right - rect.left, rect.bottom - rect.top, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
         if (m_window == nullptr) {
             return 0;
         }
         SetParent(glfwGetWin32Window(m_window), m_hParent);
+    } else {
+        glfwDefaultWindowHints();
+        m_window = glfwCreateWindow(1280, 720, "ImGui PicPlayer", nullptr, nullptr);
+        if (m_window == nullptr) {
+            return false;
+        }
     }
 #elif __APPLE__
     if (m_hParent != 0) {
@@ -130,13 +137,6 @@ bool PicPlayerShowWindow::CreateRenderWindow()
         }
     }
 #endif
-    else {
-        glfwDefaultWindowHints();
-        m_window = glfwCreateWindow(1280, 720, "ImGui PicPlayer", nullptr, nullptr);
-        if (m_window == nullptr) {
-            return false;
-        }
-    }
     GetRender()->GetSynchronizer()->SetEnable(true);
     glfwSetWindowUserPointer(m_window, this);
     glfwSetWindowSizeCallback(m_window, PicPlayerShowWindow::WindowSizeCallback);
