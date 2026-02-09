@@ -23,7 +23,8 @@ int PicPlayerHandleManager::CreatePlayer(int cacheNum)
         if (-1 == playerHandle) {
             return playerHandle;
         }
-        // playerPtr 鐜板湪涓?nullptr锛屾墍鏈夋潈宸茶浆绉?        m_handleRegister.GetObjInstance(playerHandle)->SetHandle(playerHandle);
+        // playerPtr 现在是 nullptr，所有权已转移
+        m_handleRegister.GetObjInstance(playerHandle)->SetHandle(playerHandle);
     } catch (const std::bad_alloc& e) {
         std::cerr << "Memory allocation failed: " << e.what() << std::endl;
         return playerHandle;
