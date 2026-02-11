@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_ClientForFrame_FILE /Users/chrisyan/ClientForFrameWork/ClientForFrame/build/Desktop_arm_darwin_generic_mach_o_64bit-Debug/ClientForFrame.app/Contents/MacOS/ClientForFrame)
-set(__QT_DEPLOY_TARGET_ClientForFrame_TYPE EXECUTABLE)
