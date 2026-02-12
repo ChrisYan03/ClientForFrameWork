@@ -138,7 +138,7 @@ void PicPlayerShowWindow::Quit()
     }
     LOG_DEBUG("Quit completed");
 #else
-    if (m_window)) {
+    if (m_window) {
         glfwSetWindowShouldClose(m_window, 1);
     }
 #endif

@@ -145,16 +145,14 @@ void PicPlayerMovieByScene::MoveStep()
 
 void PicPlayerMovieByScene::CheckDrawCache()
 {
-    do{
-        if (m_picList.size() >= m_cacheNum) {
-            auto iter = m_picList.begin();
-            if (m_curIndex > 0){
-                SyncRemovePic((*iter)->GetPicId());
-                m_picList.pop_front();
-                --m_curIndex;
-            }
+    while(m_picList.size() >= m_cacheNum && m_curIndex > 0) {
+        auto iter = m_picList.begin();
+        if (iter != m_picList.end()) {
+            SyncRemovePic((*iter)->GetPicId());
+            m_picList.pop_front();
+            --m_curIndex;
         }
-    }while (true);
+    }
 }
 
 std::shared_ptr<PicRenderForDraw> PicPlayerMovieByScene::GetPicDrawPtr(int index) const

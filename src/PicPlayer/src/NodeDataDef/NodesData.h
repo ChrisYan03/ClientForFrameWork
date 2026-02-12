@@ -35,5 +35,5 @@ protected:
     std::list<std::unique_ptr<RenderComData>> m_dataList;
 };
 
-#endif // PICPLAYERRENDER_H
+#endif // NODESDATA_H
 
