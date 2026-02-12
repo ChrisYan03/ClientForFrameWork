@@ -17,6 +17,8 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE /DEBUG) #生成exe时生成调试信
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE /DEBUG) #生成dll时生成调试信
     add_compile_options(-Od)
+    # 添加UTF-8编译选项以支持spdlog
+    add_compile_options(/utf-8)
 endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
@@ -26,13 +28,15 @@ message("ClientForFrame qt_directory: Qt${QT_VERSION_MAJOR} found at ${Qt${QT_VE
 # 设置源码目录
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src)
 set(PICMATCH_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent)
+set(TITLE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/TitleComponent)
 set(STBIMAGE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent/StbImage)
-
-message("ClientForFrame source_dir: ${SOURCE_DIR}")
+message("TITLE_DIR source_dir: ${TITLE_DIR}")
 
 # 定义源码文件
 # 使用 file(GLOB ...) 自动收集源文件
 file(GLOB PROJECT_SOURCES
+    "${TITLE_DIR}/*.cpp"
+    "${TITLE_DIR}/*.h"
     "${SOURCE_DIR}/*.cpp"
     "${SOURCE_DIR}/*.h"
     "${PICMATCH_DIR}/*.cpp"

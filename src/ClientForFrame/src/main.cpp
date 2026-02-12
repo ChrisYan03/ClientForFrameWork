@@ -1,9 +1,13 @@
 #include "ClientMainWidget.h"
 #include <QApplication>
-
+#include "LogUtil.h"
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    // 初始化日志系统
+    LogUtil::initLogger("ClientApp");
+    LOG_INFO("Application starting...");
     ClientMainWidget w;
     w.show();
     w.raise();
@@ -12,6 +16,5 @@ int main(int argc, char *argv[])
         qDebug() << "Performing cleanup...";
         w.DemoQuit();
     });
-    w.DemoRun();
     return app.exec();
 }

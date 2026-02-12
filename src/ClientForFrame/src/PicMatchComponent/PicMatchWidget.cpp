@@ -2,54 +2,90 @@
 #include "PicPlayerApi.h"
 #include "StbImage/stb_image.h"
 #include <QHBoxLayout>
-#include <QDebug>
-#include <iostream>
+#include "LogUtil.h"
 
 PicMatchWidget::PicMatchWidget(QWidget *parent)
     : QWidget(parent)
     , m_handle(-1)
+    , m_playerWidget(nullptr)
 {
     setStyleSheet("background-color: #ccffcc;");
 }
 
 PicMatchWidget::~PicMatchWidget()
 {
-    std::cout << "~PicMatchWidget";
+    LOG_DEBUG("~PicMatchWidget");
     PicPlayer_UnInit();
-    std::cout << "~PicMatchWidget suc";
+    LOG_DEBUG("~PicMatchWidget suc");
 }
 
 void PicMatchWidget::InitUI()
 {
+    LOG_DEBUG("InitUI size: {} x {}", width(), height());
     QHBoxLayout* picMatchLayout = new QHBoxLayout(this);
     picMatchLayout->setSpacing(8);
-    picMatchLayout->setContentsMargins(0, 0, 0,0);
-    QWidget * playerWidget = new QWidget();
+    picMatchLayout->setContentsMargins(0, 0, 0, 0);
+    m_playerWidget = new QWidget();
     QWidget * rightWidget = new QWidget();
-    picMatchLayout->addWidget(playerWidget, 4);
+    picMatchLayout->addWidget(m_playerWidget, 4);
     picMatchLayout->addWidget(rightWidget, 1);
-    InitPicPlayer(playerWidget);
+    this->adjustSize();  // 确保布局生效
 }
 
-void PicMatchWidget::InitPicPlayer(QWidget* playerWidget)
+void PicMatchWidget::InitPicPlayer()
 {
-    if (nullptr == playerWidget) {
-        std::cerr << "playerWidget is nullptr" << std::endl;
+    if (nullptr == m_playerWidget) {
+        LOG_ERROR("m_playerWidget is nullptr");
         return;
     }
     PicPlayer_Init();
     m_handle = PicPlayer_CreateInstance();
     if (-1 == m_handle) {
-        std::cerr << "PicPlayer_CreateInstance is failed!!" << std::endl;
+        LOG_ERROR("PicPlayer_CreateInstance is failed!!");
         return;
     }
     PicPlayer_RegisterCallback(m_handle, (PlayerMsgCallback)PicCallbackByPlayer, this);
-    PicPlayer_RegisterWindow(m_handle, static_cast<Window_ShowID>(playerWidget->winId()));
+    PicPlayer_RegisterWindow(m_handle, static_cast<Window_ShowID>(m_playerWidget->winId()));
     PicPlayer_Play(m_handle);
 }
 
 void PicMatchWidget::Run()
+{    
+    InitPicPlayer();
+    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
+    std::string imagename = "xiaoxiaoyan_2";
+    #ifdef __APPLE__
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+#else
+    const char* imagePath = "E:/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+#endif
+    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
+    demodata->picReadTime = 1;
+    LoadJpegToRGBA(imagePath, demodata);
+    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    LOG_DEBUG("InitPicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
+    PicPlayer_Play(m_handle);
+}
+
+void PicMatchWidget::Quit()
 {
+    if(m_handle != -1)
+        PicPlayer_DestroyInstance(m_handle);
+}
+
+void PicMatchWidget::resizeEvent(QResizeEvent *event)
+{
+    if (nullptr == m_playerWidget) {
+        QWidget::resizeEvent(event);
+        return;
+    }
+    m_playerWidget->resize(width(), height());
+    QWidget::resizeEvent(event);
+}
+
+void PicMatchWidget::Run(int )
+{
+    LOG_DEBUG("Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
     PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
     std::string imagename = "xiaoxiaoyan_2";
     #ifdef __APPLE__
@@ -63,30 +99,14 @@ void PicMatchWidget::Run()
     PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
 }
 
-void PicMatchWidget::Quit()
-{
-    if(m_handle != -1)
-        PicPlayer_DestroyInstance(m_handle);
-}
-
-void PicMatchWidget::Run(int )
-{
-    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
-    std::string imagename = "mmexport1739695411204";
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/mmexport1739695411204.jpg";
-    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
-    demodata->picReadTime = 1;
-    LoadJpegToRGBA(imagePath, demodata);
-    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
-}
-
 void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser)
 {
     if (nullptr != pData && nullptr != pUser) {
         PicMatchWidget* pThis = reinterpret_cast<PicMatchWidget*>(pUser);
         if (Callback_ShowPicId == iMsg) {
             std::string showid((const char*)pData);
-            qDebug()<< "showid : " << showid.data();
+            LOG_DEBUG("showid : {}", showid.data());
+            LOG_DEBUG("Run PicPlayer size: {} x {}", pThis->m_playerWidget->width(), pThis->m_playerWidget->height());
             //pThis->Run(1);
         }
     }
@@ -97,7 +117,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
 {
     // 参数校验
     if (!imagePath || !demodata) {
-        std::cerr << "Invalid input parameters." << std::endl;
+        LOG_ERROR("Invalid input parameters.");
         return;
     }
 
@@ -105,9 +125,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
     // 使用 stbi_load 加载图像，并确保输出为 RGBA 格式
     unsigned char* imageData = stbi_load(imagePath, &picWidth, &picHeight, &channels, 4);
     if (!imageData) {
-        
-        std::cerr << "Failed to load image: " << imagePath << ". Reason: " 
-                  << (stbi_failure_reason() ? stbi_failure_reason() : "Unknown error") << std::endl;
+        LOG_ERROR("Failed to load image: {}, Reason: {}", imagePath, (stbi_failure_reason() ? stbi_failure_reason() : "Unknown error"));
         return;
     }
 
@@ -130,7 +148,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
     // 分配目标内存并复制数据
     auto rgbaDataPtr = std::make_unique<char[]>(demodata->imageRgbaLen);
     if (!rgbaDataPtr) {
-        std::cerr << "Failed to allocate memory for image data." << std::endl;
+        LOG_ERROR("Failed to allocate memory for image data.");
         return;
     }
 

@@ -13,12 +13,15 @@ public:
     ~PicMatchWidget();
 
     void InitUI();
-    void InitPicPlayer(QWidget* playerWidget);
+    void InitPicPlayer();
 
     void Run();
     void Run(int );
 
     void Quit();
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     static void* PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser);
@@ -27,5 +30,6 @@ private:
 
 private:
     int m_handle;
+    QWidget * m_playerWidget;
 };
 #endif // PICMATCHWIDGET_H

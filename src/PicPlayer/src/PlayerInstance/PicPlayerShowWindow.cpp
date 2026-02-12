@@ -12,7 +12,7 @@
 #endif
 
 #include "../Render/DrawPicByImgui/PicTexture.h"
-#include <iostream>
+#include "LogUtil.h"
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -58,7 +58,8 @@ int PicPlayerShowWindow::RunRendLoop()
     if (m_window == nullptr) {
         bool success = CreateRenderWindow();
         if (!success){
-            std::cerr << "Failed GetWindowSizeForMac" << std::endl;
+            LOG_ERROR("Failed to create render window");
+            return -1;
         }
     }
 
@@ -89,6 +90,7 @@ void PicPlayerShowWindow::Quit()
 
 void PicPlayerShowWindow::OnResize(int width, int height)
 {
+    LOG_DEBUG("OnResize: {} x {}", width, height);
     GetRender()->UpdateViewport(width, height);
 }
 
@@ -105,16 +107,18 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     if (m_hParent != NULL) {
         RECT rect;
         GetWindowRect(m_hParent, &rect);
-        std::cout << rect.right - rect.left;
+        LOG_DEBUG("Window size: {} x {}", rect.right - rect.left, rect.bottom - rect.top);
         m_window = glfwCreateWindow(rect.right - rect.left, rect.bottom - rect.top, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
         if (m_window == nullptr) {
-            return 0;
+            LOG_ERROR("Failed to create GLFW window");
+            return false;
         }
         SetParent(glfwGetWin32Window(m_window), m_hParent);
     } else {
         glfwDefaultWindowHints();
         m_window = glfwCreateWindow(1280, 720, "ImGui PicPlayer", nullptr, nullptr);
         if (m_window == nullptr) {
+            LOG_ERROR("Failed to create GLFW window");
             return false;
         }
     }
@@ -122,13 +126,13 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     if (m_hParent != 0) {
         int width = 0, height = 0;
         if (!GetWindowSizeForMac((void*)m_hParent, width, height)) {
-            std::cerr << "Failed GetWindowSizeForMac" << std::endl;
+            LOG_ERROR("Failed GetWindowSizeForMac");
             return false;
         }
         m_window = glfwCreateWindow(width, height, "ImGui PicPlayer", nullptr, nullptr);
         if (m_window) {
             if (!SetChildWindow((void*)m_hParent, m_window)) {
-                std::cerr << "Failed SetChildWindow" << std::endl;
+                LOG_ERROR("Failed SetChildWindow");
                 return false;
             }
         }
@@ -172,6 +176,7 @@ bool PicPlayerShowWindow::CreateRenderWindow()
 
     int width, height;
     glfwGetWindowSize(m_window, &width, &height);
+    LOG_DEBUG("glfwGetWindowSize size: {} x {}", width, height);
     glfwSetWindowPos(m_window, 4, 6);
     glfwSetWindowSize(m_window, width - 4, height - 6);
     GetRender()->InitScene(ImRect(4, 6, width - 4, height - 6));

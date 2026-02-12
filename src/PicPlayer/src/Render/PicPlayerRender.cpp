@@ -50,7 +50,7 @@ std::shared_ptr<PicPlayerRenderSync> PicPlayerRender::GetSynchronizer() const
 void PicPlayerRender::UpdateViewport(int width, int height)
 {
     if (m_playScene) {
-        m_playScene->SetDisplayRect(ImRect(0, 0, width, height));
+        m_playScene->SetDisplayRect(ImRect(4, 6, width - 4, height - 6));
     }
 }
 

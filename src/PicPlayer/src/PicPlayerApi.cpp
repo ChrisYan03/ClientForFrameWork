@@ -3,12 +3,15 @@
 #include <GLFW/glfw3.h>
 #include "PicPlayerHandleManager.h"
 #include "PicPlayer.h"
-
+#include "LogUtil.h"
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_Init()
 {
+    LogUtil::initLogger("PicPlayer");
     if(!glfwInit()){
+        LOG_ERROR("Failed to initialize GLFW");
         return false;
     }
+
     return true;
 }
 

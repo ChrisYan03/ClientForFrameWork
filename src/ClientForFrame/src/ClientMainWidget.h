@@ -13,7 +13,6 @@ public:
     ~ClientMainWidget();
 
     void DemoInit();
-    void DemoRun();
     void DemoQuit();
 
 private:

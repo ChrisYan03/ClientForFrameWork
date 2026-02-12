@@ -11,20 +11,21 @@ if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE /DEBUG) #生成exe时生成调试信
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE /DEBUG) #生成dll时生成调试信
     add_compile_options(-Od)
+    # 添加UTF-8编译选项以支持spdlog
+    add_compile_options(/utf-8)
 endif()
 
 # 设置源码目录
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src)
 # 新增源码目录
+set(LOG_DIR ${CMAKE_SOURCE_DIR}/LogUtil)
+message("LOG_DIR: ${LOG_DIR}")
 set(EVENTLOOP_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/EventLoop)
 set(UTILS_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/Utils)
 set(PLAYERINS_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/PlayerInstance)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/Imgui)
 set(RENDER_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/Render)
 set(NODES_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/NodeDataDef)
-
-# 定义第三方库路径
-set(EXT_DIR ${CMAKE_SOURCE_DIR}/../ext)
 
 # 查找OpenGL库
 find_package(OpenGL REQUIRED)
@@ -36,10 +37,10 @@ endif()
 include_directories(${EXT_DIR}/include
                     ${EXT_DIR}/include/GL
                     ${EXT_DIR}/include/GLFW
-                    ${EXT_DIR}/include/spdlog
                     ${OPENGL_INCLUDE_DIR})
 # 添加内部头文件路径
-include_directories(${EVENTLOOP_DIR}
+include_directories(${LOG_DIR}
+                    ${EVENTLOOP_DIR}
                     ${UTILS_DIR}
                     ${PLAYERINS_DIR}
                     ${IMGUI_DIR}

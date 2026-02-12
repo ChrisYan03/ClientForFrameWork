@@ -6,6 +6,15 @@ project(ClientForFrameWork VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 定义第三方库路径
+set(EXT_DIR ${CMAKE_SOURCE_DIR}/../ext)
+# 配置spdlog和通用头文件路径
+include_directories(
+    ${EXT_DIR}/include
+    ${EXT_DIR}/include/spdlog
+    ${CMAKE_SOURCE_DIR}/LogUtil
+)
+
 # 输出基目录（放在工程根下的 target）
 set(OUTPUT_BASE_DIR ${CMAKE_SOURCE_DIR}/../target)
 message("project setup ing... CMAKE_SOURCE_DIR will be in: ${CMAKE_SOURCE_DIR}")
