@@ -34,7 +34,7 @@ protected:
     ImRect m_displayRect;     // 可视范围
     float  m_fixframe;
     int m_cacheNum;
-    const int m_fixMoveSpeed = 2;
+    const int m_fixMoveSpeed = 4;
     bool m_directionLTR;
     std::shared_ptr<PicPlayerRenderSync> m_pRenderSync;
 };

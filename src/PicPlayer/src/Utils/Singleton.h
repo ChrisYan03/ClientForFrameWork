@@ -20,10 +20,13 @@ public:
     }
 
     static inline void free(){
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if (m_instance != nullptr) {
-            delete m_instance;
-            m_instance = nullptr;
+        // 使用 try_lock 避免死锁
+        if (m_mutex.try_lock()) {
+            if (m_instance != nullptr) {
+                delete m_instance;
+                m_instance = nullptr;
+            }
+            m_mutex.unlock();
         }
     }
 

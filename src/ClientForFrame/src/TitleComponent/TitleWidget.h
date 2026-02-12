@@ -18,12 +18,15 @@ private:
 
 signals:
     void startButtonClicked();
+    void stopButtonClicked();
 
 private slots:
     void onStartButtonClicked();
+    void onStopButtonClicked();
 
 private:
     QPushButton *m_startButton;
+    QPushButton *m_stopButton;
 };
 
 #endif // TITLEWIDGET_H

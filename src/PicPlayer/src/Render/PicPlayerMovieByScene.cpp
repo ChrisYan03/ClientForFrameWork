@@ -86,7 +86,7 @@ void PicPlayerMovieByScene::DrawScene()
             displayWidth = (double)curPic->GetPicWidth();
             ImVec2 moveStart(nodePostion, m_displayRect.Min.y + 20);
             ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicContentHeight());
-            curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, scale);
+            curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, curPic->GetShowScale());
             nodePostion += displayWidth;
             --curIndex;
         }
@@ -101,7 +101,7 @@ void PicPlayerMovieByScene::DrawScene()
                 nodePostion -= displayWidth;
             ImVec2 moveStart(nodePostion, m_displayRect.Min.y  + 20);
             ImVec2 moveEnd(moveStart.x + displayWidth, moveStart.y + curPic->GetPicContentHeight());
-            curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, scale);
+            curPic->GetPicGeoPtr()->DrawImageForVideo(moveStart, moveEnd, curPic->GetShowScale());
             --curIndex;
         }
     }

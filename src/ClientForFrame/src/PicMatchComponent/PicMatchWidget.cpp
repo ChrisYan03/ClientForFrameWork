@@ -87,11 +87,11 @@ void PicMatchWidget::Run(int )
 {
     LOG_DEBUG("Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
     PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
-    std::string imagename = "xiaoxiaoyan_2";
+    std::string imagename = "xiaoxiaoyan_1";
     #ifdef __APPLE__
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/xiaoxiaoyan_1.jpg";
 #else
-    const char* imagePath = "E:/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+    const char* imagePath = "E:/ClientForFrameWork/xiaoxiaoyan_1.jpg";
 #endif
     std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
     demodata->picReadTime = 1;
@@ -107,7 +107,7 @@ void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, voi
             std::string showid((const char*)pData);
             LOG_DEBUG("showid : {}", showid.data());
             LOG_DEBUG("Run PicPlayer size: {} x {}", pThis->m_playerWidget->width(), pThis->m_playerWidget->height());
-            //pThis->Run(1);
+            pThis->Run(1);
         }
     }
     return nullptr;

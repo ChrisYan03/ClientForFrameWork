@@ -37,7 +37,7 @@ void PicPlayerRender::ClearRenderCache()
 void PicPlayerRender::UpdateRenderNodesData(RenderNodesData* data)
 {
     if (m_playScene) {
-        std::shared_ptr<RenderNodesData> sharedData(data, [](RenderNodesData* ptr) { delete ptr; });
+        std::shared_ptr<RenderNodesData> sharedData(data, [](RenderNodesData* ) { });
         m_playScene->UpdateRenderNodeData(sharedData);
     }
 }

@@ -30,6 +30,10 @@ void ClientMainWidget::InitMainUI()
         // 处理开始按钮点击事件
         m_pPicMatchWidget->Run();
     });
+    connect(titleWidget, &TitleWidget::stopButtonClicked, [this]() {
+        // 处理停止按钮点击事件
+        m_pPicMatchWidget->Quit();
+    });
 }
 
 void ClientMainWidget::DemoInit()
