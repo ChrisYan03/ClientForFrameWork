@@ -69,8 +69,10 @@ void PicMatchWidget::Run()
 
 void PicMatchWidget::Quit()
 {
-    if(m_handle != -1)
+    if(m_handle != -1) {
         PicPlayer_DestroyInstance(m_handle);
+        m_handle = -1;  // 重置句柄
+    }
 }
 
 void PicMatchWidget::resizeEvent(QResizeEvent *event)

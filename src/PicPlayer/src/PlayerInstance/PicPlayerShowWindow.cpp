@@ -6,6 +6,7 @@
 #ifdef __APPLE__
 #include "PicPlayerWindowForMac.h"
 #include <dispatch/dispatch.h>
+#include <unistd.h>  // for usleep
 #else
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -50,6 +51,7 @@ PicPlayerShowWindow::~PicPlayerShowWindow()
 
 void PicPlayerShowWindow::Destroy()
 {
+    LOG_DEBUG("Destroy");
     DestroyRenderWindow();
 }
 
@@ -63,7 +65,36 @@ int PicPlayerShowWindow::RunRendLoop()
         }
     }
 
-    while (!glfwWindowShouldClose(m_window)) {
+    // 在 macOS 上，我们需要不同的处理方式
+#ifdef __APPLE__
+    // 使用标志位控制循环，避免依赖 glfwWindowShouldClose
+    bool shouldContinue = true;
+    while (shouldContinue && m_window) {
+        // 检查外部停止请求
+        if (glfwWindowShouldClose(m_window)) {
+            LOG_DEBUG("Window should close detected");
+            shouldContinue = false;
+            break;
+        }
+        
+        glClear(GL_COLOR_BUFFER_BIT);
+        GetRender()->InitFramerate(ImGui::GetIO().Framerate);
+        glfwPollEvents();
+        Draw();
+        Render();
+        
+        // 再次检查窗口状态
+        if (m_window && !glfwWindowShouldClose(m_window)) {
+            glfwSwapBuffers(m_window);
+        } else {
+            LOG_DEBUG("Window closed during buffer swap");
+            shouldContinue = false;
+            break;
+        }
+    }
+#else
+    // Windows/Linux 版本保持原样
+    while (m_window && !glfwWindowShouldClose(m_window)) {
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
         glfwPollEvents();
@@ -71,20 +102,45 @@ int PicPlayerShowWindow::RunRendLoop()
         Render();
         glfwSwapBuffers(m_window);
     }
-    DestroyRenderWindow();
+#endif
+
+    LOG_DEBUG("Exit render loop, destroying window");
+    if (m_window) {
+        DestroyRenderWindow();
+    }
+
+    LOG_DEBUG("Render loop finished completely");
     return 0;
 }
 
 void PicPlayerShowWindow::Quit()
 {
 #ifdef __APPLE__
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (m_window)
-            glfwSetWindowShouldClose(m_window, 1);
-    });
-#else
-    if (m_window)
+    // 不使用 dispatch_async，而是直接在当前线程处理
+    LOG_DEBUG("Quit called on window: {}", (void*)m_window);
+    
+    if (m_window) {
+        // 直接设置关闭标志
         glfwSetWindowShouldClose(m_window, 1);
+        
+        // 强制唤醒事件循环
+        glfwPostEmptyEvent();
+        
+        // 给一点时间让事件循环处理
+        usleep(10000); // 10ms
+        
+        // 如果窗口仍未关闭，强制销毁
+        if (m_window) {
+            LOG_DEBUG("Force destroying window");
+            glfwDestroyWindow(m_window);
+            m_window = nullptr;
+        }
+    }
+    LOG_DEBUG("Quit completed");
+#else
+    if (m_window)) {
+        glfwSetWindowShouldClose(m_window, 1);
+    }
 #endif
 }
 
@@ -103,6 +159,10 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
     // 鍚敤澶氶噸閲囨牱锛屾姉閿娇
     glfwWindowHint(GLFW_SAMPLES, 4);
+    // 添加错误回调以便更好地诊断问题
+    glfwSetErrorCallback([](int error, const char* description) {
+        LOG_ERROR("GLFW Error {}: {}", error, description);
+    });
 #ifdef _WIN32
     if (m_hParent != NULL) {
         RECT rect;
@@ -133,14 +193,23 @@ bool PicPlayerShowWindow::CreateRenderWindow()
         if (m_window) {
             if (!SetChildWindow((void*)m_hParent, m_window)) {
                 LOG_ERROR("Failed SetChildWindow");
+                glfwDestroyWindow(m_window);
+                m_window = nullptr;
                 return false;
             }
         }
         else{
+            LOG_ERROR("Failed to create GLFW window for Mac child window");
             return false;
         }
     }
 #endif
+
+    // 确保窗口创建成功后再进行后续初始化
+    if (!m_window) {
+        LOG_ERROR("Window creation failed - window is null");
+        return false;
+    }
     GetRender()->GetSynchronizer()->SetEnable(true);
     glfwSetWindowUserPointer(m_window, this);
     glfwSetWindowSizeCallback(m_window, PicPlayerShowWindow::WindowSizeCallback);
@@ -148,6 +217,9 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     glfwSwapInterval(1); // 鍚敤鍨傜洿鍚屾
 
     if (glewInit() != GLEW_OK) {
+        LOG_ERROR("Failed to initialize GLEW");
+        glfwDestroyWindow(m_window);
+        m_window = nullptr;
         return false;
     }
     glEnable(GL_MULTISAMPLE);
@@ -195,7 +267,7 @@ void PicPlayerShowWindow::Draw()
 
 void PicPlayerShowWindow::Render()
 {
-    if (nullptr == m_window) {
+    if (nullptr == m_window || glfwWindowShouldClose(m_window)) {
         return;
     }
     ImGui::Render();
@@ -204,14 +276,31 @@ void PicPlayerShowWindow::Render()
 
 void PicPlayerShowWindow::DestroyRenderWindow()
 {
-    GetRender()->ClearRenderCache();
-    GetRender()->GetSynchronizer()->SetEnable(false);
+    LOG_DEBUG("DestroyRenderWindow start");
+     // 首先确保不再进行渲染
+     if (m_window) {
+        glfwMakeContextCurrent(m_window);
+    }
+    // 清理渲染缓存（在ImGui上下文仍有效时）
+    if (GetRender()) {
+        GetRender()->ClearRenderCache();
+        GetRender()->GetSynchronizer()->SetEnable(false);
+    }
+    // 按正确顺序释放ImGui资源
     if (m_window) {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
+    }
+    // 释放GLFW资源
+    if (m_window) {
+        // 强制设置窗口关闭标志
+        glfwSetWindowShouldClose(m_window, 1);
         glfwDestroyWindow(m_window);
+        LOG_DEBUG("glfwSetWindowShouldClose");
         m_window = nullptr;
     }
+    
+    LOG_DEBUG("DestroyRenderWindow end");
 }
 

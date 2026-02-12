@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     ClientMainWidget w;
     w.show();
     w.raise();
-    w.DemoInit();
+    w.ClientMainInit();
     QObject::connect(&app, &QApplication::aboutToQuit, [&w](){
-        qDebug() << "Performing cleanup...";
-        w.DemoQuit();
+        LOG_INFO("Performing cleanup...");
+        w.ClientMainQuit();
     });
     return app.exec();
 }

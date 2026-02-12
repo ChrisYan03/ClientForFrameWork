@@ -51,6 +51,7 @@ if(APPLE)
     link_directories(
         ${EXT_DIR}/lib/glew/Mac
         ${EXT_DIR}/lib/glfw/Mac
+        ${EXT_DIR}/lib/spdlog/Mac
         ${OPENGL_LIBRARY_DIRS}
     )
 else()
@@ -108,6 +109,7 @@ if(APPLE)
     target_link_libraries(PicPlayer PRIVATE
         glfw3
         GLEW
+        spdlog
         OpenGL::GL
     )
 else()

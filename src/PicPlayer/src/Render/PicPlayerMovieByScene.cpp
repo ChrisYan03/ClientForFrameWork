@@ -125,8 +125,12 @@ void PicPlayerMovieByScene::MoveStep()
         int remainLen = CalculateRemainLen(picVec);
         auto displayPos = m_picMovePos * scale;
         remainLen -= displayPos;
-        // 匀速移动m_fixMoveSpeed
-        m_moveSpeed = std::min<int>(remainLen, m_fixMoveSpeed);
+        // 根据帧率动态调整移动速度
+        // 基准：60Hz时速度为4，保持视觉一致性
+        int dynamicSpeed = static_cast<int>(m_fixMoveSpeed * 60.0f / m_fixframe);
+        // 限制速度范围，避免过高或过低
+        dynamicSpeed = std::max(1, std::min(dynamicSpeed, 4));
+        m_moveSpeed = std::min<int>(remainLen, dynamicSpeed);
         displayPos += m_moveSpeed;
 
         auto displayWidth = curPic->GetPicWidth();

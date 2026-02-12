@@ -12,8 +12,8 @@ public:
     ClientMainWidget(QWidget *parent = nullptr);
     ~ClientMainWidget();
 
-    void DemoInit();
-    void DemoQuit();
+    void ClientMainInit();
+    void ClientMainQuit();
 
 private:
     void InitMainUI();

@@ -5,6 +5,7 @@
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
 #endif
+#include "LogUtil.h"
 
 PicPlayer::PicPlayer(int cacheNum)
     : m_cacheNum(cacheNum)
@@ -20,10 +21,10 @@ PicPlayer::PicPlayer(int cacheNum)
 
 PicPlayer::~PicPlayer()
 {
-    std::cout << "~PicPlayer";
+    LOG_DEBUG("~PicPlayer start");
     StopControllerThread();
     StopPlayer();
-    std::cout << "~PicPlayer suc";
+    LOG_DEBUG("~PicPlayer suc");
 }
 
 void PicPlayer::SetHandle(int handle)

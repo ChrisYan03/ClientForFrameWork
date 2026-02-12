@@ -1,7 +1,7 @@
 #include "ClientMainWidget.h"
 #include "TitleComponent/TitleWidget.h"
 #include <QVBoxLayout>
-#include <iostream>
+#include "LogUtil.h"
 
 ClientMainWidget::ClientMainWidget(QWidget *parent)
     : QWidget(parent)
@@ -13,7 +13,7 @@ ClientMainWidget::ClientMainWidget(QWidget *parent)
 
 ClientMainWidget::~ClientMainWidget()
 {
-    std::cout << "~ClientMainWidget";
+    LOG_DEBUG("~ClientMainWidget");
 }
 
 void ClientMainWidget::InitMainUI()
@@ -36,12 +36,12 @@ void ClientMainWidget::InitMainUI()
     });
 }
 
-void ClientMainWidget::DemoInit()
+void ClientMainWidget::ClientMainInit()
 {
     m_pPicMatchWidget->InitUI();
 }
 
-void ClientMainWidget::DemoQuit()
+void ClientMainWidget::ClientMainQuit()
 {
     m_pPicMatchWidget->Quit();
 }
