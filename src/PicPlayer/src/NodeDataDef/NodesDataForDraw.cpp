@@ -28,3 +28,7 @@ int PicShowNow::RenderType() const
     return (int)NodesType::PicChangeType;
 }
 
+int FaceRecogData::RenderType() const
+{
+    return (int)NodesType::FaceRecogType;
+}

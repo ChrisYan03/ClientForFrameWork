@@ -15,7 +15,7 @@ public:
     void SetRenderSync(std::shared_ptr<PicPlayerRenderSync> syncPtr);
     void CheckSyncRenderData();
     void InputPicData(std::shared_ptr<PicShowInfo> showData);
-
+    void InputFaceRecogResult(std::shared_ptr<FaceDetectionResult> recogResult);
     // callback
     void ShowPicCallback(const std::string& showPicId);
 

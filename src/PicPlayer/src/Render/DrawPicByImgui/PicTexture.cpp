@@ -120,6 +120,11 @@ void PicTexture::DrawRect(const ImVec2& drawStart, const ImVec2& drawEnd, const 
     ImGui::GetWindowDrawList()->AddRect(drawStart, drawEnd, drawCol);
 }
 
+void PicTexture::DrawRecogResult(const ImVec2& drawStart, const char* label, const ImU32& drawCol)
+{
+    ImGui::GetWindowDrawList()->AddText(drawStart, drawCol, label);
+}
+
 void PicTexture::UpdateTex(void* data, size_t dataLen, uint32_t texTureW, uint32_t texTureH)
 {
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)

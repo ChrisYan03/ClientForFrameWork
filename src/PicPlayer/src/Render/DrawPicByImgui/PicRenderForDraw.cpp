@@ -27,9 +27,13 @@ void PicRenderForDraw::SetPicInfo(std::shared_ptr<PicShowInfo> data)
     m_imageGeo->AddNewPic(data);
 }
 
+void PicRenderForDraw::SetFaceRecogResult(std::shared_ptr<FaceDetectionResult> data)
+{
+    m_imageGeo->AddFaceRecogResult(data);
+}
 int PicRenderForDraw::GetPicWidth() const
 {
-    return m_imageGeo->GetPicWidth();
+    return m_imageGeo->GetPicWidth() * m_scale + 10;
 }
 
 int PicRenderForDraw::GetPicContentHeight() const

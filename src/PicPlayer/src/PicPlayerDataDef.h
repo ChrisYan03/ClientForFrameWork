@@ -34,7 +34,7 @@ enum CallbackType
     Callback_ShowPicId,
 };
 
-// 输入
+// 输入 图片数据
 struct PicShowInfo
 {
     uint32_t picReadTime;
@@ -93,6 +93,114 @@ struct PicShowInfo
         free(imageRgbaData);
         imageRgbaData = nullptr;
         imageRgbaLen = 0;
+    }
+};
+
+// 输入 图片识别数据
+struct FaceInfo
+{
+    float x;
+    float y;
+    float width;
+    float height;
+    float confidence; // 置信度
+
+    FaceInfo()
+        : x(0.0f), y(0.0f), width(0.0f), height(0.0f), confidence(0.0f)
+    {}
+    
+    // Copy constructor
+    FaceInfo(const FaceInfo& other)
+        : x(other.x), y(other.y), width(other.width), height(other.height), confidence(other.confidence)
+    {}
+    
+    // Assignment operator
+    FaceInfo& operator=(const FaceInfo& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+            width = other.width;
+            height = other.height;
+            confidence = other.confidence;
+        }
+        return *this;
+    }
+    
+    // Destructor (not strictly needed for this struct since it doesn't own resources, but added for completeness)
+    ~FaceInfo() = default;
+};
+
+struct FaceDetectionResult
+{
+    char imageId[IMAGE_ID_LEN];
+    int faceCount;
+    FaceInfo* faces;
+
+    // Default constructor
+    FaceDetectionResult()
+        : faceCount(0), faces(nullptr)
+    {
+        memset(imageId, 0, IMAGE_ID_LEN);
+    }
+    
+    // Constructor with parameters
+    FaceDetectionResult(const char* id, int count, FaceInfo* faceArray)
+        : faceCount(count)
+    {
+        memset(imageId, 0, IMAGE_ID_LEN);
+        if (id) {
+            strncpy(imageId, id, IMAGE_ID_LEN - 1);
+        }
+        faces = nullptr;
+        if (faceArray && count > 0) {
+            faces = new FaceInfo[count];
+            for (int i = 0; i < count; ++i) {
+                faces[i] = faceArray[i];
+            }
+        }
+    }
+    
+    // Copy constructor
+    FaceDetectionResult(const FaceDetectionResult& other)
+        : faceCount(other.faceCount)
+    {
+        memset(imageId, 0, IMAGE_ID_LEN);
+        strncpy(imageId, other.imageId, IMAGE_ID_LEN - 1);
+        
+        faces = nullptr;
+        if (other.faces && other.faceCount > 0) {
+            faces = new FaceInfo[other.faceCount];
+            for (int i = 0; i < other.faceCount; ++i) {
+                faces[i] = other.faces[i];
+            }
+        }
+    }
+    
+    // Assignment operator
+    FaceDetectionResult& operator=(const FaceDetectionResult& other) {
+        if (this != &other) {
+            // Free existing memory
+            delete[] faces;
+            
+            faceCount = other.faceCount;
+            memset(imageId, 0, IMAGE_ID_LEN);
+            strncpy(imageId, other.imageId, IMAGE_ID_LEN - 1);
+            
+            faces = nullptr;
+            if (other.faces && other.faceCount > 0) {
+                faces = new FaceInfo[other.faceCount];
+                for (int i = 0; i < other.faceCount; ++i) {
+                    faces[i] = other.faces[i];
+                }
+            }
+        }
+        return *this;
+    }
+    
+    // Destructor
+    ~FaceDetectionResult() {
+        delete[] faces;
+        faces = nullptr;
     }
 };
 

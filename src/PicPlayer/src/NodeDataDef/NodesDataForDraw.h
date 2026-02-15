@@ -10,6 +10,7 @@ enum class NodesType
     PicRectType,
     PicRemoveType,
     PicChangeType,
+    FaceRecogType,
 };
 
 class PicData : public RenderComData
@@ -58,6 +59,18 @@ public:
 
 public:
     std::string picId;
+};
+
+class FaceRecogData : public RenderComData
+{
+public:
+    FaceRecogData() {};
+    virtual ~FaceRecogData() {};
+
+    virtual int RenderType() const  override;
+
+public:
+    std::shared_ptr<FaceDetectionResult> picDetectionResult;
 };
 
 #endif // NODESDATAFORDRAW_H

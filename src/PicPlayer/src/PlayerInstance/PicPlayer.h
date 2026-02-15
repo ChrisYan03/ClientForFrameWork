@@ -18,10 +18,11 @@ public:
     void SetHandle(int handle);
     void SetPicCallback(PlayerMsgCallback callback, void* pUser);
 
-    // 濉炲叆鏁版嵁
     bool InputPicData(int type, void* showData);
     bool StartPlayer();
     bool StopPlayer();
+
+    bool InputFaceRecogResult(void* recogResult);
 
 protected:
     PicPlayerRender* GetRender() const override;

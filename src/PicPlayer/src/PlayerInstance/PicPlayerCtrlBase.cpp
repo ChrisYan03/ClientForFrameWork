@@ -41,6 +41,15 @@ void PicPlayerCtrlBase::InputPicData(std::shared_ptr<PicShowInfo> showData)
     }
 }
 
+void PicPlayerCtrlBase::InputFaceRecogResult(std::shared_ptr<FaceDetectionResult> recogResult)
+{
+    if (recogResult) {
+        auto recogPtr = std::make_unique<FaceRecogData>();
+        recogPtr->picDetectionResult = recogResult;
+        m_renderNodesPtr->AppendComData(std::move(recogPtr));
+    }
+}
+
 void PicPlayerCtrlBase::ShowPicCallback(const std::string& showPicId)
 {
     std::string showid = showPicId;

@@ -94,6 +94,20 @@ bool PicPlayer::StopPlayer()
     return true;
 }
 
+bool PicPlayer::InputFaceRecogResult(void* recogResult)
+{
+    if (m_bStop) {
+        return false;
+    }
+    if (recogResult == nullptr) {
+        return false;
+    }
+    if (m_ctrlDelPtr) {
+        m_ctrlDelPtr->InputFaceRecogResult(recogResult);
+    }
+    return true;
+}
+
 PicPlayerRender* PicPlayer::GetRender() const
 {
     return m_renderPtr.get();

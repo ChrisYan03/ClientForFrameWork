@@ -38,5 +38,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}/lib)
 # 添加子项目
 add_subdirectory(ClientForFrame)
 add_subdirectory(PicPlayer)
+add_subdirectory(PicRecognition)
 
 message("project setup complete. Output will be in: ${OUTPUT_DIR}")

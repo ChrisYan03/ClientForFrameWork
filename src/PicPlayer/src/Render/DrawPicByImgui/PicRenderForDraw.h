@@ -16,6 +16,7 @@ public:
     std::shared_ptr<PicGeometry> GetPicGeoPtr() const { return m_imageGeo; }
     void SetPicShowScale(float displayHeight);
     void SetPicInfo(std::shared_ptr<PicShowInfo> data);
+    void SetFaceRecogResult(std::shared_ptr<FaceDetectionResult> data);
     int GetPicWidth() const;
     int GetPicContentHeight() const;
 

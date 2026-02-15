@@ -73,3 +73,12 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputPicData(int handle, int iType, 
     return false;
 }
 
+PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputFaceRecogResult(int handle, void* recogResult)
+{
+    PicPlayer* player = PicPlayerHandleManager::instance()->GetPlayer(handle);
+    if (player) {
+        player->InputFaceRecogResult(recogResult);
+        return true;
+    }
+    return false;
+}

@@ -27,11 +27,33 @@ void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
         return;
     }
     if (type == 1) {
-        std::shared_ptr<PicShowInfo> sharedShowData(static_cast<PicShowInfo*>(showData), [](PicShowInfo* p) { delete p; });
+        std::shared_ptr<PicShowInfo> sharedShowData(static_cast<PicShowInfo*>(showData), [](PicShowInfo* p) { 
+            if (p) {
+                delete p;
+            } 
+        });
         m_loop.asyncInvokeAny([this, sharedShowData](){
             m_playerBasePtr->InputPicData(sharedShowData);
         });
     }
+}
+
+void PicPlayerCtrlDelegate::InputFaceRecogResult(void* recogResult)
+{
+    if (recogResult == nullptr) {
+        return;
+    }
+
+    FaceDetectionResult* originalResult = static_cast<FaceDetectionResult*>(recogResult);
+    FaceDetectionResult* copiedResult = new FaceDetectionResult(*originalResult); // Use copy constructor for deep copy
+    std::shared_ptr<FaceDetectionResult> sharedRecogResult(copiedResult, [](FaceDetectionResult* p) {
+        if(p) {
+            delete p; 
+        }
+    });
+    m_loop.asyncInvokeAny([this, sharedRecogResult](){
+        m_playerBasePtr->InputFaceRecogResult(sharedRecogResult);
+    });
 }
 
 void PicPlayerCtrlDelegate::Quit()

@@ -54,7 +54,16 @@ void PicPlayerMovieByScene::UpdateRenderNodeData(std::shared_ptr<RenderNodesData
                 m_picList.emplace_back(curPtr);
             }
         }
-        iterCmd = comdataList.erase(iterCmd);
+        else if (iterCmd->get()->RenderType() == (int)NodesType::FaceRecogType) {
+            auto recogDataPtr = static_cast<FaceRecogData*>(iterCmd->get());
+            auto iterPtr = std::find_if(m_picList.begin(), m_picList.end(), [recogDataPtr](std::shared_ptr<PicRenderForDraw> picPtr) {
+                return recogDataPtr->picDetectionResult->imageId == picPtr->GetPicId();
+            });
+            if (iterPtr != m_picList.end()) {
+                (*iterPtr)->SetFaceRecogResult(recogDataPtr->picDetectionResult);
+            }
+        }
+        iterCmd++;
     }
 }
 

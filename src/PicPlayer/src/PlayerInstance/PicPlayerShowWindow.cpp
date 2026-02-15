@@ -234,8 +234,7 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     ImGui::StyleColorsDark();
     ImGuiStyle& imguiStyle = ImGui::GetStyle();
     imguiStyle.WindowRounding = 0.0f;
-    imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.6, 0.2, 0.6, 0.4);
-    imguiStyle.WindowPadding = ImVec2(0, 0);
+    imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 0.8f);imguiStyle.WindowPadding = ImVec2(0, 0);
     imguiStyle.WindowBorderSize = 0.0;
     imguiStyle.DisplayWindowPadding = ImVec2(0, 0);
     imguiStyle.DisplaySafeAreaPadding = ImVec2(0, 0);

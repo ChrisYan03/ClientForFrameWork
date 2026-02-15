@@ -18,6 +18,7 @@ public:
 
     void SetPicCallbackByDelegate(PlayerMsgCallback callback, void* pUser);
     void InputPicData(int type, void* showData);
+    void InputFaceRecogResult(void* recogResult);
 
     void Quit();
     void RunEventLoop();

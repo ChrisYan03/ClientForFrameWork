@@ -48,30 +48,36 @@ file(GLOB PROJECT_SOURCES
 # 添加 PicPlayer 库路径
 set(PICPLAYER_DIR ${CMAKE_SOURCE_DIR}/PicPlayer)
 message("picplayer_dir: ${PICPLAYER_DIR}")
-
 # 添加 PicPlayer 库的头文件路径
 include_directories(${PICPLAYER_DIR}/src)
-
+# 添加 PicRecognition 库路径
+set(PICRECOGNITION_DIR ${CMAKE_SOURCE_DIR}/PicRecognition)
+message("picrecognition_dir: ${PICRECOGNITION_DIR}")
+# 添加 PicRecognition 库的头文件路径
+include_directories(${PICRECOGNITION_DIR}/src)
+set(OpenCV_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/../ext/lib/opencv2/Win64)
+message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ClientForFrame
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-    target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer)
+    target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
     qt_finalize_executable(ClientForFrame)
 else()
     if(ANDROID)
         add_library(ClientForFrame SHARED ${PROJECT_SOURCES})
-        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer)
+        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
     else()
         add_executable(ClientForFrame ${PROJECT_SOURCES})
-        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer)
+        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
     endif()
 endif()
 
 if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE
-    ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib
+        ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib
+        ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicRecognition.lib
     )
 endif()
 

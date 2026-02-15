@@ -67,6 +67,7 @@ public:
     void SetPicTexture(uint32_t texId, std::shared_ptr<PicShowInfo> picData);
     void DrawPicTexture(uint32_t texId, const ImVec2& drawStart, const ImVec2& drawEnd,const ImVec2& uvStart, const ImVec2& uvEnd);
     void DrawRect(const ImVec2& drawStart, const ImVec2& drawEnd, const ImU32& drawCol);
+    void DrawRecogResult(const ImVec2& drawStart, const char* label, const ImU32& drawCol);
 
 private:
     PicTexture();

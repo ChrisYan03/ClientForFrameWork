@@ -31,6 +31,8 @@ PICPLAYER_API void PICPLAYER_CALL PicPlayer_Play(int handle);
 // 输入图片数据
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputPicData(int handle, int iType, void* picData);
 
+// 输入人脸识别结果数据
+PICPLAYER_API bool PICPLAYER_CALL PicPlayer_InputFaceRecogResult(int handle, void* recogResult);
 
 #ifdef __cplusplus
 }

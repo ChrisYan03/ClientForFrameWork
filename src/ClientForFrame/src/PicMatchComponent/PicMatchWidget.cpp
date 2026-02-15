@@ -1,8 +1,11 @@
 #include "PicMatchWidget.h"
 #include "PicPlayerApi.h"
+#include "PicRecognitionApi.h"
 #include "StbImage/stb_image.h"
 #include <QHBoxLayout>
 #include "LogUtil.h"
+#include <QCoreApplication>
+#include <QDir>
 
 PicMatchWidget::PicMatchWidget(QWidget *parent)
     : QWidget(parent)
@@ -15,6 +18,7 @@ PicMatchWidget::PicMatchWidget(QWidget *parent)
 PicMatchWidget::~PicMatchWidget()
 {
     LOG_DEBUG("~PicMatchWidget");
+    DestroyFaceRecognition();
     PicPlayer_UnInit();
     LOG_DEBUG("~PicMatchWidget suc");
 }
@@ -30,6 +34,9 @@ void PicMatchWidget::InitUI()
     picMatchLayout->addWidget(m_playerWidget, 4);
     picMatchLayout->addWidget(rightWidget, 1);
     this->adjustSize();  // 确保布局生效
+    // 获取当前运行路径
+    QString currentPath = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+    InitFaceRecognition(currentPath.toLocal8Bit().constData());
 }
 
 void PicMatchWidget::InitPicPlayer()
@@ -53,18 +60,28 @@ void PicMatchWidget::Run()
 {    
     InitPicPlayer();
     PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
-    std::string imagename = "xiaoxiaoyan_2";
+    std::string imagename = "beauty_20250216152514";
     #ifdef __APPLE__
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
 #else
-    const char* imagePath = "E:/ClientForFrameWork/xiaoxiaoyan_2.jpg";
+    const char* imagePath = "E:/ClientForFrameWork/beauty_20250216152514.jpg";
 #endif
     std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
     demodata->picReadTime = 1;
     LoadJpegToRGBA(imagePath, demodata);
-    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    FaceDetectionResult* faceResult = new FaceDetectionResult();
+    std::memcpy(faceResult->imageId, imagename.c_str(), imagename.size());
+    DetectFacesInRgba(demodata, faceResult);
     LOG_DEBUG("InitPicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
-    PicPlayer_Play(m_handle);
+    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
+        for (int i = 0; i < faceResult->faceCount; ++i) {
+            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)，保持人脸宽度不变
+            // 这样可以确保人脸在镜像后仍占据相同宽度，但位置相对于中心对称
+            faceResult->faces[i].x = 1.0f - faceResult->faces[i].x - faceResult->faces[i].width;
+        }
+    }
+    PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult);
 }
 
 void PicMatchWidget::Quit()
@@ -98,7 +115,19 @@ void PicMatchWidget::Run(int )
     std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
     demodata->picReadTime = 1;
     LoadJpegToRGBA(imagePath, demodata);
+    FaceDetectionResult* faceResult = new FaceDetectionResult();
+    std::memcpy(faceResult->imageId, imagename.c_str(), imagename.size());
+    DetectFacesInRgba(demodata, faceResult);
+    LOG_DEBUG("faceResult faceCount: {}", faceResult->faceCount);
     PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
+        for (int i = 0; i < faceResult->faceCount; ++i) {
+            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)，保持人脸宽度不变
+            // 这样可以确保人脸在镜像后仍占据相同宽度，但位置相对于中心对称
+            faceResult->faces[i].x = 1.0f - faceResult->faces[i].x - faceResult->faces[i].width;
+        }
+    }
+    PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult);
 }
 
 void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser)
