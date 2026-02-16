@@ -6,11 +6,13 @@
 #include "LogUtil.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <memory>
 
 PicMatchWidget::PicMatchWidget(QWidget *parent)
     : QWidget(parent)
     , m_handle(-1)
     , m_playerWidget(nullptr)
+    , m_showId("")
 {
     setStyleSheet("background-color: #ccffcc;");
 }
@@ -59,29 +61,58 @@ void PicMatchWidget::InitPicPlayer()
 void PicMatchWidget::Run()
 {    
     InitPicPlayer();
-    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
+    
+    // 使用智能指针管理内存
+    std::unique_ptr<PicShowInfo> demodata = std::make_unique<PicShowInfo>();
+    std::unique_ptr<FaceDetectionResult> faceResult = std::make_unique<FaceDetectionResult>();
+    
     std::string imagename = "beauty_20250216152514";
-    #ifdef __APPLE__
+    
+#ifdef __APPLE__
     const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
 #else
     const char* imagePath = "E:/ClientForFrameWork/beauty_20250216152514.jpg";
 #endif
-    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
+
+    std::memcpy(demodata->imageId, imagename.c_str(), IMAGE_ID_LEN);
     demodata->picReadTime = 1;
-    LoadJpegToRGBA(imagePath, demodata);
-    FaceDetectionResult* faceResult = new FaceDetectionResult();
-    std::memcpy(faceResult->imageId, imagename.c_str(), imagename.size());
-    DetectFacesInRgba(demodata, faceResult);
+    // 同样处理faceResult的imageId
+    std::memcpy(faceResult->imageId, imagename.c_str(), IMAGE_ID_LEN);
+    
+    // 加载图片数据
+    if (!LoadJpegToRGBA(imagePath, demodata.get())) {
+        LOG_ERROR("Failed to load image: {}", imagePath);
+        return;
+    }
+    
+    // 执行人脸检测
+    if (DetectFacesInRgba(demodata.get(), faceResult.get()) != 0) {
+        LOG_ERROR("Face detection failed");
+        return;
+    }
+    
     LOG_DEBUG("InitPicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
-    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    
+    // 输入图片数据到播放器
+    if (!PicPlayer_InputPicData(m_handle, 1, (void*)demodata.get())) {
+        LOG_ERROR("Failed to input picture data to player");
+        return;
+    }
+    
+    // 镜像处理人脸坐标
     if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
         for (int i = 0; i < faceResult->faceCount; ++i) {
-            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)，保持人脸宽度不变
-            // 这样可以确保人脸在镜像后仍占据相同宽度，但位置相对于中心对称
+            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)
             faceResult->faces[i].x = 1.0f - faceResult->faces[i].x - faceResult->faces[i].width;
         }
     }
-    PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult);
+    
+    // 输入人脸识别结果到播放器
+    if (!PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult.get())) {
+        LOG_ERROR("Failed to input face recognition result to player");
+    }
+    
+    // 智能指针会在作用域结束时自动释放内存
 }
 
 void PicMatchWidget::Quit()
@@ -102,33 +133,117 @@ void PicMatchWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 }
 
-void PicMatchWidget::Run(int )
+void PicMatchWidget::Run(const std::string& showid)
 {
-    LOG_DEBUG("Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
-    PicShowInfo* demodata = new PicShowInfo(); // 自带析构函数
-    std::string imagename = "xiaoxiaoyan_1";
-    #ifdef __APPLE__
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/xiaoxiaoyan_1.jpg";
+    if (m_showId != showid) {
+        m_showId = showid;
+    }
+    else {
+        LOG_DEBUG("m_showId == showid; Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
+        return;
+    }
+    // todo：这里读取图片数据
+    std::string imagename = GetNextImageName();
+    LOG_DEBUG("Run PicPlayer GetNextImageName {}", imagename.c_str());
+    
+#ifdef __APPLE__
+    std::string imagePath = "/Users/chrisyan/ClientForFrameWork/picdata/" + imagename + ".jpg";
 #else
-    const char* imagePath = "E:/ClientForFrameWork/xiaoxiaoyan_1.jpg";
+    std::string imagePath = "E:/ClientForFrameWork/picdata/"+ imagename + ".jpg";
 #endif
-    std::memcpy(demodata->imageId, imagename.c_str(), imagename.size());
+
+    LOG_DEBUG("Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
+    std::unique_ptr<PicShowInfo> demodata = std::make_unique<PicShowInfo>();
+    std::unique_ptr<FaceDetectionResult> faceResult = std::make_unique<FaceDetectionResult>();
+
+    std::memcpy(demodata->imageId, imagename.c_str(), IMAGE_ID_LEN);
     demodata->picReadTime = 1;
-    LoadJpegToRGBA(imagePath, demodata);
-    FaceDetectionResult* faceResult = new FaceDetectionResult();
-    std::memcpy(faceResult->imageId, imagename.c_str(), imagename.size());
-    DetectFacesInRgba(demodata, faceResult);
-    LOG_DEBUG("faceResult faceCount: {}", faceResult->faceCount);
-    PicPlayer_InputPicData(m_handle, 1, (void*)demodata);
+    // 同样处理faceResult的imageId
+    std::memcpy(faceResult->imageId, imagename.c_str(), IMAGE_ID_LEN);
+    
+    // 加载图片数据
+    if (!LoadJpegToRGBA(imagePath.c_str(), demodata.get())) {
+        LOG_ERROR("Failed to load image: {}", imagePath);
+        return;
+    }
+    
+    // 执行人脸检测
+    if (DetectFacesInRgba(demodata.get(), faceResult.get()) != 0) {
+        LOG_ERROR("Face detection failed");
+        return;
+    }
+    
+    LOG_DEBUG("InitPicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
+    
+    // 输入图片数据到播放器
+    if (!PicPlayer_InputPicData(m_handle, 1, (void*)demodata.get())) {
+        LOG_ERROR("Failed to input picture data to player");
+        return;
+    }
+    
+    // 镜像处理人脸坐标
     if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
         for (int i = 0; i < faceResult->faceCount; ++i) {
-            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)，保持人脸宽度不变
-            // 这样可以确保人脸在镜像后仍占据相同宽度，但位置相对于中心对称
+            // 镜像处理：x坐标从 x 变为 (1.0 - x - width)
             faceResult->faces[i].x = 1.0f - faceResult->faces[i].x - faceResult->faces[i].width;
         }
     }
-    PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult);
+    
+    // 输入人脸识别结果到播放器
+    if (!PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult.get())) {
+        LOG_ERROR("Failed to input face recognition result to player");
+    }
+    
+    // 智能指针会在作用域结束时自动释放内存
 }
+
+std::string PicMatchWidget::GetNextImageName()
+{
+    #ifdef __APPLE__
+    const std::string folderPath = "/Users/chrisyan/ClientForFrameWork/picdata/";
+#else
+    const std::string folderPath = "E:/ClientForFrameWork/picdata/";
+#endif
+
+    static std::vector<std::string> imageNames;
+    static size_t currentIndex = 0;
+    static bool initialized = false;
+    
+    // 第一次调用时初始化
+    if (!initialized) {
+        try {
+            QDir directory(QString::fromStdString(folderPath));
+            if (directory.exists()) {
+                directory.setFilter(QDir::Files);
+                directory.setNameFilters(QStringList() << "*.jpg" << "*.jpeg" << "*.png" << "*.bmp");
+                directory.setSorting(QDir::Name);
+                
+                QFileInfoList fileList = directory.entryInfoList();
+                
+                for (const QFileInfo& fileInfo : fileList) {
+                    std::string baseName = fileInfo.baseName().toStdString();
+                    imageNames.push_back(baseName);
+                }
+                
+                LOG_INFO("Initialized image list with {} images", imageNames.size());
+            }
+        } catch (const std::exception& e) {
+            LOG_ERROR("Error initializing image list: {}", e.what());
+        }
+        initialized = true;
+    }
+    
+    // 返回下一个图片名
+    if (!imageNames.empty()) {
+        std::string imageName = imageNames[currentIndex];
+        currentIndex = (currentIndex + 1) % imageNames.size(); // 循环使用
+        return imageName;
+    }
+    
+    // 如果没有找到图片，返回默认值
+    return "default_image";
+}
+
 
 void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser)
 {
@@ -138,18 +253,18 @@ void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, voi
             std::string showid((const char*)pData);
             LOG_DEBUG("showid : {}", showid.data());
             LOG_DEBUG("Run PicPlayer size: {} x {}", pThis->m_playerWidget->width(), pThis->m_playerWidget->height());
-            pThis->Run(1);
+            pThis->Run(showid);
         }
     }
     return nullptr;
 }
 
-void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata)
+bool PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata)
 {
     // 参数校验
     if (!imagePath || !demodata) {
         LOG_ERROR("Invalid input parameters.");
-        return;
+        return false;
     }
 
     int channels, picWidth, picHeight;
@@ -157,7 +272,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
     unsigned char* imageData = stbi_load(imagePath, &picWidth, &picHeight, &channels, 4);
     if (!imageData) {
         LOG_ERROR("Failed to load image: {}, Reason: {}", imagePath, (stbi_failure_reason() ? stbi_failure_reason() : "Unknown error"));
-        return;
+        return false;
     }
 
    // 手动管理 stbi_load 分配的内存，使用 stbi_image_free 释放
@@ -180,7 +295,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
     auto rgbaDataPtr = std::make_unique<char[]>(demodata->imageRgbaLen);
     if (!rgbaDataPtr) {
         LOG_ERROR("Failed to allocate memory for image data.");
-        return;
+        return false;
     }
 
    // 将图像数据复制到目标缓冲区
@@ -188,6 +303,7 @@ void PicMatchWidget::LoadJpegToRGBA(const char* imagePath, PicShowInfo *demodata
 
    // 更新 demodata 指针
    demodata->imageRgbaData = rgbaDataPtr.release(); // 转移所有权给 demodata
+   return true;
 }
 
 void PicMatchWidget::RotateImage90Degrees(unsigned char* imageData, unsigned char*& rotatedData, int width, int height, int channels) {

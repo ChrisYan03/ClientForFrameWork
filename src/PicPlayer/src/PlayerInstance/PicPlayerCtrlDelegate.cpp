@@ -27,10 +27,12 @@ void PicPlayerCtrlDelegate::InputPicData(int type, void* showData)
         return;
     }
     if (type == 1) {
-        std::shared_ptr<PicShowInfo> sharedShowData(static_cast<PicShowInfo*>(showData), [](PicShowInfo* p) { 
-            if (p) {
-                delete p;
-            } 
+        PicShowInfo* originalData = static_cast<PicShowInfo*>(showData);
+        PicShowInfo* copiedData = new PicShowInfo(*originalData); // 使用拷贝构造函数进行深拷贝
+        std::shared_ptr<PicShowInfo> sharedShowData(copiedData, [](PicShowInfo* p) {
+            if(p) {
+                delete p; 
+            }
         });
         m_loop.asyncInvokeAny([this, sharedShowData](){
             m_playerBasePtr->InputPicData(sharedShowData);

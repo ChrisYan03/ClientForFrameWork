@@ -16,7 +16,7 @@ public:
     void InitPicPlayer();
 
     void Run();
-    void Run(int );
+    void Run(const std::string& showid);
 
     void Quit();
 
@@ -25,11 +25,13 @@ protected:
 
 private:
     static void* PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser);
-    void LoadJpegToRGBA(const char* imagePath, PicShowInfo* demodata);
+    bool LoadJpegToRGBA(const char* imagePath, PicShowInfo* demodata);
     void RotateImage90Degrees(unsigned char* imageData, unsigned char*& rotatedData, int width, int height, int channels);
-
+    std::string GetNextImageName(); // 获取下一个图片名称的函数
+    
 private:
     int m_handle;
     QWidget * m_playerWidget;
+    std::string m_showId;
 };
 #endif // PICMATCHWIDGET_H

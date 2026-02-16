@@ -13,6 +13,12 @@ if(WIN32)
     add_compile_options(-Od)
     # 添加UTF-8编译选项以支持spdlog
     add_compile_options(/utf-8)
+elseif(APPLE)
+    # 查找OpenGL库
+    find_package(OpenGL REQUIRED)
+    if(NOT OPENGL_FOUND)
+        message(FATAL_ERROR "OpenGL library not found")
+    endif()
 endif()
 
 # 设置源码目录
@@ -26,12 +32,6 @@ set(PLAYERINS_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/PlayerInstance)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/Imgui)
 set(RENDER_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/Render)
 set(NODES_DIR ${CMAKE_SOURCE_DIR}/PicPlayer/src/NodeDataDef)
-
-# 查找OpenGL库
-find_package(OpenGL REQUIRED)
-if(NOT OPENGL_FOUND)
-    message(FATAL_ERROR "OpenGL library not found")
-endif()
 
 # 添加第三方库的头文件路径
 include_directories(${EXT_DIR}/include
@@ -110,7 +110,7 @@ if(APPLE)
         glfw3
         GLEW
         spdlog
-        OpenGL::GL
+        "-framework OpenGL"
     )
 else()
     target_compile_definitions(PicPlayer PRIVATE PICPLAYER_EXPORTS)

@@ -20,6 +20,11 @@ public:
     void destroy(); 
 
 private:
+    // 人脸质量评估函数
+    float calculateFaceQuality(const cv::Mat& grayImage, const cv::Rect& faceRect, bool isProfile = false);
+
+private:
     cv::CascadeClassifier* face_cascade;
+    cv::CascadeClassifier* profile_face_cascade;
 };
 #endif // _FACE_RECOGNITION_MANAGER_H_

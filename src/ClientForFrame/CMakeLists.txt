@@ -11,6 +11,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(APPLE)
     set(CMAKE_PREFIX_PATH "/usr/local/Qt-6.8.1")
+    # 解决AGL框架找不到的问题 - M1芯片终极方案
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
+    set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Build architectures")
+    
+    # 关键改进
+    # 方法1：使用链接器标志忽略未解析的符号
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup")
+    
+    # 设置Qt使用Cocoa而不是Carbon
+    set(QT_MAC_OPENGL_IMPLEMENTATION "CoreProfile")
+    
+    # 创建链接器过滤脚本的完整路径
+    set(LINKER_FILTER_SCRIPT "${CMAKE_SOURCE_DIR}/filter_agl_linker.sh")
+    
+    # 使脚本可执行
+    execute_process(COMMAND chmod +x ${LINKER_FILTER_SCRIPT})
+    
+    # 设置自定义链接器
+    set(CMAKE_CXX_LINK_EXECUTABLE "${LINKER_FILTER_SCRIPT} <CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
+    
 else()
     set(CMAKE_PREFIX_PATH "D:/Qt/6.5.3/msvc2019_64/lib/cmake")
     set(CMAKE_CXX_FLAGS_RELEASE /Zi)   #设置C/C++调试信息格式
@@ -57,12 +77,50 @@ message("picrecognition_dir: ${PICRECOGNITION_DIR}")
 include_directories(${PICRECOGNITION_DIR}/src)
 set(OpenCV_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/../ext/lib/opencv2/Win64)
 message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ClientForFrame
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-    target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+    
+    # M1芯片Mac的特殊处理
+    if(APPLE)
+        # 先链接我们的库
+        target_link_libraries(ClientForFrame PRIVATE PicPlayer PicRecognition)
+        
+        # 手动指定Qt库，避免自动添加AGL
+        target_link_libraries(ClientForFrame PRIVATE 
+            ${Qt${QT_VERSION_MAJOR}Widgets_LIBRARIES}
+            ${Qt${QT_VERSION_MAJOR}Gui_LIBRARIES}
+            ${Qt${QT_VERSION_MAJOR}Core_LIBRARIES}
+        )
+        
+        # 显式指定需要的框架，但排除AGL
+        target_link_libraries(ClientForFrame PRIVATE 
+            "-framework OpenGL"
+            "-framework AppKit" 
+            "-framework ImageIO"
+            "-framework Metal"
+            "-framework IOKit"
+            "-framework DiskArbitration"
+            "-framework UniformTypeIdentifiers"
+        )
+        
+        # 使用链接器标志强制排除AGL并允许动态查找
+        set_target_properties(ClientForFrame PROPERTIES
+            LINK_FLAGS "-Wl,-framework,OpenGL -Wl,-framework,AppKit -Wl,-framework,ImageIO -Wl,-framework,Metal -Wl,-framework,IOKit -Wl,-framework,DiskArbitration -Wl,-framework,UniformTypeIdentifiers -Wl,-undefined,dynamic_lookup"
+        )
+        
+        # 设置rpath
+        set_target_properties(ClientForFrame PROPERTIES
+            INSTALL_RPATH "@executable_path/../Frameworks"
+        )
+        
+    else()
+        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+    endif()
+    
     qt_finalize_executable(ClientForFrame)
 else()
     if(ANDROID)

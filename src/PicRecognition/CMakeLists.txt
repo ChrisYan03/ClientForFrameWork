@@ -43,25 +43,86 @@ list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
 list(REMOVE_DUPLICATES PROJECT_SOURCES)
 # 创建共享库
 add_library(PicRecognition SHARED ${PROJECT_SOURCES})
-# 设置库文件路径
-set(OpenCV_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/opencv2/Win64)
-message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
+
 # 添加第三方库的库文件路径
 if(APPLE)
-    link_directories(
-        ${EXT_DIR}/lib/glew/Mac
-        ${EXT_DIR}/lib/glfw/Mac
-        ${EXT_DIR}/lib/spdlog/Mac
-        ${OPENGL_LIBRARY_DIRS}
+    set(OpenCV_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/opencv2/Mac)
+    set(SPDLOG_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/spdlog/Mac)
+    message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
+    # 创建导入库目标
+    add_library(opencv_calib3d SHARED IMPORTED)
+    set_target_properties(opencv_calib3d PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_calib3d.4.14.0.dylib
     )
-    # 添加第三方库
+    
+    add_library(opencv_core SHARED IMPORTED)
+    set_target_properties(opencv_core PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_core.4.14.0.dylib
+    )
+    
+    add_library(opencv_dnn SHARED IMPORTED)
+    set_target_properties(opencv_dnn PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_dnn.4.14.0.dylib
+    )
+    
+    add_library(opencv_face SHARED IMPORTED)
+    set_target_properties(opencv_face PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_face.4.14.0.dylib
+    )
+    
+    add_library(opencv_flann SHARED IMPORTED)
+    set_target_properties(opencv_flann PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_flann.4.14.0.dylib
+    )
+    
+    add_library(opencv_highgui SHARED IMPORTED)
+    set_target_properties(opencv_highgui PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_highgui.4.14.0.dylib
+    )
+    
+    add_library(opencv_imgcodecs SHARED IMPORTED)
+    set_target_properties(opencv_imgcodecs PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_imgcodecs.4.14.0.dylib
+    )
+    
+    add_library(opencv_imgproc SHARED IMPORTED)
+    set_target_properties(opencv_imgproc PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_imgproc.4.14.0.dylib
+    )
+    
+    add_library(opencv_objdetect SHARED IMPORTED)
+    set_target_properties(opencv_objdetect PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_objdetect.4.14.0.dylib
+    )
+    
+    add_library(opencv_videoio SHARED IMPORTED)
+    set_target_properties(opencv_videoio PROPERTIES
+        IMPORTED_LOCATION ${OpenCV_LIBRARY_DIR}/libopencv_videoio.4.14.0.dylib
+    )
+    
+    add_library(spdlog STATIC IMPORTED)
+    set_target_properties(spdlog PROPERTIES
+        IMPORTED_LOCATION ${SPDLOG_LIBRARY_DIR}/libspdlog.a
+    )
+    
+    # 链接导入的库
     target_link_libraries(PicRecognition PRIVATE
-        glfw3
-        GLEW
+        opencv_calib3d
+        opencv_core
+        opencv_dnn
+        opencv_face
+        opencv_flann
+        opencv_highgui
+        opencv_imgcodecs
+        opencv_imgproc
+        opencv_objdetect
+        opencv_videoio
         spdlog
-        OpenGL::GL
     )
 else()
+    # 设置库文件路径
+    set(OpenCV_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/opencv2/Win64)
+    message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
     link_directories(
         ${OpenCV_LIBRARY_DIR}
         ${EXT_DIR}/lib/spdlog/Win64

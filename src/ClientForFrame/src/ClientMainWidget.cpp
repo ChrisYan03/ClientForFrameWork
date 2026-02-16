@@ -7,7 +7,7 @@ ClientMainWidget::ClientMainWidget(QWidget *parent)
     : QWidget(parent)
     , m_pPicMatchWidget(nullptr)
 {
-    setMinimumSize(1200, 700);
+    setMinimumSize(1400, 900);
     InitMainUI();
 }
 

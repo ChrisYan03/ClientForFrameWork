@@ -1,5 +1,6 @@
 ﻿#include "PicPlayerMovieByScene.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
+#include "LogUtil.h"
 
 PicPlayerMovieByScene::PicPlayerMovieByScene(const ImRect& rc, int cacheNum)
     : PicPlayerScene(rc, cacheNum)
@@ -208,13 +209,20 @@ void PicPlayerMovieByScene::SetGeometryCallback(std::shared_ptr<PicRenderForDraw
 
 void PicPlayerMovieByScene::SetPicInfoToComponent(int index)
 {
-    auto curEndIndex = m_curIndex;
-    if (m_curShowid.empty() || index != curEndIndex) {
+    if (m_curShowid.empty() || index != m_curIndex) {
         // id变化时回调数据
-        if (GetPicDrawPtr(index)) {
-            m_curShowid = GetPicDrawPtr(index)->GetPicId();
-            if (!m_curShowid.empty())
-                OnCurPicChange(m_curShowid);
+        if (GetPicDrawPtr(m_curIndex)) {
+            std::string newShowId = GetPicDrawPtr(m_curIndex)->GetPicId();
+            // 添加更多调试信息
+            LOG_DEBUG("SetPicInfoToComponent called with allsize {}", m_picList.size());
+            LOG_DEBUG("SetPicInfoToComponent called with index: {}, current m_curIndex: {}, newShowId: {}", 
+                index, m_curIndex, newShowId.c_str());
+            if (newShowId != m_curShowid) {  // 更严格的比较条件
+                m_curShowid = newShowId;
+                LOG_DEBUG("ShowId changed from '{}' to '{}'", m_curShowid.c_str(), newShowId.c_str());
+                if (!m_curShowid.empty())
+                    OnCurPicChange(m_curShowid);
+            }
         }
     }
 }
