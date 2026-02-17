@@ -53,7 +53,7 @@ void PicGeometry::DrawImageForVideo(const ImVec2& drawStart, const ImVec2& drawE
         
         // 在人脸框上方绘制置信度标签
         char label[64];
-        snprintf(label, sizeof(label), "#face_%zu:%.0f%%", i + 1, m_faceRectVec[i].confidence * 100); // 显示实际置信度百分比
+        snprintf(label, sizeof(label), "face:%.0f%%", m_faceRectVec[i].confidence * 100); // 显示实际置信度百分比
         
         // 计算标签文本尺寸
         ImVec2 textSize = ImGui::CalcTextSize(label);
@@ -61,7 +61,21 @@ void PicGeometry::DrawImageForVideo(const ImVec2& drawStart, const ImVec2& drawE
         // 在人脸框上方绘制标签背景
         ImVec2 labelPos = ImVec2(rectStart.x, rectStart.y - textSize.y - 4); // 4像素间距
         // 绘制标签文本
-        PicTexture::instance()->DrawRecogResult(labelPos, label, IM_COL32(0, 255, 0, 255));
+        PicTexture::instance()->DrawRecogResult(labelPos, label, IM_COL32(0, 255, 0, 255)); 
+        // 在人脸框下方绘制年龄标签
+        if (m_faceRectVec[i].age != -1) {
+            char ageLabel[64];
+            snprintf(ageLabel, sizeof(ageLabel), "age: %d", m_faceRectVec[i].age);
+            
+            // 计算年龄标签文本尺寸
+            ImVec2 ageTextSize = ImGui::CalcTextSize(ageLabel);
+            
+            // 在人脸框下方绘制年龄标签
+            ImVec2 ageLabelPos = ImVec2(rectStart.x, rectEnd.y + 4); // 4像素间距
+            
+            // 绘制年龄标签文本
+            PicTexture::instance()->DrawRecogResult(ageLabelPos, ageLabel, IM_COL32(0, 255, 0, 255)); // 使用绿色显示年龄
+        }
     }
 }
 
@@ -104,7 +118,7 @@ void PicGeometry::AddFaceRecogResult(std::shared_ptr<FaceDetectionResult> data)
             auto face = data->faces[i];
             ImVec2 drawStart = ImVec2(face.x * m_picWidth, face.y * m_picHeight);
             ImVec2 drawEnd = ImVec2((face.x + face.width) * m_picWidth, (face.y + face.height) * m_picHeight);
-            m_faceRectVec.push_back(FaceRectWithConfidence(ImRect(drawStart, drawEnd), face.confidence));
+            m_faceRectVec.push_back(FaceRectWithConfidence(ImRect(drawStart, drawEnd), face.confidence, face.age));
         }
     }
 }

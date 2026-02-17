@@ -14,9 +14,10 @@ struct FaceQuality {
     float confidence;
     bool isProfile;
     int detectionType;
+    int age;  // New field for storing detected age
     
-    FaceQuality(const cv::Rect& r, float score, float conf, bool profile = false, int type = 0)
-        : rect(r), qualityScore(score), confidence(conf), isProfile(profile), detectionType(type) {}
+    FaceQuality(const cv::Rect& r, float score, float conf, bool profile = false, int type = 0, int a = -1)
+        : rect(r), qualityScore(score), confidence(conf), isProfile(profile), detectionType(type), age(a) {}
     
     bool operator<(const FaceQuality& other) const {
         return qualityScore > other.qualityScore;
@@ -26,7 +27,10 @@ struct FaceQuality {
 FaceRecognitionManager::FaceRecognitionManager()
     : face_cascade(nullptr)
     , profile_face_cascade(nullptr)
+    , faceNet()               // 初始化人脸检测网络
+    , ageNet()                // 初始化年龄估计网络
     , use_dnn(false)
+    , use_age_estimation(false) // 默认不启用年龄估计
 {
 }
 
@@ -99,13 +103,13 @@ int FaceRecognitionManager::init(const char* data_path)
                 // 判断是哪种模型格式
                 if (modelPath.find(".pb") != std::string::npos && configPath.find(".pbtxt") != std::string::npos) {
                     // TensorFlow模型
-                    net = cv::dnn::readNetFromTensorflow(modelPath, configPath);
+                    faceNet = cv::dnn::readNetFromTensorflow(modelPath, configPath);
                 } else if (modelPath.find(".caffemodel") != std::string::npos && configPath.find(".prototxt") != std::string::npos) {
                     // Caffe模型
-                    net = cv::dnn::readNetFromCaffe(configPath, modelPath);
+                    faceNet = cv::dnn::readNetFromCaffe(configPath, modelPath);
                 }
 
-                if (!net.empty()) {
+                if (!faceNet.empty()) {
                     use_dnn = true;
                     LOG_INFO("Successfully loaded DNN face detection model");
                 } else {
@@ -150,7 +154,67 @@ int FaceRecognitionManager::init(const char* data_path)
             }
         }
 
-        LOG_INFO("Face recognition initialized successfully, using DNN: {}", use_dnn);
+        // 尝试加载年龄估计模型
+        std::vector<std::string> ageConfigPaths = {
+            exe_dir + "/face_detector/age_deploy.prototxt",
+            exe_dir + "/age_model/age_deploy.prototxt",
+            exe_dir + "/models/age_deploy.prototxt",
+            exe_dir + "/data/models/age_deploy.prototxt"
+        };
+
+        std::vector<std::string> ageModelPaths = {
+            exe_dir + "/face_detector/age_net.caffemodel",
+            exe_dir + "/age_model/age_net.caffemodel",
+            exe_dir + "/models/age_net.caffemodel",
+            exe_dir + "/data/models/age_net.caffemodel"
+        };
+
+        std::string ageConfigPath, ageModelPath;
+        bool ageConfigFound = false;
+        bool ageModelFound = false;
+
+        // 查找年龄模型配置文件
+        for (const auto& path : ageConfigPaths) {
+            std::ifstream file(path);
+            if (file.is_open()) {
+                ageConfigPath = path;
+                ageConfigFound = true;
+                LOG_INFO("Found age model config: {}", path);
+                file.close();
+                break;
+            }
+        }
+
+        // 查找年龄模型文件
+        for (const auto& path : ageModelPaths) {
+            std::ifstream file(path);
+            if (file.is_open()) {
+                ageModelPath = path;
+                ageModelFound = true;
+                LOG_INFO("Found age model: {}", path);
+                file.close();
+                break;
+            }
+        }
+
+        // 如果年龄模型文件都找到了，尝试加载
+        if (ageConfigFound && ageModelFound) {
+            try {
+                ageNet = cv::dnn::readNetFromCaffe(ageConfigPath, ageModelPath);
+                if (!ageNet.empty()) {
+                    use_age_estimation = true;
+                    LOG_INFO("Successfully loaded age estimation model");
+                } else {
+                    LOG_WARN("Failed to load age estimation model");
+                }
+            } catch (const cv::Exception& e) {
+                LOG_WARN("Age estimation model loading failed: {}", e.what());
+            }
+        } else {
+            LOG_WARN("Age estimation model files not found, age detection will be disabled");
+        }
+
+        LOG_INFO("Face recognition initialized successfully, using DNN: {}, age estimation: {}", use_dnn, use_age_estimation);
         return 0;
     }
     catch (...) {
@@ -193,14 +257,62 @@ float FaceRecognitionManager::calculateFaceQuality(const cv::Mat& grayImage, con
     }
 }
 
+// 年龄估计函数
+int FaceRecognitionManager::estimateAge(const cv::Mat& faceImage) {
+    // 如果没有加载年龄估计模型，直接返回-1
+    if (!use_age_estimation || ageNet.empty()) {
+        return -1;
+    }
+    
+    try {
+        // 预处理人脸图像用于年龄估计
+        cv::Mat inputBlob = cv::dnn::blobFromImage(faceImage, 1.0, cv::Size(227, 227), 
+                                                  cv::Scalar(78.42633776, 87.76891437, 114.89584775));
+        
+        // 设置输入到年龄估计模型
+        ageNet.setInput(inputBlob);
+        
+        // 运行前向传播获取年龄预测
+        cv::Mat agePreds = ageNet.forward();
+        
+        // 定义年龄组
+        std::vector<std::string> ageList = {"(0-2)", "(4-6)", "(8-12)", "(15-20)", 
+                                          "(25-32)", "(38-43)", "(48-53)", "(60-100)"};
+        
+        // 获取最高概率的索引
+        cv::Point maxLoc;
+        double maxVal;
+        minMaxLoc(agePreds, NULL, &maxVal, NULL, &maxLoc);
+        int ageIdx = maxLoc.x;
+        
+        // 返回估算的年龄（使用年龄范围的中间值）
+        std::string ageRange = ageList[ageIdx];
+        LOG_DEBUG("Age prediction: range={}, confidence={:.3f}", ageRange, maxVal);
+        if (ageRange == "(0-2)") return 1;
+        else if (ageRange == "(4-6)") return 4;
+        else if (ageRange == "(8-12)") return 10;
+        else if (ageRange == "(15-20)") return 17;
+        else if (ageRange == "(25-32)") return 28;
+        else if (ageRange == "(38-43)") return 40;
+        else if (ageRange == "(48-53)") return 50;
+        else if (ageRange == "(60-100)") return 70;
+        
+        return -1; // 未知年龄
+        
+    } catch (const cv::Exception& e) {
+        LOG_WARN("Age estimation failed: {}, skipping age detection", e.what());
+        return -1;
+    }
+}
+
 // 使用DNN进行人脸检测
 std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& image) {
     std::vector<cv::Rect> faces;
     
     try {
         LOG_DEBUG("Starting DNN face detection, image size: {}x{}", image.cols, image.rows);
-        LOG_DEBUG("Net is empty: {}", net.empty());
-        if(net.empty()) {
+        LOG_DEBUG("Net is empty: {}", faceNet.empty());
+        if(faceNet.empty()) {
             LOG_ERROR("DNN network is empty, cannot perform detection");
             return faces;
         }
@@ -208,7 +320,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
         // 创建blob - 对于SSD模型，通常输入尺寸为300x300
         cv::Mat blob = cv::dnn::blobFromImage(image, 1.0, cv::Size(300, 300), cv::Scalar(104.0, 177.0, 123.0), false);
         LOG_DEBUG("Blob created with size: {}x{}x{}x{}", blob.size[0], blob.size[1], blob.size[2], blob.size[3]);
-        net.setInput(blob);
+        faceNet.setInput(blob);
         // 尝试不同的输出层名称，这是OpenCV DNN人脸检测模型的标准输出层名称
         std::vector<cv::String> outBlobNames = {"detection_out", "detection_out_final", "detection_output", "output"};
         cv::Mat detections;
@@ -217,7 +329,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
         // 尝试标准输出层名称
         for (const auto& outName : outBlobNames) {
             try {
-                detections = net.forward(outName);
+                detections = faceNet.forward(outName);
                 LOG_DEBUG("Successfully got detections using output layer: {}, dims: {}", outName, detections.dims);
                 if (detections.total() > 0) {
                     detectionSuccess = true;
@@ -231,7 +343,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
         // 如果仍然失败，尝试直接forward
         if (!detectionSuccess) {
             try {
-                detections = net.forward();
+                detections = faceNet.forward();
                 LOG_DEBUG("Got detections using default forward, dims: {}", detections.dims);
                 if (detections.total() > 0) {
                     detectionSuccess = true;
@@ -256,12 +368,9 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                 float y_start = detections.ptr<float>(0, 0, i)[4];
                 float x_end = detections.ptr<float>(0, 0, i)[5];
                 float y_end = detections.ptr<float>(0, 0, i)[6];
-                
-                LOG_DEBUG("Detection {}: confidence={:.3f}, coords=({:.3f},{:.3f})-({:.3f},{:.3f})", 
-                          i, confidence, x_start, y_start, x_end, y_end);
-                
-                // 设置置信度阈值
-                if (confidence > 0.5) {  // 可根据需要调整阈值
+
+                // 降低置信度阈值以检测更模糊或遮挡的人脸
+                if (confidence > 0.3) {  // 从0.5降低到0.3，使检测更敏感
                     int x = static_cast<int>(x_start * image.cols);
                     int y = static_cast<int>(y_start * image.rows);
                     int w = static_cast<int>(x_end * image.cols - x);
@@ -276,14 +385,14 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                     LOG_DEBUG("Converted coordinates: x={}, y={}, w={}, h={}", x, y, w, h);
                     
                     // 过滤掉过小的人脸
-                    if (w >= 20 && h >= 20) {
+                    if (w >= 15 && h >= 15) {  // 从20减少到15，可以检测更小的人脸
                         LOG_DEBUG("Adding face detection: ({},{})-({},{})", x, y, x+w, y+h);
                         faces.push_back(cv::Rect(x, y, w, h));
                     } else {
-                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 20)", w, h);
+                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 15)", w, h);
                     }
                 } else {
-                    LOG_DEBUG("Skipping low confidence detection: {:.3f} (threshold: 0.5)", confidence);
+                    LOG_DEBUG("Skipping low confidence detection: {:.3f} (threshold: 0.3)", confidence);
                 }
             }
         } else if (detections.dims == 3 && detections.size[0] == 1 && detections.size[1] > 0 && detections.size[2] >= 7) {
@@ -299,7 +408,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                 LOG_DEBUG("Detection {}: confidence={:.3f}, coords=({:.3f},{:.3f})-({:.3f},{:.3f})", 
                           i, confidence, x_start, y_start, x_end, y_end);
                 
-                // 设置置信度阈值
+                // 降低置信度阈值以检测更模糊或遮挡的人脸
                 if (confidence > 0.7) {  // 可据需要调整阈值
                     int x = static_cast<int>(x_start * image.cols);
                     int y = static_cast<int>(y_start * image.rows);
@@ -315,11 +424,11 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                     LOG_DEBUG("Converted coordinates: x={}, y={}, w={}, h={}", x, y, w, h);
                     
                     // 过滤掉过小的人脸
-                    if (w >= 20 && h >= 20) {
+                    if (w >= 15 && h >= 15) {  // 从20减少到15，可以检测更小的人脸
                         LOG_DEBUG("Adding face detection: ({},{})-({},{})", x, y, x+w, y+h);
                         faces.push_back(cv::Rect(x, y, w, h));
                     } else {
-                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 20)", w, h);
+                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 15)", w, h);
                     }
                 } 
             }
@@ -336,7 +445,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                 LOG_DEBUG("Detection {}: confidence={:.3f}, coords=({:.3f},{:.3f})-({:.3f},{:.3f})", 
                           i, confidence, x_start, y_start, x_end, y_end);
                 
-                // 设置置信度阈值
+                // 降低置信度阈值以检测更模糊或遮挡的人脸
                 if (confidence > 0.5) {  // 可根据需要调整阈值
                     int x = static_cast<int>(x_start * image.cols);
                     int y = static_cast<int>(y_start * image.rows);
@@ -352,11 +461,11 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                     LOG_DEBUG("Converted coordinates: x={}, y={}, w={}, h={}", x, y, w, h);
                     
                     // 过滤掉过小的人脸
-                    if (w >= 20 && h >= 20) {
+                    if (w >= 15 && h >= 15) {  // 从20减少到15，可以检测更小的人脸
                         LOG_DEBUG("Adding face detection: ({},{})-({},{})", x, y, x+w, y+h);
                         faces.push_back(cv::Rect(x, y, w, h));
                     } else {
-                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 20)", w, h);
+                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 15)", w, h);
                     }
                 }
             }
@@ -407,47 +516,73 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
             // 实际上，对于人脸检测，我们应使用彩色BGR图像
             cv::Mat colorImg;
             cv::cvtColor(rgbaMat, colorImg, cv::COLOR_RGBA2BGR);
+            
+            // 对于可能包含遮挡或角度不佳的人脸，使用更敏感的检测参数
             std::vector<cv::Rect> dnnFaces = detectFacesWithDNN(colorImg);
             LOG_DEBUG("DNN returned {} faces", dnnFaces.size());
             for (const auto& face : dnnFaces) {
                 float quality = calculateFaceQuality(grayMat, face, false);
                 float confidence = 0.8f + 0.2f * quality; // DNN通常更准确
-                allFaces.emplace_back(face, quality, confidence, false, 0);
+                
+                // 提取人脸区域进行年龄估计
+                cv::Mat faceRegion = colorImg(face);
+                int estimatedAge = estimateAge(faceRegion);
+                
+                allFaces.emplace_back(face, quality, confidence, false, 0, estimatedAge);
             }
         } else {
             LOG_DEBUG("Using Haar cascade for face detection");
             // 传统方法：正面人脸检测
             if (face_cascade) {
                 std::vector<cv::Rect> frontalFaces;
-                face_cascade->detectMultiScale(grayMat, frontalFaces, 1.1, 3, 0, cv::Size(30, 30));
+                // 使用更敏感的检测参数，以检测可能被遮挡或角度不佳的人脸
+                face_cascade->detectMultiScale(grayMat, frontalFaces, 1.08, 5, 0, cv::Size(20, 20));
                 
                 for (const auto& face : frontalFaces) {
                     float quality = calculateFaceQuality(grayMat, face, false);
                     float confidence = 0.8f + 0.2f * quality;
-                    allFaces.emplace_back(face, quality, confidence, false, 0);
+                    
+                    // 提取人脸区域进行年龄估计（使用BGR图像）
+                    cv::Mat faceRegion = bgrMat(face);
+                    int estimatedAge = estimateAge(faceRegion);
+                    
+                    allFaces.emplace_back(face, quality, confidence, false, 0, estimatedAge);
                 }
 
                 // 侧脸检测 - 简化版本
                 if (profile_face_cascade) {
                     // 左侧脸
                     std::vector<cv::Rect> leftFaces;
-                    profile_face_cascade->detectMultiScale(grayMat, leftFaces, 1.1, 2, 0, cv::Size(25, 25));
+                    profile_face_cascade->detectMultiScale(grayMat, leftFaces, 1.08, 5, 0, cv::Size(20, 20));
                     for (const auto& face : leftFaces) {
                         float quality = calculateFaceQuality(grayMat, face, true) * 0.85f;
                         float confidence = 0.6f + 0.2f * quality;
-                        allFaces.emplace_back(face, quality, confidence, true, 1);
+                        
+                        // 提取人脸区域进行年龄估计（使用BGR图像）
+                        cv::Mat faceRegion = bgrMat(face);
+                        int estimatedAge = estimateAge(faceRegion);
+                        
+                        allFaces.emplace_back(face, quality, confidence, true, 1, estimatedAge);
                     }
                     
                     // 右侧脸（图像翻转）
                     cv::Mat flipped;
                     cv::flip(grayMat, flipped, 1);
+                    cv::Mat flippedColor;
+                    cv::flip(bgrMat, flippedColor, 1);
                     std::vector<cv::Rect> rightFaces;
-                    profile_face_cascade->detectMultiScale(flipped, rightFaces, 1.1, 2, 0, cv::Size(25, 25));
+                    profile_face_cascade->detectMultiScale(flipped, rightFaces, 1.08, 5, 0, cv::Size(20, 20));
                     for (auto& face : rightFaces) {
                         face.x = grayMat.cols - face.x - face.width;
                         float quality = calculateFaceQuality(grayMat, face, true) * 0.85f;
                         float confidence = 0.6f + 0.2f * quality;
-                        allFaces.emplace_back(face, quality, confidence, true, 2);
+                        
+                        // 从翻转后的彩色图像中提取人脸区域进行年龄估计
+                        cv::Rect adjustedFace(face.x, face.y, face.width, face.height);
+                        cv::Mat faceRegion = flippedColor(adjustedFace);
+                        int estimatedAge = estimateAge(faceRegion);
+                        
+                        allFaces.emplace_back(face, quality, confidence, true, 2, estimatedAge);
                     }
                 }
             }
@@ -461,8 +596,8 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
             bool overlap = false;
             for (const auto& existing : uniqueFaces) {
                 cv::Rect intersection = face.rect & existing.rect;
-                cv::Rect uni = face.rect | existing.rect;
-                if (uni.area() > 0 && static_cast<float>(intersection.area()) / uni.area() > 0.3f) {
+                cv::Rect unionRect = face.rect | existing.rect;
+                if (unionRect.area() > 0 && static_cast<float>(intersection.area()) / unionRect.area() > 0.3f) {
                     overlap = true;
                     break;
                 }
@@ -486,6 +621,7 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
                 result->faces[i].width = static_cast<float>(fq.rect.width) / picInfo->picWidth;
                 result->faces[i].height = static_cast<float>(fq.rect.height) / picInfo->picHeight;
                 result->faces[i].confidence = fq.confidence;
+                result->faces[i].age = fq.age;  // Assign the detected age
             }
         }
 
@@ -493,9 +629,9 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
         LOG_DEBUG("Face detection completed: {} faces detected for image ID: {}", 
                   result->faceCount, picInfo->imageId);
         for (int i = 0; i < result->faceCount; ++i) {
-            LOG_DEBUG("Face {}: x={:.3f}, y={:.3f}, width={:.3f}, height={:.3f}, confidence={:.3f}", 
+            LOG_DEBUG("Face {}: x={:.3f}, y={:.3f}, width={:.3f}, height={:.3f}, confidence={:.3f}, age={}", 
                       i, result->faces[i].x, result->faces[i].y, result->faces[i].width, 
-                      result->faces[i].height, result->faces[i].confidence);
+                      result->faces[i].height, result->faces[i].confidence, result->faces[i].age);
         }
 
         return 0;
@@ -520,5 +656,6 @@ void FaceRecognitionManager::destroy()
         delete profile_face_cascade;
         profile_face_cascade = nullptr;
     }
-    net = cv::dnn::Net(); // 清空网络
+    faceNet = cv::dnn::Net(); // 清空人脸检测网络
+    ageNet = cv::dnn::Net();  // 清空年龄估计网络
 }

@@ -97,21 +97,23 @@ struct PicShowInfo
 };
 
 // 输入 图片识别数据
+// Input picture recognition data
 struct FaceInfo
 {
     float x;
     float y;
     float width;
     float height;
-    float confidence; // 置信度
+    float confidence; // Confidence level
+    int age;          // Age of the person detected
 
     FaceInfo()
-        : x(0.0f), y(0.0f), width(0.0f), height(0.0f), confidence(0.0f)
+        : x(0.0f), y(0.0f), width(0.0f), height(0.0f), confidence(0.0f), age(-1)
     {}
     
     // Copy constructor
     FaceInfo(const FaceInfo& other)
-        : x(other.x), y(other.y), width(other.width), height(other.height), confidence(other.confidence)
+        : x(other.x), y(other.y), width(other.width), height(other.height), confidence(other.confidence), age(other.age)
     {}
     
     // Assignment operator
@@ -122,6 +124,7 @@ struct FaceInfo
             width = other.width;
             height = other.height;
             confidence = other.confidence;
+            age = other.age;
         }
         return *this;
     }

@@ -27,10 +27,15 @@ private:
     // 使用DNN进行人脸检测
     std::vector<cv::Rect> detectFacesWithDNN(const cv::Mat& image);
 
+    // 年龄估计函数
+    int estimateAge(const cv::Mat& faceImage);
+
 private:
     cv::CascadeClassifier* face_cascade;
     cv::CascadeClassifier* profile_face_cascade;
-    cv::dnn::Net net;
+    cv::dnn::Net faceNet;      // 人脸检测网络
+    cv::dnn::Net ageNet;       // 年龄估计网络
     bool use_dnn;
+    bool use_age_estimation;   // 是否启用了年龄估计
 };
 #endif // _FACE_RECOGNITION_MANAGER_H_

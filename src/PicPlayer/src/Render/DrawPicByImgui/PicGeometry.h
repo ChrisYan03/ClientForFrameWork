@@ -12,9 +12,10 @@
 struct FaceRectWithConfidence {
     ImRect rect;
     float confidence;
+    int age;  // Added age field
     
-    FaceRectWithConfidence(const ImRect& r, float conf) 
-        : rect(r), confidence(conf) {}
+    FaceRectWithConfidence(const ImRect& r, float conf, int a = -1) 
+        : rect(r), confidence(conf), age(a) {}
 };
 
 class PicGeometry
