@@ -4,8 +4,8 @@
 #include <QHBoxLayout> 
 #include <QLabel>
 
-TitleWidget::TitleWidget(QWidget *parent)
-    : QWidget(parent)
+TitleWidget::TitleWidget(BaseWidget *parent)
+    : BaseWidget(parent)
 {
     setupUI();
 }

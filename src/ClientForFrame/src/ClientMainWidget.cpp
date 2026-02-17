@@ -3,8 +3,8 @@
 #include <QVBoxLayout>
 #include "LogUtil.h"
 
-ClientMainWidget::ClientMainWidget(QWidget *parent)
-    : QWidget(parent)
+ClientMainWidget::ClientMainWidget(BaseWidget *parent)
+    : BaseWidget(parent)
     , m_pPicMatchWidget(nullptr)
 {
     setMinimumSize(1400, 900);

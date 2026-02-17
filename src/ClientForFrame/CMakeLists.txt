@@ -47,23 +47,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 message("ClientForFrame qt_directory: Qt${QT_VERSION_MAJOR} found at ${Qt${QT_VERSION_MAJOR}_DIR}")
 # 设置源码目录
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src)
-set(PICMATCH_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent)
-set(TITLE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/TitleComponent)
-set(STBIMAGE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src/PicMatchComponent/StbImage)
-message("TITLE_DIR source_dir: ${TITLE_DIR}")
 
 # 定义源码文件
 # 使用 file(GLOB ...) 自动收集源文件
-file(GLOB PROJECT_SOURCES
-    "${TITLE_DIR}/*.cpp"
-    "${TITLE_DIR}/*.h"
+file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
     "${SOURCE_DIR}/*.cpp"
     "${SOURCE_DIR}/*.h"
-    "${PICMATCH_DIR}/*.cpp"
-    "${PICMATCH_DIR}/*.h"
-    "${STBIMAGE_DIR}/*.cpp"
-    "${STBIMAGE_DIR}/*.h"
 )
+list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
+list(REMOVE_DUPLICATES PROJECT_SOURCES)
 
 # 添加 PicPlayer 库路径
 set(PICPLAYER_DIR ${CMAKE_SOURCE_DIR}/PicPlayer)

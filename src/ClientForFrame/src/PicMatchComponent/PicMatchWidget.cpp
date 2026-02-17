@@ -8,8 +8,8 @@
 #include <QDir>
 #include <memory>
 
-PicMatchWidget::PicMatchWidget(QWidget *parent)
-    : QWidget(parent)
+PicMatchWidget::PicMatchWidget(BaseWidget *parent)
+    : BaseWidget(parent)
     , m_handle(-1)
     , m_playerWidget(nullptr)
     , m_showId("")
@@ -31,7 +31,7 @@ void PicMatchWidget::InitUI()
     QHBoxLayout* picMatchLayout = new QHBoxLayout(this);
     picMatchLayout->setSpacing(8);
     picMatchLayout->setContentsMargins(0, 0, 0, 0);
-    m_playerWidget = new QWidget();
+    m_playerWidget = new BaseWidget();
     QWidget * rightWidget = new QWidget();
     picMatchLayout->addWidget(m_playerWidget, 4);
     picMatchLayout->addWidget(rightWidget, 1);

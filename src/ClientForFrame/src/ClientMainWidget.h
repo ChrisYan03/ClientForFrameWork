@@ -1,15 +1,15 @@
 #ifndef CLIENTMAINWIDGET_H
 #define CLIENTMAINWIDGET_H
 
-#include <QWidget>
+#include "Common/BaseWidget.h"
 #include "PicMatchComponent/PicMatchWidget.h"
 
-class ClientMainWidget : public QWidget
+class ClientMainWidget : public BaseWidget
 {
     Q_OBJECT
 
 public:
-    ClientMainWidget(QWidget *parent = nullptr);
+    ClientMainWidget(BaseWidget *parent = nullptr);
     ~ClientMainWidget();
 
     void ClientMainInit();
@@ -19,7 +19,7 @@ private:
     void InitMainUI();
 
 private:
-    QWidget* m_titleWidget;
+    BaseWidget* m_titleWidget;
     PicMatchWidget* m_pPicMatchWidget;
 };
 #endif // CLIENTMAINWIDGET_H

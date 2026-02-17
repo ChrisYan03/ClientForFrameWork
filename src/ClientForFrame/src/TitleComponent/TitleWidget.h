@@ -1,17 +1,17 @@
 #ifndef TITLEWIDGET_H
 #define TITLEWIDGET_H
 
-#include <QWidget>
+#include "../Common/BaseWidget.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLabel>
 
-class TitleWidget : public QWidget
+class TitleWidget : public BaseWidget
 {
     Q_OBJECT
 
 public:
-    explicit TitleWidget(QWidget *parent = nullptr);
+    explicit TitleWidget(BaseWidget *parent = nullptr);
 
 private:
     void setupUI();

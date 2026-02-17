@@ -2,14 +2,14 @@
 #define PICMATCHWIDGET_H
 
 #include "PicPlayerDataDef.h"
-#include <QWidget>
+#include "../Common/BaseWidget.h"
 
-class PicMatchWidget : public QWidget
+class PicMatchWidget : public BaseWidget
 {
     Q_OBJECT
 
 public:
-    PicMatchWidget(QWidget *parent = nullptr);
+    PicMatchWidget(BaseWidget *parent = nullptr);
     ~PicMatchWidget();
 
     void InitUI();
@@ -31,7 +31,7 @@ private:
     
 private:
     int m_handle;
-    QWidget * m_playerWidget;
+    BaseWidget * m_playerWidget;
     std::string m_showId;
 };
 #endif // PICMATCHWIDGET_H
