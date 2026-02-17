@@ -117,12 +117,15 @@ void PicTexture::DrawPicTexture(uint32_t texId, const ImVec2& drawStart, const I
 
 void PicTexture::DrawRect(const ImVec2& drawStart, const ImVec2& drawEnd, const ImU32& drawCol)
 {
-    ImGui::GetWindowDrawList()->AddRect(drawStart, drawEnd, drawCol);
+    ImGui::GetWindowDrawList()->AddRect(drawStart, drawEnd, drawCol, 0.0f, 0, 2.0f);
 }
 
 void PicTexture::DrawRecogResult(const ImVec2& drawStart, const char* label, const ImU32& drawCol)
-{
-    ImGui::GetWindowDrawList()->AddText(drawStart, drawCol, label);
+{    
+    // 获取当前字体并放大
+    ImFont* font = ImGui::GetFont();
+    float fontSize = font->FontSize * 1.5f; // 放大1.5倍，可以根据需要调整倍数
+    ImGui::GetWindowDrawList()->AddText(font, fontSize, drawStart, drawCol, label);
 }
 
 void PicTexture::UpdateTex(void* data, size_t dataLen, uint32_t texTureW, uint32_t texTureH)
