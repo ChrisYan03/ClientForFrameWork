@@ -14,6 +14,9 @@ PicMatchWidget::PicMatchWidget(BaseWidget *parent)
     , m_playerWidget(nullptr)
     , m_faceShowWidget(nullptr)
     , m_showId("")
+    , m_currentIndex(0)
+    , m_initialized(false)
+    , m_imageNames()
 {
     setStyleSheet("background-color: #ccffcc;");
 }
@@ -83,6 +86,11 @@ void PicMatchWidget::Quit()
     if (m_faceShowWidget) {
         m_faceShowWidget->clearFaceImages();
     }
+    m_showId.clear();
+    // 重置图片索引和初始化状态
+    m_currentIndex = 0;
+    m_initialized = false;
+    m_imageNames.clear();
 }
 
 void PicMatchWidget::resizeEvent(QResizeEvent *event)
@@ -180,13 +188,9 @@ std::string PicMatchWidget::GetNextImageName()
 #else
     const std::string folderPath = "E:/ClientForFrameWork/picdata/";
 #endif
-
-    static std::vector<std::string> imageNames;
-    static size_t currentIndex = 0;
-    static bool initialized = false;
     
-    // 第一次调用时初始化
-    if (!initialized) {
+     // 第一次调用时初始化
+    if (!m_initialized) {
         try {
             QDir directory(QString::fromStdString(folderPath));
             if (directory.exists()) {
@@ -198,24 +202,24 @@ std::string PicMatchWidget::GetNextImageName()
                 
                 for (const QFileInfo& fileInfo : fileList) {
                     std::string baseName = fileInfo.baseName().toStdString();
-                    imageNames.push_back(baseName);
+                    m_imageNames.push_back(baseName);
                 }
                 
-                LOG_INFO("Initialized image list with {} images", imageNames.size());
+                LOG_INFO("Initialized image list with {} images", m_imageNames.size());
             }
         } catch (const std::exception& e) {
             LOG_ERROR("Error initializing image list: {}", e.what());
         }
-        initialized = true;
+        m_initialized = true;
     }
     
      // 返回下一个图片名
-    if (!imageNames.empty() && currentIndex < imageNames.size()) {
-        std::string imageName = imageNames[currentIndex];
-        currentIndex++; // 不再循环，只递增
+    if (!m_imageNames.empty() && m_currentIndex < m_imageNames.size()) {
+        std::string imageName = m_imageNames[m_currentIndex];
+        m_currentIndex++; // 不再循环，只递增
         return imageName;
     }
-    else if (!imageNames.empty() && currentIndex >= imageNames.size()) {
+    else if (!m_imageNames.empty() && m_currentIndex >= m_imageNames.size()) {
         // 所有图片都已遍历完，返回空字符串
         return "";
     }

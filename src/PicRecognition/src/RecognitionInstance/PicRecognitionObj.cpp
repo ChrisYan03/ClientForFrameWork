@@ -392,8 +392,6 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                     } else {
                         LOG_DEBUG("Skipping small face: w={}, h={} (less than 15)", w, h);
                     }
-                } else {
-                    LOG_DEBUG("Skipping low confidence detection: {:.3f} (threshold: 0.3)", confidence);
                 }
             }
         } else if (detections.dims == 3 && detections.size[0] == 1 && detections.size[1] > 0 && detections.size[2] >= 7) {

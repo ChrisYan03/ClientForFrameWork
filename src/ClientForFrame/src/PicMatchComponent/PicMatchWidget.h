@@ -35,5 +35,8 @@ private:
     BaseWidget * m_playerWidget;
     FaceShowWidget* m_faceShowWidget;
     std::string m_showId;
+    std::vector<std::string> m_imageNames;      // Store image names as member
+    size_t m_currentIndex;                      // Current index as member
+    bool m_initialized;                         // Initialization flag as member
 };
 #endif // PICMATCHWIDGET_H
