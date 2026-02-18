@@ -17,7 +17,7 @@ public:
         , m_faceImageWidth(0)
         , m_faceImageHeight(0)
  {
-        setStyleSheet("border: 1px solid #ccc; margin: 5px;");
+        setStyleSheet("margin: 5px;");
         setAlignment(Qt::AlignCenter);
     }
 
@@ -98,11 +98,15 @@ public:
     // Method to add multiple face images at once
     void addFaceImages(char* faceImageData, size_t faceImageLength, int imageWidth, int imageHeight);
 
+    void triggerDisplay();
+
 private:
+    bool m_shouldDisplay;
     QVBoxLayout* m_layout;
     QScrollArea* m_scrollArea;
     QWidget* m_containerWidget;
-    std::vector<FaceImageLabel*> m_faceLabels;  // Store face display labels
+    QVector<FaceImageLabel*> m_faceLabels;
+    QVector<std::tuple<FaceImageLabel*, char*, size_t, int, int>> m_pendingFaceLabels;   // Store face display labels
 };
 
 #endif // FACESHOWWIDGET_H

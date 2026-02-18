@@ -38,5 +38,6 @@ private:
     std::vector<std::string> m_imageNames;      // Store image names as member
     size_t m_currentIndex;                      // Current index as member
     bool m_initialized;                         // Initialization flag as member
+    bool m_runing;                              // Run initialization flag as member
 };
 #endif // PICMATCHWIDGET_H

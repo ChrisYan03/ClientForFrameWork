@@ -3,6 +3,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout> 
 #include <QLabel>
+#include <QFont>
+#include <QApplication>
 
 TitleWidget::TitleWidget(BaseWidget *parent)
     : BaseWidget(parent)
@@ -12,77 +14,141 @@ TitleWidget::TitleWidget(BaseWidget *parent)
 
 void TitleWidget::setupUI()
 {
-    setFixedHeight(48);
+    setFixedHeight(70);
+    setStyleSheet(
+        "TitleWidget {"
+        "   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4a6fa5, stop: 1 #3a5a8a);"
+        "   border-bottom: 1px solid #2c3e50;"
+        "}"
+    );
+
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(2, 2, 2, 2);
-    // 创建开始按钮
+    layout->setContentsMargins(10, 5, 10, 5);
+
+    QHBoxLayout* topLayout = new QHBoxLayout();
+    
+    // 应用标题
+    QLabel *titleLabel = new QLabel("图像识别与匹配系统");
+    QFont titleFont = titleLabel->font();
+    titleFont.setPointSize(16);
+    titleFont.setBold(true);
+    titleLabel->setFont(titleFont);
+    titleLabel->setStyleSheet(
+        "QLabel {"
+        "   color: white;"
+        "   padding: 5px;"
+        "}"
+    );
+    
+    topLayout->addWidget(titleLabel);
+    topLayout->addStretch();
+    
+    // 创建按钮
     m_startButton = new QPushButton("开始", this);
-    m_startButton->setToolTip("点击开始执行操作"); // 设置提示文本
+    m_startButton->setToolTip("开始执行图像匹配任务");
+    
+    m_stopButton = new QPushButton("停止", this);
+    m_stopButton->setToolTip("停止当前图像匹配任务");
+
+    m_closeButton = new QPushButton("关闭", this);
+    m_closeButton->setToolTip("关闭应用程序");
     
     // 设置按钮样式
+    QString buttonStyle = 
+        "QPushButton {"
+        "   font-family: 'Microsoft YaHei';"
+        "   font-size: 14px;"
+        "   font-weight: bold;"
+        "   border-radius: 6px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "   min-height: 30px;"
+        "}"
+        "QPushButton:hover {"
+        "   border: 2px solid rgba(255, 255, 255, 0.5);"
+        "}"
+        "QPushButton:pressed {"
+        "   border: 2px solid rgba(0, 0, 0, 0.2);"
+        "}";
+        
     m_startButton->setStyleSheet(
+        buttonStyle +
         "QPushButton {"
-        "   font-family: 'Microsoft YaHei';"  // 微软雅黑字体
-        "   font-size: 14px;"                 // 字体大小14
-        "   border-radius: 10px;"              // 圆角效果
-        "   background-color: #4CAF50;"      // 背景色
-        "   color: white;"                     // 文字颜色
-        "   padding: 6px;"                    // 内边距
-        "   min-width: 80px;"                  // 最小宽度
-        "   min-height: 30px;"                 // 最小高度
+        "   background-color: #27ae60;"
+        "   color: white;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #45a049;"        // 鼠标悬停时的背景色
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #3d8b40;"        // 按下时的背景色
+        "   background-color: #2ecc71;"
         "}"
     );
     
-    // 创建停止按钮
-    m_stopButton = new QPushButton("停止", this);
-    m_stopButton->setToolTip("点击停止执行操作"); // 设置提示文本
-    
-    // 设置停止按钮样式
     m_stopButton->setStyleSheet(
+        buttonStyle +
         "QPushButton {"
-        "   font-family: 'Microsoft YaHei';"  // 微软雅黑字体
-        "   font-size: 14px;"                 // 字体大小14
-        "   border-radius: 10px;"              // 圆角效果
-        "   background-color: #f44336;"      // 背景色（红色）
-        "   color: white;"                     // 文字颜色
-        "   padding: 6px;"                    // 内边距
-        "   min-width: 80px;"                  // 最小宽度
-        "   min-height: 30px;"                 // 最小高度
+        "   background-color: #e7e43c;"
+        "   color: white;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #d32f2f;"        // 鼠标悬停时的背景色
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #b71c1c;"        // 按下时的背景色
+        "   background-color: #c0be2b;"
         "}"
     );
+
+    m_closeButton->setStyleSheet(
+        buttonStyle +
+        "QPushButton {"
+        "   background-color: #e74c3c;"
+        "   color: white;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #c0392b;"
+        "}"
+    );
+    
     // 连接信号槽
     connect(m_startButton, &QPushButton::clicked, this, &TitleWidget::onStartButtonClicked);
     connect(m_stopButton, &QPushButton::clicked, this, &TitleWidget::onStopButtonClicked);
+    connect(m_closeButton, &QPushButton::clicked, this, &TitleWidget::onCloseButtonClicked);
     
-    // 添加控件到布局
+    // 添加按钮到布局
     QHBoxLayout* buttonLayout = new QHBoxLayout();
-    buttonLayout->addStretch();  // 添加弹性空间
     buttonLayout->addWidget(m_startButton);
     buttonLayout->addWidget(m_stopButton);
-    layout->addLayout(buttonLayout);
-    buttonLayout->addStretch();  // 添加弹性空间
-    layout->addLayout(buttonLayout);
-    setLayout(layout);
+    buttonLayout->addWidget(m_closeButton);
+    
+    topLayout->addLayout(buttonLayout);
+    
+    layout->addLayout(topLayout);
+    
+    // 添加状态栏区域
+    QHBoxLayout* statusLayout = new QHBoxLayout();
+    m_statusLabel = new QLabel("就绪");
+    m_statusLabel->setStyleSheet(
+        "QLabel {"
+        "   color: #ecf0f1;"
+        "   font-size: 12px;"
+        "   padding: 2px;"
+        "}"
+    );
+    statusLayout->addWidget(m_statusLabel);
+    statusLayout->addStretch();
+    
+    layout->addLayout(statusLayout);
 }
 
 void TitleWidget::onStartButtonClicked()
 {
-    emit startButtonClicked(); // 发射开始信号
+    m_statusLabel->setText("正在运行...");
+    emit startButtonClicked();
 }
 
 void TitleWidget::onStopButtonClicked()
 {
-    emit stopButtonClicked(); // 发射停止信号
+    m_statusLabel->setText("已停止");
+    emit stopButtonClicked();
+}
+
+void TitleWidget::onCloseButtonClicked()
+{
+    m_statusLabel->setText("正在关闭...");
+    emit closeButtonClicked();
 }

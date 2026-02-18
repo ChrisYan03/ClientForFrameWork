@@ -3,6 +3,15 @@
 #include "PicRecognitionApi.h"
 #include "StbImage/stb_image.h"
 #include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QSplitter>
+#include <QScrollArea>
+#include <QTabWidget>
+#include <QGroupBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QSlider>
+#include <QComboBox>
 #include "LogUtil.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -17,8 +26,14 @@ PicMatchWidget::PicMatchWidget(BaseWidget *parent)
     , m_currentIndex(0)
     , m_initialized(false)
     , m_imageNames()
+    , m_runing(false)
 {
-    setStyleSheet("background-color: #ccffcc;");
+    setStyleSheet(
+        "PicMatchWidget {"
+        "   background-color: #faf9f8;"
+        "   border: none;"
+        "}"
+    );
 }
 
 PicMatchWidget::~PicMatchWidget()
@@ -32,14 +47,72 @@ PicMatchWidget::~PicMatchWidget()
 void PicMatchWidget::InitUI()
 {
     LOG_DEBUG("InitUI size: {} x {}", width(), height());
+    
+    // 主布局
     QHBoxLayout* picMatchLayout = new QHBoxLayout(this);
-    picMatchLayout->setSpacing(8);
-    picMatchLayout->setContentsMargins(0, 0, 0, 0);
-    m_playerWidget = new BaseWidget();
-    m_faceShowWidget = new FaceShowWidget();
-    picMatchLayout->addWidget(m_playerWidget, 4);
-    picMatchLayout->addWidget(m_faceShowWidget, 1);
-    this->adjustSize();  // 确保布局生效
+    picMatchLayout->setSpacing(0);
+    picMatchLayout->setContentsMargins(10, 10, 10, 10);
+    
+    // 使用分割器来调整左右面板比例
+    QSplitter* splitter = new QSplitter(Qt::Horizontal);
+    splitter->setStyleSheet(
+            "QSplitter::handle {"
+            "   background-color: transparent;"
+            "   border: 0px;"
+            "}"
+        );
+    
+    // 左侧：图像显示区域
+    QGroupBox* playerGroup = new QGroupBox("图片播放区");
+    {
+        playerGroup->setStyleSheet(
+            "QGroupBox::title {"
+            "   subcontrol-origin: margin;"
+            "   left: 10px;"
+            "   padding: 0 5px 0 5px;"
+            "}"
+        );
+        
+        m_playerWidget = new BaseWidget();
+        m_playerWidget->setStyleSheet(
+            "BaseWidget {"
+            "   background-color: black;"
+            "   border: 1px solid #cccccc;"
+            "   border-radius: 3px;"
+            "}"
+        );
+        
+        QVBoxLayout* playerLayout = new QVBoxLayout(playerGroup);
+        playerLayout->addWidget(m_playerWidget);
+        playerLayout->setContentsMargins(10, 0, 10, 10); 
+    }
+    splitter->addWidget(playerGroup);
+
+    // 右侧：功能控制和结果展示区域
+    QGroupBox* faceGroup = new QGroupBox("人脸识别结果");
+    {
+        faceGroup->setStyleSheet(
+            "QGroupBox::title {"
+            "   subcontrol-origin: margin;"
+            "   left: 10px;"
+            "   padding: 0 5px 0 5px;"
+            "}"
+        );
+        
+        m_faceShowWidget = new FaceShowWidget();
+        QVBoxLayout* faceResultLayout = new QVBoxLayout(faceGroup);
+        faceResultLayout->addWidget(m_faceShowWidget);
+    }
+    splitter->addWidget(faceGroup);
+    
+    // 设置分割器初始比例
+    splitter->setSizes({static_cast<int>(width() * 0.7), static_cast<int>(width() * 0.3)});
+    
+    // 将分割器添加到主布局
+    picMatchLayout->addWidget(splitter);
+    
+    this->adjustSize();
+    
     // 获取当前运行路径
     QString currentPath = QDir(QCoreApplication::applicationDirPath()).absolutePath();
     InitFaceRecognition(currentPath.toLocal8Bit().constData());
@@ -64,17 +137,18 @@ void PicMatchWidget::InitPicPlayer()
 
 void PicMatchWidget::Run()
 {    
-    InitPicPlayer();
+    if (!m_runing) {
+        m_runing = true;
+        InitPicPlayer();
 
-    std::string imagename = "beauty_20250216152514";
-    
-#ifdef __APPLE__
-    const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
-#else
-    const char* imagePath = "E:/ClientForFrameWork/beauty_20250216152514.jpg";
-#endif
-
-    UpdatePic(imagename, imagePath);
+        std::string imagename = "beauty_20250216152514";
+    #ifdef __APPLE__
+        const char* imagePath = "/Users/chrisyan/ClientForFrameWork/beauty_20250216152514.jpg";
+    #else
+        const char* imagePath = "E:/ClientForFrameWork/beauty_20250216152514.jpg";
+    #endif
+        UpdatePic(imagename, imagePath);
+    }
 }
 
 void PicMatchWidget::Quit()
@@ -90,6 +164,7 @@ void PicMatchWidget::Quit()
     // 重置图片索引和初始化状态
     m_currentIndex = 0;
     m_initialized = false;
+    m_runing = false;
     m_imageNames.clear();
 }
 
@@ -107,6 +182,8 @@ void PicMatchWidget::OnRun(const std::string& showid)
 {
     if (m_showId != showid) {
         m_showId = showid;
+        m_faceShowWidget->clearFaceImages();
+        m_faceShowWidget->triggerDisplay();
     }
     else {
         LOG_DEBUG("m_showId == showid; Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
@@ -173,7 +250,6 @@ void PicMatchWidget::UpdatePic(const std::string& showid, const std::string& ima
     
     // 5、显示图片中的人脸信息
     if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
-        //m_faceShowWidget->clearFaceImages();
         for (int i = 0; i < faceResult->faceCount; ++i) {
             m_faceShowWidget->addFaceImages(faceResult->faces[i].faceImageData, faceResult->faces[i].faceImageLength, faceResult->faces[i].faceImageWidth, faceResult->faces[i].faceImageHeight);
         }

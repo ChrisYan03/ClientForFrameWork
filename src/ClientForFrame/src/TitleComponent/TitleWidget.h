@@ -19,14 +19,19 @@ private:
 signals:
     void startButtonClicked();
     void stopButtonClicked();
+    void closeButtonClicked();  // Add signal for closing the application
 
 private slots:
     void onStartButtonClicked();
     void onStopButtonClicked();
+    void onCloseButtonClicked();  // Add slot for handling close button click
 
 private:
     QPushButton *m_startButton;
     QPushButton *m_stopButton;
+    QPushButton *m_closeButton;  // Add close button
+    // 添加新的成员变量声明
+    QLabel* m_statusLabel;
 };
 
 #endif // TITLEWIDGET_H

@@ -11,6 +11,39 @@ FaceShowWidget::FaceShowWidget(QWidget *parent)
     // Create scroll area
     m_scrollArea = new QScrollArea();
     m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setStyleSheet(
+        "QScrollArea {"
+        "    border: 1px solid #cccccc;"
+        "    border-radius: 3px;"
+        "    background-color: white;"
+        "}"
+        "QScrollBar:vertical {"
+        "    border: none;"
+        "    background: #f0f0f0;"
+        "    width: 16px;"
+        "    margin: 0px 0px 0px 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        "    background: #c0c0c0;"
+        "    min-height: 20px;"
+        "    border-radius: 4px;"
+        "    margin: 2px 4px 2px 4px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+        "    background: #a0a0a0;"
+        "}"
+        "QScrollBar::handle:vertical:pressed {"
+        "    background: #808080;"
+        "}"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+        "    height: 0px;"
+        "    subcontrol-position: top;"
+        "    subcontrol-origin: margin;"
+        "}"
+        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+        "    background: none;"
+        "}"
+    );
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
@@ -34,7 +67,8 @@ void FaceShowWidget::clearFaceImages()
     QLayout* layout = m_containerWidget->layout();
     if (layout) {
         // Delete all widgets in the layout
-        while (QLayoutItem* child = layout->takeAt(0)) {
+        QLayoutItem* child;
+        while ((child = layout->takeAt(0)) != nullptr) {
             if (child->widget()) {
                 delete child->widget();
             }
@@ -55,11 +89,29 @@ void FaceShowWidget::addFaceImages(char* faceImageData, size_t faceImageLength, 
     LOG_INFO("addFaceImages - imageData: {}, length: {}, width: {}, height: {}", 
              (void*)faceImageData, faceImageLength, imageWidth, imageHeight);
 
+    // Create a deep copy of the face image data
+    char* copiedFaceData = new char[faceImageLength];
+    memcpy(copiedFaceData, faceImageData, faceImageLength);
+    
     FaceImageLabel* faceLabel = new FaceImageLabel();
-    faceLabel->setFaceInfo(faceImageData, faceImageLength, imageWidth, imageHeight);
-    static_cast<QVBoxLayout*>(m_containerWidget->layout())->addWidget(faceLabel);
-    m_faceLabels.push_back(faceLabel);
+    m_pendingFaceLabels.push_back(std::make_tuple(faceLabel, copiedFaceData, faceImageLength, imageWidth, imageHeight));
+}
 
+void FaceShowWidget::triggerDisplay()
+{
+    LOG_INFO("triggerDisplay");
+    for (const auto& tuple : m_pendingFaceLabels) {
+        FaceImageLabel* faceLabel = std::get<0>(tuple);
+        char* faceImageData = std::get<1>(tuple);
+        size_t faceImageLength = std::get<2>(tuple);
+        int imageWidth = std::get<3>(tuple);
+        int imageHeight = std::get<4>(tuple);
+
+        faceLabel->setFaceInfo(faceImageData, faceImageLength, imageWidth, imageHeight);
+        static_cast<QVBoxLayout*>(m_containerWidget->layout())->addWidget(faceLabel);
+        m_faceLabels.append(faceLabel);  
+    }
+    m_pendingFaceLabels.clear();
     // 刷新界面以确保新添加的标签立即可见
     m_containerWidget->update();
     m_scrollArea->update();
