@@ -97,7 +97,6 @@ struct PicShowInfo
 };
 
 // 输入 图片识别数据
-// Input picture recognition data
 struct FaceInfo
 {
     float x;
@@ -106,15 +105,30 @@ struct FaceInfo
     float height;
     float confidence; // Confidence level
     int age;          // Age of the person detected
+    char* faceImageData; // Cropped face image data in RGBA format
+    size_t faceImageLength; // Length of the face image data
+    int faceImageWidth;  // Width of the cropped face image
+    int faceImageHeight; // Height of the cropped face image
 
     FaceInfo()
         : x(0.0f), y(0.0f), width(0.0f), height(0.0f), confidence(0.0f), age(-1)
+        , faceImageData(nullptr), faceImageLength(0), faceImageWidth(0), faceImageHeight(0)
     {}
     
     // Copy constructor
     FaceInfo(const FaceInfo& other)
         : x(other.x), y(other.y), width(other.width), height(other.height), confidence(other.confidence), age(other.age)
-    {}
+        , faceImageWidth(other.faceImageWidth), faceImageHeight(other.faceImageHeight), faceImageLength(other.faceImageLength)
+    {
+        if (other.faceImageData && other.faceImageLength > 0) {
+            faceImageData = static_cast<char*>(malloc(other.faceImageLength));
+            if (faceImageData) {
+                std::memcpy(faceImageData, other.faceImageData, other.faceImageLength);
+            }
+        } else {
+            faceImageData = nullptr;
+        }
+    }
     
     // Assignment operator
     FaceInfo& operator=(const FaceInfo& other) {
@@ -125,12 +139,35 @@ struct FaceInfo
             height = other.height;
             confidence = other.confidence;
             age = other.age;
+            
+            // Free existing image data
+            if (faceImageData) {
+                free(faceImageData);
+            }
+            
+            faceImageWidth = other.faceImageWidth;
+            faceImageHeight = other.faceImageHeight;
+            faceImageLength = other.faceImageLength;
+            
+            if (other.faceImageData && other.faceImageLength > 0) {
+                faceImageData = static_cast<char*>(malloc(other.faceImageLength));
+                if (faceImageData) {
+                    std::memcpy(faceImageData, other.faceImageData, other.faceImageLength);
+                }
+            } else {
+                faceImageData = nullptr;
+            }
         }
         return *this;
     }
     
-    // Destructor (not strictly needed for this struct since it doesn't own resources, but added for completeness)
-    ~FaceInfo() = default;
+    // Destructor
+    ~FaceInfo() {
+        if (faceImageData) {
+            free(faceImageData);
+            faceImageData = nullptr;
+        }
+    }
 };
 
 struct FaceDetectionResult

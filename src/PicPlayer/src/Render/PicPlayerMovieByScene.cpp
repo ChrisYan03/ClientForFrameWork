@@ -29,6 +29,7 @@ void PicPlayerMovieByScene::Advance()
     // DragingRecord();
     // 移动
     MoveStep();
+    // 仅当当前图片已完全显示时才触发
     SetPicInfoToComponent(curIndex);
 }
 
@@ -209,19 +210,31 @@ void PicPlayerMovieByScene::SetGeometryCallback(std::shared_ptr<PicRenderForDraw
 
 void PicPlayerMovieByScene::SetPicInfoToComponent(int index)
 {
-    if (m_curShowid.empty() || index != m_curIndex) {
-        // id变化时回调数据
-        if (GetPicDrawPtr(m_curIndex)) {
-            std::string newShowId = GetPicDrawPtr(m_curIndex)->GetPicId();
-            // 添加更多调试信息
-            LOG_DEBUG("SetPicInfoToComponent called with allsize {}", m_picList.size());
-            LOG_DEBUG("SetPicInfoToComponent called with index: {}, current m_curIndex: {}, newShowId: {}", 
-                index, m_curIndex, newShowId.c_str());
-            if (newShowId != m_curShowid) {  // 更严格的比较条件
-                m_curShowid = newShowId;
-                LOG_DEBUG("ShowId changed from '{}' to '{}'", m_curShowid.c_str(), newShowId.c_str());
-                if (!m_curShowid.empty())
-                    OnCurPicChange(m_curShowid);
+    std::vector<std::shared_ptr<PicRenderForDraw>> picVec;
+    for (auto iterPic = m_picList.begin(); iterPic != m_picList.end(); ++iterPic) {
+        picVec.push_back(*iterPic);
+    }
+    
+    if (picVec.size() > 0 && index < picVec.size()) {
+        auto curPic = picVec[index];
+        float scale = curPic->GetShowScale();
+        double displayWidth = (double)curPic->GetPicWidth();
+        double displayPos = m_picMovePos * scale;
+        
+        // 检查当前图片是否完全显示（位置达到或超过图片宽度）
+        if (ceil(displayPos) >= displayWidth) {
+            // id变化时回调数据
+            if (GetPicDrawPtr(m_curIndex)) {
+                std::string newShowId = GetPicDrawPtr(m_curIndex)->GetPicId();
+                if (m_curShowid.empty() || newShowId != m_curShowid) {  // 更严格的比较条件
+                    LOG_DEBUG("SetPicInfoToComponent called with allsize {}", m_picList.size());
+                    LOG_DEBUG("SetPicInfoToComponent called with index: {}, current m_curIndex: {}", 
+                        index, m_curIndex);
+                    m_curShowid = newShowId;
+                    LOG_DEBUG("ShowId changed from '{}' to '{}'", m_curShowid.c_str(), newShowId.c_str());
+                    if (!m_curShowid.empty())
+                        OnCurPicChange(m_curShowid);
+                }
             }
         }
     }

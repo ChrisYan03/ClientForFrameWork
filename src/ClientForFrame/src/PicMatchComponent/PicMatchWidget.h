@@ -3,6 +3,7 @@
 
 #include "PicPlayerDataDef.h"
 #include "../Common/BaseWidget.h"
+#include "FaceShowWidget.h"
 
 class PicMatchWidget : public BaseWidget
 {
@@ -16,8 +17,6 @@ public:
     void InitPicPlayer();
 
     void Run();
-    void Run(const std::string& showid);
-
     void Quit();
 
 protected:
@@ -25,6 +24,8 @@ protected:
 
 private:
     static void* PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser);
+    void OnRun(const std::string& showid);
+    void UpdatePic(const std::string& showid, const std::string& imagePath);
     bool LoadJpegToRGBA(const char* imagePath, PicShowInfo* demodata);
     void RotateImage90Degrees(unsigned char* imageData, unsigned char*& rotatedData, int width, int height, int channels);
     std::string GetNextImageName(); // 获取下一个图片名称的函数
@@ -32,6 +33,7 @@ private:
 private:
     int m_handle;
     BaseWidget * m_playerWidget;
+    FaceShowWidget* m_faceShowWidget;
     std::string m_showId;
 };
 #endif // PICMATCHWIDGET_H

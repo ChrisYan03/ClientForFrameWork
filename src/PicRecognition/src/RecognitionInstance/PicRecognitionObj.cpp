@@ -7,6 +7,7 @@
 #include <fstream>
 
 #define MAX_FACE_COUNT 3
+#define FACE_IMAGE_EDGE 40
 
 struct FaceQuality {
     cv::Rect rect;
@@ -464,9 +465,7 @@ std::vector<cv::Rect> FaceRecognitionManager::detectFacesWithDNN(const cv::Mat& 
                     if (w >= 15 && h >= 15) {  // 从20减少到15，可以检测更小的人脸
                         LOG_DEBUG("Adding face detection: ({},{})-({},{})", x, y, x+w, y+h);
                         faces.push_back(cv::Rect(x, y, w, h));
-                    } else {
-                        LOG_DEBUG("Skipping small face: w={}, h={} (less than 15)", w, h);
-                    }
+                    } 
                 }
             }
         } else {
@@ -516,8 +515,6 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
             // 实际上，对于人脸检测，我们应使用彩色BGR图像
             cv::Mat colorImg;
             cv::cvtColor(rgbaMat, colorImg, cv::COLOR_RGBA2BGR);
-            
-            // 对于可能包含遮挡或角度不佳的人脸，使用更敏感的检测参数
             std::vector<cv::Rect> dnnFaces = detectFacesWithDNN(colorImg);
             LOG_DEBUG("DNN returned {} faces", dnnFaces.size());
             for (const auto& face : dnnFaces) {
@@ -622,6 +619,50 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
                 result->faces[i].height = static_cast<float>(fq.rect.height) / picInfo->picHeight;
                 result->faces[i].confidence = fq.confidence;
                 result->faces[i].age = fq.age;  // Assign the detected age
+                
+                // 提取并保存裁剪的人脸图像
+                cv::Rect faceRect(fq.rect.x, fq.rect.y, fq.rect.width, fq.rect.height);
+                
+                // 确保人脸区域在图像范围内
+                faceRect.x = std::max(0, faceRect.x - FACE_IMAGE_EDGE);
+                faceRect.y = std::max(0, faceRect.y - FACE_IMAGE_EDGE);
+                faceRect.width = std::min(static_cast<int>(picInfo->picWidth - faceRect.x), faceRect.width + 2 * FACE_IMAGE_EDGE);
+                faceRect.height = std::min(static_cast<int>(picInfo->picHeight - faceRect.y), faceRect.height + 2 * FACE_IMAGE_EDGE);
+                
+                if (faceRect.width > 0 && faceRect.height > 0) {
+                    // 从RGBA图像中提取人脸区域
+                    cv::Mat faceRgba = rgbaMat(faceRect);
+                    
+                    // 分配内存并复制裁剪的人脸图像数据
+                    result->faces[i].faceImageWidth = faceRect.width;
+                    result->faces[i].faceImageHeight = faceRect.height;
+                    result->faces[i].faceImageLength = faceRect.width * faceRect.height * 4; // RGBA format
+                    
+                    result->faces[i].faceImageData = static_cast<char*>(malloc(result->faces[i].faceImageLength));
+                    if (result->faces[i].faceImageData) {
+                        if (faceRgba.isContinuous()) {
+                            // 如果数据在内存中是连续的，直接复制
+                            memcpy(result->faces[i].faceImageData, faceRgba.data, result->faces[i].faceImageLength);
+                        } else {
+                            // 如果数据不连续，逐行复制确保正确数据
+                            int channels = faceRgba.channels();  // 通道数，RGBA为4
+                            int rowSize = faceRgba.cols * channels;  // 每行的字节数
+                            for (int r = 0; r < faceRgba.rows; ++r) {
+                                // 复制每一行的数据
+                                memcpy(
+                                    result->faces[i].faceImageData + r * rowSize,  // 目标位置
+                                    faceRgba.ptr(r),                              // 源第r行的指针
+                                    rowSize                                       // 每行大小
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    result->faces[i].faceImageData = nullptr;
+                    result->faces[i].faceImageLength = 0;
+                    result->faces[i].faceImageWidth = 0;
+                    result->faces[i].faceImageHeight = 0;
+                }
             }
         }
 
@@ -629,9 +670,10 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
         LOG_DEBUG("Face detection completed: {} faces detected for image ID: {}", 
                   result->faceCount, picInfo->imageId);
         for (int i = 0; i < result->faceCount; ++i) {
-            LOG_DEBUG("Face {}: x={:.3f}, y={:.3f}, width={:.3f}, height={:.3f}, confidence={:.3f}, age={}", 
+            LOG_DEBUG("Face {}: x={:.3f}, y={:.3f}, width={:.3f}, height={:.3f}, confidence={:.3f}, age={}, face image size: {}x{}", 
                       i, result->faces[i].x, result->faces[i].y, result->faces[i].width, 
-                      result->faces[i].height, result->faces[i].confidence, result->faces[i].age);
+                      result->faces[i].height, result->faces[i].confidence, result->faces[i].age,
+                      result->faces[i].faceImageWidth, result->faces[i].faceImageHeight);
         }
 
         return 0;
