@@ -8,7 +8,7 @@
 #include <QIcon>
 #include <QEvent>
 #include <QFile>
-
+#include "LogUtil.h"
 TitleWidget::TitleWidget(BaseWidget *parent)
     : BaseWidget(parent)
     , m_dragging(false)  // 初始化拖动状态
@@ -87,7 +87,7 @@ void TitleWidget::setupUI()
     mainLayout->setSpacing(8);
 
     // 应用标题 - VSCode风格
-    QLabel *titleLabel = new QLabel("图像识别与匹配系统");
+    QLabel *titleLabel = new QLabel("图像识别系统");
     QFont titleFont("Segoe UI", 12);  // VSCode使用的字体
     titleLabel->setFont(titleFont);
     titleLabel->setStyleSheet(
@@ -99,6 +99,17 @@ void TitleWidget::setupUI()
     
     mainLayout->addWidget(titleLabel);
     mainLayout->addStretch();
+
+    // 添加状态指示器
+    m_statusLabel = new QLabel("● 就绪");
+    m_statusLabel->setFont(QFont("Segoe UI", 9));
+    m_statusLabel->setStyleSheet(
+        "QLabel {"
+        "   color: #4EC9B0;"  // VSCode绿色状态指示器
+        "   padding: 0px 8px;"
+        "}"
+    );
+    mainLayout->addWidget(m_statusLabel);
 
     // 创建按钮（仅图标，VSCode风格）
     m_startButton = new QPushButton(this);
@@ -125,7 +136,9 @@ void TitleWidget::setupUI()
     m_stopIconHover = QIcon(":/icons/stop_hover.svg");
     m_closeIcon = QIcon(":/icons/close.svg");
     m_closeIconHover = QIcon(":/icons/close_hover.svg");
-    
+    // 检查所有图标文件是否存在
+    QFile startFile(":/icons/start.svg");
+    LOG_INFO("Start icon file exists: {}", startFile.exists());
     QSize iconSize(16, 16);  // VSCode标准图标大小
     
     if (!m_startIcon.isNull()) {
@@ -170,17 +183,6 @@ void TitleWidget::setupUI()
     buttonLayout->addWidget(m_closeButton);
     
     mainLayout->addLayout(buttonLayout);
-    
-    // 添加状态指示器
-    m_statusLabel = new QLabel("● 就绪");
-    m_statusLabel->setFont(QFont("Segoe UI", 9));
-    m_statusLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #4EC9B0;"  // VSCode绿色状态指示器
-        "   padding: 0px 8px;"
-        "}"
-    );
-    mainLayout->addWidget(m_statusLabel);
 }
 
 void TitleWidget::onStartButtonClicked()

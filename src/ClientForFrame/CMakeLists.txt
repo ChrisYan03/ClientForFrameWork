@@ -54,6 +54,7 @@ set(RESOURCE_DIR ${SOURCE_DIR}/resource)
 file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
     "${SOURCE_DIR}/*.cpp"
     "${SOURCE_DIR}/*.h"
+    "${RESOURCE_DIR}/*.qrc"
 )
 list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
 list(REMOVE_DUPLICATES PROJECT_SOURCES)
@@ -128,9 +129,9 @@ endif()
 # 添加 Qt 资源（qrc），图标等从 :/icons/xxx 加载（FILES 必须为相对路径，相对 CMAKE_CURRENT_SOURCE_DIR）
 qt_add_resources(ClientForFrame "resources"
     PREFIX "/"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}"
     FILES "src/resource/resource.qrc"
 )
-
 if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE
         ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib
