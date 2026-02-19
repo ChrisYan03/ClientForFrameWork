@@ -3,8 +3,11 @@
 
 #include "../Common/BaseWidget.h"
 #include <QPushButton>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QIcon>
+#include <QPoint>
+#include <QMouseEvent>
 
 class TitleWidget : public BaseWidget
 {
@@ -12,6 +15,13 @@ class TitleWidget : public BaseWidget
 
 public:
     explicit TitleWidget(BaseWidget *parent = nullptr);
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
+protected:
+    // 添加鼠标事件处理以支持窗口拖动
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     void setupUI();
@@ -19,19 +29,25 @@ private:
 signals:
     void startButtonClicked();
     void stopButtonClicked();
-    void closeButtonClicked();  // Add signal for closing the application
+    void closeButtonClicked();
 
 private slots:
     void onStartButtonClicked();
     void onStopButtonClicked();
-    void onCloseButtonClicked();  // Add slot for handling close button click
+    void onCloseButtonClicked();
 
 private:
     QPushButton *m_startButton;
     QPushButton *m_stopButton;
-    QPushButton *m_closeButton;  // Add close button
-    // 添加新的成员变量声明
+    QPushButton *m_closeButton;
     QLabel* m_statusLabel;
+    QIcon m_startIcon, m_startIconHover;
+    QIcon m_stopIcon, m_stopIconHover;
+    QIcon m_closeIcon, m_closeIconHover;
+    
+    // 拖动相关的成员变量
+    bool m_dragging;
+    QPoint m_dragPosition;
 };
 
 #endif // TITLEWIDGET_H

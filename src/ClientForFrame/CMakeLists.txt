@@ -45,8 +45,9 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 message("ClientForFrame qt_directory: Qt${QT_VERSION_MAJOR} found at ${Qt${QT_VERSION_MAJOR}_DIR}")
-# 设置源码目录
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/ClientForFrame/src)
+# 设置源码目录与资源目录
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(RESOURCE_DIR ${SOURCE_DIR}/resource)
 
 # 定义源码文件
 # 使用 file(GLOB ...) 自动收集源文件
@@ -123,6 +124,12 @@ else()
         target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
     endif()
 endif()
+
+# 添加 Qt 资源（qrc），图标等从 :/icons/xxx 加载（FILES 必须为相对路径，相对 CMAKE_CURRENT_SOURCE_DIR）
+qt_add_resources(ClientForFrame "resources"
+    PREFIX "/"
+    FILES "src/resource/resource.qrc"
+)
 
 if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE
