@@ -28,12 +28,7 @@ PicMatchWidget::PicMatchWidget(BaseWidget *parent)
     , m_imageNames()
     , m_runing(false)
 {
-    setStyleSheet(
-        "PicMatchWidget {"
-        "   background-color: #faf9f8;"
-        "   border: none;"
-        "}"
-    );
+
 }
 
 PicMatchWidget::~PicMatchWidget()
@@ -54,29 +49,14 @@ void PicMatchWidget::InitUI()
     // 初始化左侧控件 m_playerWidget（占 70% 宽度）
     if (!m_playerWidget) {
         m_playerWidget = new BaseWidget(this); // 假设 m_playerWidget 是 QWidget 类型
-        m_playerWidget->setObjectName("PlayerWidget");
-        m_playerWidget->setStyleSheet(
-            "#PlayerWidget {"
-            "    background-color: #E0F7FA;" // 浅蓝色背景
-            "    border: 1px solid #B2EBF2;" // 边框颜色
-            "    border-radius: 5px;"         // 圆角
-            "}"
-        );
+        m_playerWidget->setObjectName("PicMatchWidget");
         QSizePolicy playerPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_playerWidget->setSizePolicy(playerPolicy);
     }
 
     // 初始化右侧控件 m_faceShowWidget（占 30% 宽度）
     if (!m_faceShowWidget) {
-        m_faceShowWidget = new FaceShowWidget(this); // 假设 m_faceShowWidget 是 QWidget 类型
-        m_faceShowWidget->setObjectName("FaceShowWidget");
-        m_faceShowWidget->setStyleSheet(
-            "#FaceShowWidget {"
-            "    background-color: #E8F5E8;" // 浅绿色背景
-            "    border: 1px solid #C8E6C9;" // 边框颜色
-            "    border-radius: 5px;"         // 圆角
-            "}"
-        );
+        m_faceShowWidget = new FaceShowWidget(this); // 假设 m_faceShowWidget 是 QWidge
         QSizePolicy facePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_faceShowWidget->setSizePolicy(facePolicy);
     }
@@ -92,7 +72,7 @@ void PicMatchWidget::InitUI()
     // 左侧区域添加垂直布局
     QVBoxLayout* playerLayout = new QVBoxLayout(m_playerWidget);
     playerLayout->setContentsMargins(10, 10, 10, 10); // 内边距
-    QLabel* playerLabel = new QLabel("播放区域", m_playerWidget);
+    QLabel* playerLabel = new QLabel(m_playerWidget);
     playerLabel->setAlignment(Qt::AlignCenter);
     playerLabel->setStyleSheet("font-size: 16px; color: #006064;");
     playerLayout->addWidget(playerLabel);

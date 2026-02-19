@@ -2,48 +2,17 @@
 #include <QSizePolicy>
 #include "LogUtil.h"
 
-FaceShowWidget::FaceShowWidget(QWidget *parent)
+FaceShowWidget::FaceShowWidget(BaseWidget *parent)
     : BaseWidget(parent)
-{ 
+{
+    setObjectName("FaceShowWidget");
     // Create main layout
     m_layout = new QVBoxLayout(this);
     
     // Create scroll area
     m_scrollArea = new QScrollArea();
     m_scrollArea->setWidgetResizable(true);
-    m_scrollArea->setStyleSheet(
-        "QScrollArea {"
-        "    border: 1px solid #cccccc;"
-        "    border-radius: 3px;"
-        "    background-color: white;"
-        "}"
-        "QScrollBar:vertical {"
-        "    border: none;"
-        "    background: #f0f0f0;"
-        "    width: 16px;"
-        "    margin: 0px 0px 0px 0px;"
-        "}"
-        "QScrollBar::handle:vertical {"
-        "    background: #c0c0c0;"
-        "    min-height: 20px;"
-        "    border-radius: 4px;"
-        "    margin: 2px 4px 2px 4px;"
-        "}"
-        "QScrollBar::handle:vertical:hover {"
-        "    background: #a0a0a0;"
-        "}"
-        "QScrollBar::handle:vertical:pressed {"
-        "    background: #808080;"
-        "}"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
-        "    height: 0px;"
-        "    subcontrol-position: top;"
-        "    subcontrol-origin: margin;"
-        "}"
-        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
-        "    background: none;"
-        "}"
-    );
+    m_scrollArea->setObjectName("FaceShowScrollArea");
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     

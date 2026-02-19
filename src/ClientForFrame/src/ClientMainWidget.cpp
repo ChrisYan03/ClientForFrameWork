@@ -12,11 +12,7 @@ ClientMainWidget::ClientMainWidget(BaseWidget *parent)
     , m_pPicMatchWidget(nullptr)
 {
     setMinimumSize(1400, 900);
-    setStyleSheet(
-        "ClientMainWidget {"
-        "   background-color: #f0f0f0;"
-        "}"
-    );
+    setObjectName("ClientMainWidget");
     setWindowFlags(Qt::FramelessWindowHint);
     InitMainUI();
 }
@@ -38,16 +34,7 @@ void ClientMainWidget::InitMainUI()
 
     // 中央内容区域
     QSplitter* centralSplitter = new QSplitter(Qt::Vertical);
-    centralSplitter->setStyleSheet(
-        "QSplitter::handle {"
-        "   background-color: #dcdcdc;"
-        "   border: 1px solid #bcbcbc;"
-        "   border-radius: 2px;"
-        "}"
-        "QSplitter {"
-        "   background-color: #ffffff;"
-        "}"
-    );
+    centralSplitter->setObjectName("CentralSplitter");
 
     // 图像匹配组件
     m_pPicMatchWidget = new PicMatchWidget(this);

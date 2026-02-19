@@ -34,7 +34,6 @@ signals:
 private slots:
     void onStartButtonClicked();
     void onStopButtonClicked();
-    void onCloseButtonClicked();
 
 private:
     QPushButton *m_startButton;

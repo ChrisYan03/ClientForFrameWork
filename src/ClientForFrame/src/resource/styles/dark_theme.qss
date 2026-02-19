@@ -1,0 +1,162 @@
+/* Dark Theme Styles */
+
+/* Variables */
+/* Note: These are inline replacements for LESS variables */
+/* @bg-dark: #2c3e50; */
+/* @bg-darker: #1a252f; */
+/* @bg-panel: #34495e; */
+/* @text-light: #ecf0f1; */
+/* @text-gray: #bdc3c7; */
+/* @accent-dark: #3498db; */
+/* @success-dark: #27ae60; */
+/* @warning-dark: #f39c12; */
+/* @danger-dark: #e74c3c; */
+
+/* General Widget Styles */
+QWidget {
+  color: #ecf0f1;
+  font-family: 'Segoe UI';
+  font-size: 14px;
+}
+
+/* Title Widget Styles */
+TitleWidget {
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2c3e50, stop: 1 #1a252f);
+  border-bottom: 1px solid #1a252f;
+}
+
+QLabel#titleLabel {
+  color: #ecf0f1;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+/* Button Styles */
+QPushButton {
+  font-family: 'Microsoft YaHei';
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
+  background-color: #34495e;
+  color: #ecf0f1;
+  border: 1px solid #2c3e50;
+}
+
+QPushButton:hover {
+  background-color: #4d657e;
+  border: 1px solid #3498db;
+}
+
+QPushButton:pressed {
+  background-color: #233441;
+}
+
+QPushButton#startButton {
+  background-color: #27ae60;
+  color: #ecf0f1;
+}
+
+QPushButton#startButton:hover {
+  background-color: #36d278;
+}
+
+QPushButton#stopButton {
+  background-color: #e74c3c;
+  color: #ecf0f1;
+}
+
+QPushButton#stopButton:hover {
+  background-color: #ec7063;
+}
+
+QPushButton#closeButton {
+  background-color: #f39c12;
+  color: #ecf0f1;
+}
+
+QPushButton#closeButton:hover {
+  background-color: #f5b041;
+}
+
+/* Status Labels */
+QLabel#RunningStatusLabel {
+    color: #4EC9B0;
+    padding: 0px 8px;
+}
+
+QLabel#StoppedStatusLabel {
+    color: #F48771;
+    padding: 0px 8px;
+}
+
+/* Splitter Styles */
+QSplitter::handle {
+  background-color: #7f8c8d;
+  border: 1px solid #95a5a6;
+  border-radius: 2px;
+}
+
+QSplitter {
+  background-color: #34495e;
+}
+
+/* Client Main Widget */
+ClientMainWidget {
+  background-color: #1a252f;
+}
+
+/* PicMatch Widget */
+PicMatchWidget {
+  background-color: #34495e;
+  border: 1px solid #2c3e50;
+  border-radius: 5px;
+}
+
+/* Face Show Widget */
+FaceShowWidget {
+    background-color: #2c3e50; /* Dark blue-gray background matching the dark theme */
+    border: 1px solid #1a252f; /* Darker border color matching the dark theme */
+    border-radius: 5px;        /* Rounded corners */
+}
+
+/* FaceShowScrollArea.qss */
+QScrollArea#FaceShowScrollArea {
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    background-color: white;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar:vertical {
+    border: none;
+    background: #f0f0f0;
+    width: 16px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar::handle:vertical {
+    background: #c0c0c0;
+    min-height: 20px;
+    border-radius: 4px;
+    margin: 2px 4px 2px 4px;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar::handle:vertical:hover {
+    background: #a0a0a0;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar::handle:vertical:pressed {
+    background: #808080;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar::add-line:vertical, 
+QScrollArea#FaceShowScrollArea > QScrollBar::sub-line:vertical {
+    height: 0px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollArea#FaceShowScrollArea > QScrollBar::add-page:vertical, 
+QScrollArea#FaceShowScrollArea > QScrollBar::sub-page:vertical {
+    background: none;
+}

@@ -1,10 +1,13 @@
+<!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/">
-        <file>icons/start.svg</file>
-        <file>icons/start_hover.svg</file>
-        <file>icons/stop.svg</file>
-        <file>icons/stop_hover.svg</file>
-        <file>icons/close.svg</file>
-        <file>icons/close_hover.svg</file>
-    </qresource>
+  <qresource prefix="/">
+    <file>icons/start.svg</file>
+    <file>icons/start_hover.svg</file>
+    <file>icons/stop.svg</file>
+    <file>icons/stop_hover.svg</file>
+    <file>icons/close.svg</file>
+    <file>icons/close_hover.svg</file>
+    <file>styles/dark_theme.qss</file>
+    <file>styles/main_theme.qss</file>
+  </qresource>
 </RCC>

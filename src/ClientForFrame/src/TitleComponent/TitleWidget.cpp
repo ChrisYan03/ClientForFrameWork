@@ -8,6 +8,7 @@
 #include <QIcon>
 #include <QEvent>
 #include <QFile>
+#include <QStyle>
 #include "LogUtil.h"
 TitleWidget::TitleWidget(BaseWidget *parent)
     : BaseWidget(parent)
@@ -75,12 +76,7 @@ bool TitleWidget::eventFilter(QObject* watched, QEvent* event)
 void TitleWidget::setupUI()
 {
     setFixedHeight(40);  // VSCode风格的紧凑标题栏高度
-    setStyleSheet(
-        "TitleWidget {"
-        "   background-color: #3c3c3c;"  // VSCode深色主题背景色
-        "   border-bottom: 1px solid #252526;"  // 底部分割线
-        "}"
-    );
+    setObjectName("TitleWidget");
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(12, 0, 8, 0);  // VSCode风格的边距
@@ -90,12 +86,7 @@ void TitleWidget::setupUI()
     QLabel *titleLabel = new QLabel("图像识别系统");
     QFont titleFont("Segoe UI", 12);  // VSCode使用的字体
     titleLabel->setFont(titleFont);
-    titleLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #CCCCCC;"  // VSCode标题文字颜色
-        "   padding: 0px 8px;"
-        "}"
-    );
+    titleLabel->setObjectName("TitleLabel");
     
     mainLayout->addWidget(titleLabel);
     mainLayout->addStretch();
@@ -103,12 +94,7 @@ void TitleWidget::setupUI()
     // 添加状态指示器
     m_statusLabel = new QLabel("● 就绪");
     m_statusLabel->setFont(QFont("Segoe UI", 9));
-    m_statusLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #4EC9B0;"  // VSCode绿色状态指示器
-        "   padding: 0px 8px;"
-        "}"
-    );
+    m_statusLabel->setObjectName("StatusLabel");
     mainLayout->addWidget(m_statusLabel);
 
     // 创建按钮（仅图标，VSCode风格）
@@ -127,7 +113,7 @@ void TitleWidget::setupUI()
     // *** 添加按钮点击信号连接 ***
     connect(m_startButton, &QPushButton::clicked, this, &TitleWidget::onStartButtonClicked);
     connect(m_stopButton, &QPushButton::clicked, this, &TitleWidget::onStopButtonClicked);
-    connect(m_closeButton, &QPushButton::clicked, this, &TitleWidget::onCloseButtonClicked);
+    connect(m_closeButton, &QPushButton::clicked, this, &TitleWidget::closeButtonClicked);
     
     // 加载图标
     m_startIcon = QIcon(":/icons/start.svg");
@@ -157,23 +143,9 @@ void TitleWidget::setupUI()
         m_closeButton->installEventFilter(this);
     }
 
-    // VSCode风格的按钮样式
-    QString baseButtonStyle =
-        "QPushButton {"
-        "   background: transparent;"
-        "   border: none;"
-        "   border-radius: 4px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: rgba(90, 93, 94, 0.31);"  // VSCode悬停背景
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: rgba(90, 93, 94, 0.50);"  // VSCode按下背景
-        "}";
-        
-    m_startButton->setStyleSheet(baseButtonStyle);
-    m_stopButton->setStyleSheet(baseButtonStyle);
-    m_closeButton->setStyleSheet(baseButtonStyle);
+    m_startButton->setObjectName("startButton");
+    m_stopButton->setObjectName("stopButton");
+    m_closeButton->setObjectName("closeButton");
     
     // 添加按钮到布局
     QHBoxLayout* buttonLayout = new QHBoxLayout();
@@ -188,35 +160,15 @@ void TitleWidget::setupUI()
 void TitleWidget::onStartButtonClicked()
 {
     m_statusLabel->setText("● 运行中");
-    m_statusLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #4EC9B0;"
-        "   padding: 0px 8px;"
-        "}"
-    );
+    m_statusLabel->setObjectName("RunningStatusLabel");
+    m_statusLabel->style()->polish(m_statusLabel);
     emit startButtonClicked();
 }
 
 void TitleWidget::onStopButtonClicked()
 {
     m_statusLabel->setText("● 已停止");
-    m_statusLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #DCDCAA;"
-        "   padding: 0px 8px;"
-        "}"
-    );
+    m_statusLabel->setObjectName("StoppedStatusLabel");
+    m_statusLabel->style()->polish(m_statusLabel);
     emit stopButtonClicked();
-}
-
-void TitleWidget::onCloseButtonClicked()
-{
-    m_statusLabel->setText("● 正在关闭");
-    m_statusLabel->setStyleSheet(
-        "QLabel {"
-        "   color: #F48771;"
-        "   padding: 0px 8px;"
-        "}"
-    );
-    emit closeButtonClicked();
 }
