@@ -2,7 +2,7 @@
 #include <QSizePolicy>
 #include "LogUtil.h"
 
-FaceShowWidget::FaceShowWidget(BaseWidget *parent)
+FaceShowWidget::FaceShowWidget(QWidget *parent)
     : BaseWidget(parent)
 {
     setObjectName("FaceShowWidget");
