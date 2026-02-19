@@ -46,73 +46,65 @@ PicMatchWidget::~PicMatchWidget()
 
 void PicMatchWidget::InitUI()
 {
-    LOG_DEBUG("InitUI size: {} x {}", width(), height());
-    
-    // 主布局
-    QHBoxLayout* picMatchLayout = new QHBoxLayout(this);
-    picMatchLayout->setSpacing(0);
-    picMatchLayout->setContentsMargins(10, 10, 10, 10);
-    
-    // 使用分割器来调整左右面板比例
-    QSplitter* splitter = new QSplitter(Qt::Horizontal);
-    splitter->setStyleSheet(
-            "QSplitter::handle {"
-            "   background-color: transparent;"
-            "   border: 0px;"
-            "}"
-        );
-    
-    // 左侧：图像显示区域
-    QGroupBox* playerGroup = new QGroupBox("图片播放区");
-    {
-        playerGroup->setStyleSheet(
-            "QGroupBox::title {"
-            "   subcontrol-origin: margin;"
-            "   left: 10px;"
-            "   padding: 0 5px 0 5px;"
-            "}"
-        );
-        
-        m_playerWidget = new BaseWidget();
-        m_playerWidget->setStyleSheet(
-            "BaseWidget {"
-            "   background-color: black;"
-            "   border: 1px solid #cccccc;"
-            "   border-radius: 3px;"
-            "}"
-        );
-        
-        QVBoxLayout* playerLayout = new QVBoxLayout(playerGroup);
-        playerLayout->addWidget(m_playerWidget);
-        playerLayout->setContentsMargins(10, 0, 10, 10); 
-    }
-    splitter->addWidget(playerGroup);
+    // 创建主布局
+    QHBoxLayout* mainLayout = new QHBoxLayout(this);
+    mainLayout->setContentsMargins(2, 2, 2, 2); 
+    mainLayout->setSpacing(2);
 
-    // 右侧：功能控制和结果展示区域
-    QGroupBox* faceGroup = new QGroupBox("人脸识别结果");
-    {
-        faceGroup->setStyleSheet(
-            "QGroupBox::title {"
-            "   subcontrol-origin: margin;"
-            "   left: 10px;"
-            "   padding: 0 5px 0 5px;"
+    // 初始化左侧控件 m_playerWidget（占 70% 宽度）
+    if (!m_playerWidget) {
+        m_playerWidget = new BaseWidget(this); // 假设 m_playerWidget 是 QWidget 类型
+        m_playerWidget->setObjectName("PlayerWidget");
+        m_playerWidget->setStyleSheet(
+            "#PlayerWidget {"
+            "    background-color: #E0F7FA;" // 浅蓝色背景
+            "    border: 1px solid #B2EBF2;" // 边框颜色
+            "    border-radius: 5px;"         // 圆角
             "}"
         );
-        
-        m_faceShowWidget = new FaceShowWidget();
-        QVBoxLayout* faceResultLayout = new QVBoxLayout(faceGroup);
-        faceResultLayout->addWidget(m_faceShowWidget);
+        QSizePolicy playerPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        m_playerWidget->setSizePolicy(playerPolicy);
     }
-    splitter->addWidget(faceGroup);
-    
-    // 设置分割器初始比例
-    splitter->setSizes({static_cast<int>(width() * 0.7), static_cast<int>(width() * 0.3)});
-    
-    // 将分割器添加到主布局
-    picMatchLayout->addWidget(splitter);
-    
-    this->adjustSize();
-    
+
+    // 初始化右侧控件 m_faceShowWidget（占 30% 宽度）
+    if (!m_faceShowWidget) {
+        m_faceShowWidget = new FaceShowWidget(this); // 假设 m_faceShowWidget 是 QWidget 类型
+        m_faceShowWidget->setObjectName("FaceShowWidget");
+        m_faceShowWidget->setStyleSheet(
+            "#FaceShowWidget {"
+            "    background-color: #E8F5E8;" // 浅绿色背景
+            "    border: 1px solid #C8E6C9;" // 边框颜色
+            "    border-radius: 5px;"         // 圆角
+            "}"
+        );
+        QSizePolicy facePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        m_faceShowWidget->setSizePolicy(facePolicy);
+    }
+
+    // 将控件添加到布局中，并设置比例
+    mainLayout->addWidget(m_playerWidget, 7);    // 左侧占比 7 份
+    mainLayout->addWidget(m_faceShowWidget, 3);  // 右侧占比 3 份
+
+    // 设置主布局
+    setLayout(mainLayout);
+
+    // 可选：在左右区域中添加具体内容
+    // 左侧区域添加垂直布局
+    QVBoxLayout* playerLayout = new QVBoxLayout(m_playerWidget);
+    playerLayout->setContentsMargins(10, 10, 10, 10); // 内边距
+    QLabel* playerLabel = new QLabel("播放区域", m_playerWidget);
+    playerLabel->setAlignment(Qt::AlignCenter);
+    playerLabel->setStyleSheet("font-size: 16px; color: #006064;");
+    playerLayout->addWidget(playerLabel);
+
+    // 右侧区域添加垂直布局
+    QVBoxLayout* faceLayout = new QVBoxLayout(m_faceShowWidget);
+    faceLayout->setContentsMargins(10, 10, 10, 10); // 内边距
+    QLabel* faceLabel = new QLabel("人脸展示区域", m_faceShowWidget);
+    faceLabel->setAlignment(Qt::AlignCenter);
+    faceLabel->setStyleSheet("font-size: 16px; color: #2E7D32;");
+    faceLayout->addWidget(faceLabel);
+
     // 获取当前运行路径
     QString currentPath = QDir(QCoreApplication::applicationDirPath()).absolutePath();
     InitFaceRecognition(currentPath.toLocal8Bit().constData());
@@ -153,12 +145,13 @@ void PicMatchWidget::Run()
 
 void PicMatchWidget::Quit()
 {
+    // 先清理 UI，再销毁 PicPlayer，避免销毁窗口后触发的底层事件影响仍在执行的 UI 操作
+    if (m_faceShowWidget) {
+        m_faceShowWidget->clearFaceImages(true);
+    }
     if(m_handle != -1) {
         PicPlayer_DestroyInstance(m_handle);
-        m_handle = -1;  // 重置句柄
-    }
-    if (m_faceShowWidget) {
-        m_faceShowWidget->clearFaceImages();
+        m_handle = -1;
     }
     m_showId.clear();
     // 重置图片索引和初始化状态
@@ -212,10 +205,12 @@ void PicMatchWidget::UpdatePic(const std::string& showid, const std::string& ima
     std::unique_ptr<PicShowInfo> demodata = std::make_unique<PicShowInfo>();
     std::unique_ptr<FaceDetectionResult> faceResult = std::make_unique<FaceDetectionResult>();
 
-    std::memcpy(demodata->imageId, showid.c_str(), IMAGE_ID_LEN);
+    std::strncpy(demodata->imageId, showid.c_str(), IMAGE_ID_LEN - 1);
+    demodata->imageId[IMAGE_ID_LEN - 1] = '\0';
     demodata->picReadTime = 1;
     // 同样处理faceResult的imageId
-    std::memcpy(faceResult->imageId, showid.c_str(), IMAGE_ID_LEN);
+    std::strncpy(faceResult->imageId, showid.c_str(), IMAGE_ID_LEN - 1);
+    faceResult->imageId[IMAGE_ID_LEN - 1] = '\0';
     
     // 加载图片数据
     if (!LoadJpegToRGBA(imagePath.c_str(), demodata.get())) {

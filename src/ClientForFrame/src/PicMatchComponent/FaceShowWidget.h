@@ -29,20 +29,23 @@ public:
         }
     }
 
+    /// 接管 faceImageData 的所有权，调用方不得再使用该指针
     void setFaceInfo(char* faceImageData, size_t faceImageLength, int imageWidth, int imageHeight) {
         if (faceImageData && faceImageLength > 0 && imageWidth > 0 && imageHeight > 0) {
             if (m_faceImageData) {
                 delete[] m_faceImageData;
                 m_faceImageData = nullptr;
             }
-            m_faceImageData = new char[faceImageLength];
-            memcpy(m_faceImageData, faceImageData, faceImageLength);
+            m_faceImageData = faceImageData;  // 接管所有权，避免二次复制
             m_faceImageLength = faceImageLength;
             m_faceImageWidth = imageWidth;
             m_faceImageHeight = imageHeight;
             updateDisplay();
         } else {
             setText("Invalid face image data");
+            if (faceImageData) {
+                delete[] faceImageData;  // 参数非法时由调用方分配的内存需在此释放
+            }
         }
     }
 
@@ -93,7 +96,7 @@ public:
     explicit FaceShowWidget(QWidget *parent = nullptr);
 
     // Method to clear all displayed face images
-    void clearFaceImages();
+    void clearFaceImages(bool clearPending = false);
 
     // Method to add multiple face images at once
     void addFaceImages(char* faceImageData, size_t faceImageLength, int imageWidth, int imageHeight);

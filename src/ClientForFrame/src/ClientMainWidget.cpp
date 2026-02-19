@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QFrame>
 #include <QApplication>
+#include <QTimer>
 #include "LogUtil.h"
 
 ClientMainWidget::ClientMainWidget(BaseWidget *parent)
@@ -62,9 +63,9 @@ void ClientMainWidget::InitMainUI()
         m_pPicMatchWidget->Quit();
     });
     connect(titleWidget, &TitleWidget::closeButtonClicked, [this]() {
-        ClientMainQuit();
         LOG_INFO("-------------------------------Performing cleanup...");
-        QApplication::quit();
+        close();  // 先显式关闭主窗口
+        QTimer::singleShot(0, qApp, &QApplication::quit);  // 延后退出事件循环，确保窗口关闭完成
     });
 }
 

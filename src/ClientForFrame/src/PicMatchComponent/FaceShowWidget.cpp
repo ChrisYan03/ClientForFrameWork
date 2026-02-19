@@ -61,12 +61,21 @@ FaceShowWidget::FaceShowWidget(QWidget *parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
 }
 
-void FaceShowWidget::clearFaceImages() 
+void FaceShowWidget::clearFaceImages(bool clearPending) 
 {
     LOG_INFO("clearFaceImages");
+    if (!m_containerWidget) {
+        if (clearPending) {
+            for (const auto& tuple : m_pendingFaceLabels) {
+                delete std::get<0>(tuple);
+                delete[] std::get<1>(tuple);
+            }
+            m_pendingFaceLabels.clear();
+        }
+        return;
+    }
     QLayout* layout = m_containerWidget->layout();
     if (layout) {
-        // Delete all widgets in the layout
         QLayoutItem* child;
         while ((child = layout->takeAt(0)) != nullptr) {
             if (child->widget()) {
@@ -74,14 +83,12 @@ void FaceShowWidget::clearFaceImages()
             }
             delete child;
         }
-        // Also clear the internal vector
         m_faceLabels.clear();
-
-        // 刷新界面以确保清除效果立即可见
         m_containerWidget->update();
         m_scrollArea->update();
-        this->repaint();
     }
+    
+    this->repaint();
 }
 
 void FaceShowWidget::addFaceImages(char* faceImageData, size_t faceImageLength, int imageWidth, int imageHeight) 
@@ -89,10 +96,10 @@ void FaceShowWidget::addFaceImages(char* faceImageData, size_t faceImageLength, 
     LOG_INFO("addFaceImages - imageData: {}, length: {}, width: {}, height: {}", 
              (void*)faceImageData, faceImageLength, imageWidth, imageHeight);
 
-    // Create a deep copy of the face image data
+    // 深拷贝一份，所有权将在 triggerDisplay 中转移给 FaceImageLabel
     char* copiedFaceData = new char[faceImageLength];
     memcpy(copiedFaceData, faceImageData, faceImageLength);
-    
+
     FaceImageLabel* faceLabel = new FaceImageLabel();
     m_pendingFaceLabels.push_back(std::make_tuple(faceLabel, copiedFaceData, faceImageLength, imageWidth, imageHeight));
 }
@@ -111,6 +118,7 @@ void FaceShowWidget::triggerDisplay()
         static_cast<QVBoxLayout*>(m_containerWidget->layout())->addWidget(faceLabel);
         m_faceLabels.append(faceLabel);  
     }
+
     m_pendingFaceLabels.clear();
     // 刷新界面以确保新添加的标签立即可见
     m_containerWidget->update();

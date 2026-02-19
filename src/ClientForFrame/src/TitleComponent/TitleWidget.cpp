@@ -17,8 +17,7 @@ void TitleWidget::setupUI()
     setFixedHeight(70);
     setStyleSheet(
         "TitleWidget {"
-        "   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4a6fa5, stop: 1 #3a5a8a);"
-        "   border-bottom: 1px solid #2c3e50;"
+        "   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4a6fa5, stop: 1 #3e72a6);"
         "}"
     );
 

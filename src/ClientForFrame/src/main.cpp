@@ -14,5 +14,7 @@ int main(int argc, char *argv[])
     w.show();
     w.raise();
     w.ClientMainInit();
+    
+    QObject::connect(&app, &QApplication::aboutToQuit, &w, &ClientMainWidget::ClientMainQuit);
     return app.exec();
 }
