@@ -4,12 +4,12 @@
 #include "glfw3.h"
 #include "../Render/PicPlayerRender.h"
 #ifdef __APPLE__
-#include "PicPlayerWindowForMac.h"
-#include <dispatch/dispatch.h>
-#include <unistd.h>  // for usleep
+    #include "PicPlayerWindowForMac.h"
+    #include <dispatch/dispatch.h>
+    #include <unistd.h>  // for usleep
 #else
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
 #endif
 
 #include "../Render/DrawPicByImgui/PicTexture.h"

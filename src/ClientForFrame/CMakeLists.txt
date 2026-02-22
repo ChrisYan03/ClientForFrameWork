@@ -21,7 +21,7 @@ if(APPLE)
     
     # 设置Qt使用Cocoa而不是Carbon
     set(QT_MAC_OPENGL_IMPLEMENTATION "CoreProfile")
-    
+
     # 创建链接器过滤脚本的完整路径
     set(LINKER_FILTER_SCRIPT "${CMAKE_SOURCE_DIR}/filter_agl_linker.sh")
     
