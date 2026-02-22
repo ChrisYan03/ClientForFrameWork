@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+  <!-- 背景圆形 -->
+  <circle cx="14" cy="14" r="12" fill="#4a6fa5"/>
+  
+  <!-- 眼睛形状（识别元素） -->
+  <circle cx="14" cy="12" r="7" fill="none" stroke="#ffffff" stroke-width="1"/>
+  <circle cx="14" cy="12" r="3" fill="#ffffff"/>
+  <circle cx="14" cy="12" r="1.5" fill="#4a6fa5"/>
+  
+  <!-- 扫描线效果 -->
+  <path d="M7 12 L21 12" stroke="#ffffff" stroke-width="1" stroke-dasharray="1.5,1.5"/>
+  <path d="M14 5 L14 19" stroke="#ffffff" stroke-width="1" stroke-dasharray="1.5,1.5"/>
+  
+  <!-- 数据点 -->
+  <circle cx="9" cy="9" r="1" fill="#27ae60"/>
+  <circle cx="19" cy="9" r="1" fill="#27ae60"/>
+  <circle cx="9" cy="15" r="1" fill="#27ae60"/>
+  <circle cx="19" cy="15" r="1" fill="#27ae60"/>
+</svg>

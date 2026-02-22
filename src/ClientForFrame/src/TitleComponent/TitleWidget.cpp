@@ -82,18 +82,30 @@ void TitleWidget::setupUI()
     mainLayout->setContentsMargins(12, 0, 8, 0);  // VSCode风格的边距
     mainLayout->setSpacing(8);
 
-    // 应用标题 - VSCode风格
-    QLabel *titleLabel = new QLabel("图像识别系统");
-    QFont titleFont("Segoe UI", 12);  // VSCode使用的字体
-    titleLabel->setFont(titleFont);
-    titleLabel->setObjectName("TitleLabel");
-    
-    mainLayout->addWidget(titleLabel);
+    // *** 添加应用图标及标题 ***
+    QWidget* titleContainer = new QWidget();
+    {
+        QHBoxLayout *titleLayout = new QHBoxLayout(titleContainer);
+        titleLayout->setContentsMargins(0, 0, 0, 0); 
+        titleLayout->setSpacing(2);
+        QLabel *appIconLabel = new QLabel(titleContainer);
+        appIconLabel->setFixedSize(32, 32);  // 设置图标大小
+        QPixmap appIconPixmap(":/icons/app_title.svg");
+        if (!appIconPixmap.isNull()) {
+           appIconLabel->setPixmap(appIconPixmap);
+        }
+        titleLayout->addWidget(appIconLabel);
+        
+        // 应用标题 - VSCode风格
+        QLabel *titleLabel = new QLabel("图像识别系统", titleContainer);
+        titleLabel->setObjectName("TitleLabel");
+        titleLayout->addWidget(titleLabel);
+    }
+    mainLayout->addWidget(titleContainer);
     mainLayout->addStretch();
 
     // 添加状态指示器
     m_statusLabel = new QLabel("● 就绪");
-    m_statusLabel->setFont(QFont("Segoe UI", 9));
     m_statusLabel->setObjectName("StatusLabel");
     mainLayout->addWidget(m_statusLabel);
 

@@ -40,16 +40,6 @@ QPushButton {
   border-radius: 6px;
   background-color: #34495e;
   color: #ecf0f1;
-  border: 1px solid #2c3e50;
-}
-
-QPushButton:hover {
-  background-color: #4d657e;
-  border: 1px solid #3498db;
-}
-
-QPushButton:pressed {
-  background-color: #233441;
 }
 
 QPushButton#startButton {
