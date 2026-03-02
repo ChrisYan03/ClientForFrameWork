@@ -41,13 +41,21 @@ else()
     add_compile_options(/utf-8)
 endif()
 
+# 可选：设为 ON 使用 QML 界面，OFF 使用原有 Qt Widgets 界面
+set(USE_QML ON CACHE BOOL "Use QML for UI instead of Qt Widgets")
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+if(USE_QML)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Quick QuickControls2)
+endif()
 
 message("ClientForFrame qt_directory: Qt${QT_VERSION_MAJOR} found at ${Qt${QT_VERSION_MAJOR}_DIR}")
 # 设置源码目录与资源目录
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(RESOURCE_DIR ${SOURCE_DIR}/resource)
+include_directories(${SOURCE_DIR})
 
 # 定义源码文件
 # 使用 file(GLOB ...) 自动收集源文件
@@ -57,6 +65,15 @@ file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
     "${RESOURCE_DIR}/*.qrc"
 )
 list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
+if(USE_QML)
+    list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main.cpp")
+else()
+    list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main_qml.cpp"
+        "${SOURCE_DIR}/QmlBridge/AppController.cpp"
+        "${SOURCE_DIR}/QmlBridge/AppController.h"
+        "${SOURCE_DIR}/QmlBridge/PlayerHostItem.cpp"
+        "${SOURCE_DIR}/QmlBridge/PlayerHostItem.h")
+endif()
 list(REMOVE_DUPLICATES PROJECT_SOURCES)
 
 # 添加 PicPlayer 库路径
@@ -73,49 +90,71 @@ set(OpenCV_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/../ext/lib/opencv2/Win64)
 message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(ClientForFrame
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-    
-    # M1芯片Mac的特殊处理
-    if(APPLE)
-        # 先链接我们的库
-        target_link_libraries(ClientForFrame PRIVATE PicPlayer PicRecognition)
-        
-        # 手动指定Qt库，避免自动添加AGL
-        target_link_libraries(ClientForFrame PRIVATE 
-            ${Qt${QT_VERSION_MAJOR}Widgets_LIBRARIES}
-            ${Qt${QT_VERSION_MAJOR}Gui_LIBRARIES}
-            ${Qt${QT_VERSION_MAJOR}Core_LIBRARIES}
+    # USE_QML 时用 add_executable 避免 qt_finalize_executable 触发的 QML 导入扫描（在部分环境会失败）
+    if(USE_QML)
+        add_executable(ClientForFrame ${PROJECT_SOURCES})
+        target_link_libraries(ClientForFrame PRIVATE
+            Qt${QT_VERSION_MAJOR}::Core
+            Qt${QT_VERSION_MAJOR}::Gui
+            Qt${QT_VERSION_MAJOR}::Widgets
+            Qt${QT_VERSION_MAJOR}::Quick
+            Qt${QT_VERSION_MAJOR}::QuickControls2
+            PicPlayer
+            PicRecognition
         )
-        
-        # 显式指定需要的框架，但排除AGL
-        target_link_libraries(ClientForFrame PRIVATE 
-            "-framework OpenGL"
-            "-framework AppKit" 
-            "-framework ImageIO"
-            "-framework Metal"
-            "-framework IOKit"
-            "-framework DiskArbitration"
-            "-framework UniformTypeIdentifiers"
-        )
-        
-        # 使用链接器标志强制排除AGL并允许动态查找
-        set_target_properties(ClientForFrame PROPERTIES
-            LINK_FLAGS "-Wl,-framework,OpenGL -Wl,-framework,AppKit -Wl,-framework,ImageIO -Wl,-framework,Metal -Wl,-framework,IOKit -Wl,-framework,DiskArbitration -Wl,-framework,UniformTypeIdentifiers -Wl,-undefined,dynamic_lookup"
-        )
-        
-        # 设置rpath
-        set_target_properties(ClientForFrame PROPERTIES
-            INSTALL_RPATH "@executable_path/../Frameworks"
-        )
-        
+        if(APPLE)
+            target_link_libraries(ClientForFrame PRIVATE
+                "-framework OpenGL"
+                "-framework AppKit"
+                "-framework ImageIO"
+                "-framework Metal"
+                "-framework IOKit"
+                "-framework DiskArbitration"
+                "-framework UniformTypeIdentifiers"
+            )
+            set_target_properties(ClientForFrame PROPERTIES
+                LINK_FLAGS "-Wl,-framework,OpenGL -Wl,-framework,AppKit -Wl,-framework,ImageIO -Wl,-framework,Metal -Wl,-framework,IOKit -Wl,-framework,DiskArbitration -Wl,-framework,UniformTypeIdentifiers -Wl,-undefined,dynamic_lookup"
+            )
+            set_target_properties(ClientForFrame PROPERTIES
+                INSTALL_RPATH "@executable_path/../Frameworks"
+            )
+        endif()
     else()
-        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+        qt_add_executable(ClientForFrame
+            MANUAL_FINALIZATION
+            ${PROJECT_SOURCES}
+        )
+        # M1芯片Mac的特殊处理
+        if(APPLE)
+            # 先链接我们的库
+            target_link_libraries(ClientForFrame PRIVATE PicPlayer PicRecognition)
+            # 手动指定Qt库，避免自动添加AGL
+            target_link_libraries(ClientForFrame PRIVATE 
+                ${Qt${QT_VERSION_MAJOR}Widgets_LIBRARIES}
+                ${Qt${QT_VERSION_MAJOR}Gui_LIBRARIES}
+                ${Qt${QT_VERSION_MAJOR}Core_LIBRARIES}
+            )
+            # 显式指定需要的框架，但排除AGL
+            target_link_libraries(ClientForFrame PRIVATE 
+                "-framework OpenGL"
+                "-framework AppKit" 
+                "-framework ImageIO"
+                "-framework Metal"
+                "-framework IOKit"
+                "-framework DiskArbitration"
+                "-framework UniformTypeIdentifiers"
+            )
+            set_target_properties(ClientForFrame PROPERTIES
+                LINK_FLAGS "-Wl,-framework,OpenGL -Wl,-framework,AppKit -Wl,-framework,ImageIO -Wl,-framework,Metal -Wl,-framework,IOKit -Wl,-framework,DiskArbitration -Wl,-framework,UniformTypeIdentifiers -Wl,-undefined,dynamic_lookup"
+            )
+            set_target_properties(ClientForFrame PROPERTIES
+                INSTALL_RPATH "@executable_path/../Frameworks"
+            )
+        else()
+            target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+        endif()
+        qt_finalize_executable(ClientForFrame)
     endif()
-    
-    qt_finalize_executable(ClientForFrame)
 else()
     if(ANDROID)
         add_library(ClientForFrame SHARED ${PROJECT_SOURCES})
@@ -132,6 +171,13 @@ qt_add_resources(ClientForFrame "resources"
     BASE "${CMAKE_CURRENT_SOURCE_DIR}"
     FILES "src/resource/resource.qrc"
 )
+if(USE_QML)
+    qt_add_resources(ClientForFrame "qml_resources"
+        PREFIX "/"
+        BASE "${CMAKE_CURRENT_SOURCE_DIR}"
+        FILES "src/resource/qml.qrc"
+    )
+endif()
 if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE
         ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib

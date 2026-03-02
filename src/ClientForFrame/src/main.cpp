@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     ClientMainWidget w;
     LOG_INFO("-------------------------------Application starting2...");
     // Initialize and apply the default theme
-    StyleManager::instance()->applyTheme(StyleManager::DarkTheme);
+    StyleManager::instance()->applyTheme(StyleManager::LightTheme);
 
     
     w.show();
