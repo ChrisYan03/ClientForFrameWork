@@ -68,22 +68,11 @@ void PicMatchWidget::InitUI()
     // 设置主布局
     setLayout(mainLayout);
 
-    // 可选：在左右区域中添加具体内容
-    // 左侧区域添加垂直布局
+    // 左侧区域：仅占位，PicPlayer 渲染到 m_playerWidget
     QVBoxLayout* playerLayout = new QVBoxLayout(m_playerWidget);
-    playerLayout->setContentsMargins(10, 10, 10, 10); // 内边距
-    QLabel* playerLabel = new QLabel(m_playerWidget);
-    playerLabel->setAlignment(Qt::AlignCenter);
-    playerLabel->setStyleSheet("font-size: 16px; color: #006064;");
-    playerLayout->addWidget(playerLabel);
+    playerLayout->setContentsMargins(0, 0, 0, 0);
 
-    // 右侧区域添加垂直布局
-    QVBoxLayout* faceLayout = new QVBoxLayout(m_faceShowWidget);
-    faceLayout->setContentsMargins(10, 10, 10, 10); // 内边距
-    QLabel* faceLabel = new QLabel("人脸展示区域", m_faceShowWidget);
-    faceLabel->setAlignment(Qt::AlignCenter);
-    faceLabel->setStyleSheet("font-size: 16px; color: #2E7D32;");
-    faceLayout->addWidget(faceLabel);
+    // 右侧人脸区由 FaceShowWidget 自身布局（含标题与滚动区），不再在此覆盖
 
     // 获取当前运行路径
     QString currentPath = QDir(QCoreApplication::applicationDirPath()).absolutePath();
@@ -143,11 +132,7 @@ void PicMatchWidget::Quit()
 
 void PicMatchWidget::resizeEvent(QResizeEvent *event)
 {
-    if (nullptr == m_playerWidget) {
-        QWidget::resizeEvent(event);
-        return;
-    }
-    m_playerWidget->resize(width(), height());
+    // 由布局管理 m_playerWidget 与 m_faceShowWidget 的尺寸（7:3），不再强制播放器占满导致人脸列被遮挡
     QWidget::resizeEvent(event);
 }
 

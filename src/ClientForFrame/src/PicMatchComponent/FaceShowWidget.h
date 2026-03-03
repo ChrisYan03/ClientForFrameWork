@@ -10,14 +10,14 @@
 class FaceImageLabel : public QLabel {
     Q_OBJECT
 public:
-    explicit FaceImageLabel(QWidget*parent = nullptr)
+    explicit FaceImageLabel(QWidget* parent = nullptr)
         : QLabel(parent)
         , m_faceImageData(nullptr)
         , m_faceImageLength(0)
         , m_faceImageWidth(0)
         , m_faceImageHeight(0)
- {
-        setStyleSheet("margin: 5px;");
+    {
+        setObjectName("FaceImageLabel");
         setAlignment(Qt::AlignCenter);
     }
 

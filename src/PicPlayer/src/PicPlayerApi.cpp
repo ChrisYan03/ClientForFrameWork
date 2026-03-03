@@ -1,9 +1,9 @@
-﻿#include "PicPlayerApi.h"
+#include "PicPlayerApi.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "PicPlayerHandleManager.h"
 #include "PicPlayer.h"
-#include "LogUtil.h"
+#include "PicPlayerLog.h"
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_Init()
 {
     LogUtil::initLogger("PicPlayer");

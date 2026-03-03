@@ -7,6 +7,8 @@
     <file>icons/stop_hover.svg</file>
     <file>icons/close.svg</file>
     <file>icons/close_hover.svg</file>
+    <file>icons/maximize.svg</file>
+    <file>icons/restore.svg</file>
     <file>styles/dark_theme.qss</file>
     <file>styles/main_theme.qss</file>
     <file>icons/app_title.svg</file>

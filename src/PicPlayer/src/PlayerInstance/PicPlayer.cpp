@@ -1,11 +1,11 @@
-﻿#include "PicPlayer.h"
+#include "PicPlayer.h"
 #include "PicPlayerVideoRender.h"
 #include "PicPlayerCtrlDelegate.h"
 #include <iostream>
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
 #endif
-#include "LogUtil.h"
+#include "PicPlayerLog.h"
 
 PicPlayer::PicPlayer(int cacheNum)
     : m_cacheNum(cacheNum)

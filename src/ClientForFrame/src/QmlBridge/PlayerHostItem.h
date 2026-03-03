@@ -21,6 +21,10 @@ public:
     /** 供 main_qml 获取并交给 AppController，用于 Run/Quit */
     PicMatchWidget *picMatchWidget() const { return m_picMatchWidget; }
 
+signals:
+    /** 嵌入的 PicMatchWidget 已创建完成，可交给 AppController.setPlayer */
+    void widgetReady();
+
 protected:
     void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 

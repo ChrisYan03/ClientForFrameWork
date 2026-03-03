@@ -182,6 +182,7 @@ if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE
         ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib
         ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicRecognition.lib
+        dwmapi
     )
 endif()
 

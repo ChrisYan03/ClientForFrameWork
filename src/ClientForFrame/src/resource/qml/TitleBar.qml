@@ -6,14 +6,14 @@ import QtQuick.Window
 Rectangle {
     id: titleBarRoot
     z: 100
-    color: "#f3f3f3"
+    color: "#ffffff"
     border.width: 0
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 1
-        color: "#e4e4e4"
+        color: "#e0e0e0"
     }
 
     signal requestMove(real dx, real dy)
@@ -53,19 +53,19 @@ Rectangle {
         property string tipText: ""
     }
 
-    RowLayout {
+        RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 10
-        anchors.rightMargin: 6
+        anchors.leftMargin: 12
+        anchors.rightMargin: 0
         anchors.topMargin: 0
         anchors.bottomMargin: 0
-        spacing: 6
+        spacing: 8
 
-        // 左侧：图标 + 标题（VS Code 风格紧凑）
+        // 左侧：图标 + 标题（VS Code 风格）
         Item {
             Layout.fillWidth: true
             Layout.minimumWidth: 80
-            Layout.preferredHeight: 35
+            Layout.preferredHeight: 38
 
             RowLayout {
                 anchors.fill: parent
@@ -80,7 +80,8 @@ Rectangle {
                 }
                 Label {
                     text: "图像识别系统"
-                    font.pixelSize: 12
+                    font.pixelSize: 13
+                    font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
                     color: "#323232"
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -111,32 +112,35 @@ Rectangle {
 
         Label {
             text: titleBarRoot.statusText
-            font.pixelSize: 11
+            font.pixelSize: 12
+            font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
             color: "#5f6368"
             Layout.alignment: Qt.AlignVCenter
-            Layout.rightMargin: 8
+            Layout.rightMargin: 12
         }
 
         RowLayout {
-            spacing: 2
+            spacing: 0
             Layout.alignment: Qt.AlignVCenter
 
             Button {
                 id: startBtn
-                implicitWidth: 28
-                implicitHeight: 28
+                implicitWidth: 46
+                implicitHeight: 38
                 topPadding: 0
                 bottomPadding: 0
                 leftPadding: 0
                 rightPadding: 0
+                contentItem.opacity: startBtn.hovered ? 1 : 0.9
                 background: Rectangle {
-                    color: parent.hovered ? "#4CAF50" : "transparent"
-                    radius: 2
+                    anchors.fill: parent
+                    color: startBtn.hovered ? "#4CAF50" : "transparent"
+                    radius: 0
                 }
                 icon.source: "qrc:/icons/start.svg"
-                icon.width: 14
-                icon.height: 14
-                icon.color: "transparent"
+                icon.width: 16
+                icon.height: 16
+                icon.color: startBtn.hovered ? "#ffffff" : "#323232"
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -156,20 +160,22 @@ Rectangle {
             }
             Button {
                 id: stopBtn
-                implicitWidth: 28
-                implicitHeight: 28
+                implicitWidth: 46
+                implicitHeight: 38
                 topPadding: 0
                 bottomPadding: 0
                 leftPadding: 0
                 rightPadding: 0
+                contentItem.opacity: stopBtn.hovered ? 1 : 0.9
                 background: Rectangle {
-                    color: parent.hovered ? "#e0e0e0" : "transparent"
-                    radius: 2
+                    anchors.fill: parent
+                    color: stopBtn.hovered ? "#e5e5e5" : "transparent"
+                    radius: 0
                 }
                 icon.source: "qrc:/icons/stop.svg"
-                icon.width: 14
-                icon.height: 14
-                icon.color: "transparent"
+                icon.width: 16
+                icon.height: 16
+                icon.color: "#323232"
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -189,23 +195,23 @@ Rectangle {
             }
             Button {
                 id: maxBtn
-                implicitWidth: 28
-                implicitHeight: 28
+                implicitWidth: 46
+                implicitHeight: 38
                 topPadding: 0
                 bottomPadding: 0
                 leftPadding: 0
                 rightPadding: 0
+                contentItem.opacity: maxBtn.hovered ? 1 : 0.9
                 background: Rectangle {
-                    color: parent.hovered ? "#e0e0e0" : "transparent"
-                    radius: 2
+                    anchors.fill: parent
+                    color: maxBtn.hovered ? "#e5e5e5" : "transparent"
+                    radius: 0
                 }
-                contentItem: Text {
-                    text: titleBarRoot.isMaximized ? "❐" : "□"
-                    font.pixelSize: 14
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    color: "#3c4043"
-                }
+                icon.source: titleBarRoot.isMaximized ? "qrc:/icons/restore.svg" : "qrc:/icons/maximize.svg"
+                icon.width: 16
+                icon.height: 16
+                icon.color: "#323232"
+                display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
                     if (hovered) {
@@ -221,20 +227,22 @@ Rectangle {
             }
             Button {
                 id: closeBtn
-                implicitWidth: 28
-                implicitHeight: 28
+                implicitWidth: 46
+                implicitHeight: 38
                 topPadding: 0
                 bottomPadding: 0
                 leftPadding: 0
                 rightPadding: 0
+                contentItem.opacity: closeBtn.hovered ? 1 : 0.9
                 background: Rectangle {
-                    color: parent.hovered ? "#c42b1c" : "transparent"
-                    radius: 2
+                    anchors.fill: parent
+                    color: closeBtn.hovered ? "#e81123" : "transparent"
+                    radius: 0
                 }
                 icon.source: "qrc:/icons/close.svg"
-                icon.width: 14
-                icon.height: 14
-                icon.color: "transparent"
+                icon.width: 16
+                icon.height: 16
+                icon.color: closeBtn.hovered ? "#ffffff" : "#323232"
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {

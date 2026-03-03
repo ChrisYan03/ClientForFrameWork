@@ -1,4 +1,4 @@
-﻿#include "PicPlayerShowWindow.h"
+#include "PicPlayerShowWindow.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "glfw3.h"
@@ -13,7 +13,7 @@
 #endif
 
 #include "../Render/DrawPicByImgui/PicTexture.h"
-#include "LogUtil.h"
+#include "PicPlayerLog.h"
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {

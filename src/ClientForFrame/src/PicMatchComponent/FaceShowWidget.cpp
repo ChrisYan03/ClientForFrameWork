@@ -1,15 +1,21 @@
 #include "FaceShowWidget.h"
 #include <QSizePolicy>
+#include <QLabel>
 #include "LogUtil.h"
 
 FaceShowWidget::FaceShowWidget(QWidget *parent)
     : BaseWidget(parent)
 {
     setObjectName("FaceShowWidget");
-    // Create main layout
     m_layout = new QVBoxLayout(this);
-    
-    // Create scroll area
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
+
+    QLabel* sectionHeader = new QLabel(this);
+    sectionHeader->setObjectName("FaceShowSectionHeader");
+    sectionHeader->setText(QStringLiteral("识别结果"));
+    m_layout->addWidget(sectionHeader);
+
     m_scrollArea = new QScrollArea();
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setObjectName("FaceShowScrollArea");
@@ -20,14 +26,12 @@ FaceShowWidget::FaceShowWidget(QWidget *parent)
     m_containerWidget = new QWidget();
     QVBoxLayout* containerLayout = new QVBoxLayout(m_containerWidget);
     containerLayout->setAlignment(Qt::AlignTop);  // Align to top so images stack vertically
-    containerLayout->setSpacing(10);
-    containerLayout->setContentsMargins(10, 10, 10, 10);
+    containerLayout->setSpacing(8);
+    containerLayout->setContentsMargins(8, 12, 8, 12);
     
     m_scrollArea->setWidget(m_containerWidget);
-    
-    // Add scroll area to main layout
-    m_layout->addWidget(m_scrollArea);
-    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_containerWidget->setObjectName("FaceShowContainer");
+    m_layout->addWidget(m_scrollArea, 1);
 }
 
 void FaceShowWidget::clearFaceImages(bool clearPending) 

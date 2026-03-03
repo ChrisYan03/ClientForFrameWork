@@ -1,6 +1,6 @@
-﻿#include "PicPlayerMovieByScene.h"
+#include "PicPlayerMovieByScene.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
-#include "LogUtil.h"
+#include "PicPlayerLog.h"
 
 PicPlayerMovieByScene::PicPlayerMovieByScene(const ImRect& rc, int cacheNum)
     : PicPlayerScene(rc, cacheNum)

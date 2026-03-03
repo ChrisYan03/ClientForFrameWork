@@ -38,8 +38,9 @@ include_directories(${EXT_DIR}/include
                     ${EXT_DIR}/include/GL
                     ${EXT_DIR}/include/GLFW
                     ${OPENGL_INCLUDE_DIR})
-# 添加内部头文件路径
-include_directories(${LOG_DIR}
+# 添加内部头文件路径（含 SOURCE_DIR 以便包含 PicPlayerLog.h）
+include_directories(${SOURCE_DIR}
+                    ${LOG_DIR}
                     ${EVENTLOOP_DIR}
                     ${UTILS_DIR}
                     ${PLAYERINS_DIR}

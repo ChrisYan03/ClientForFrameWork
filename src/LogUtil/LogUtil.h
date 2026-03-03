@@ -9,39 +9,36 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <mutex>
 
 namespace LogUtil {
     inline std::shared_ptr<spdlog::logger> getLogger(const std::string& name = "app") {
-        static std::shared_ptr<spdlog::logger> logger = nullptr;
-        
-        if (!logger) {
-            try {
-                // 创建控制台和文件双输出日志
-                auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-                std::string logFilePath = "logs/" + name + ".log";
-                auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath, true);
-                
-                logger = std::make_shared<spdlog::logger>(name, spdlog::sinks_init_list{console_sink, file_sink});
-                
-                // 设置全局日志级别
-                logger->set_level(spdlog::level::trace);
-                
-                // 设置日志格式，包含文件名、行号和函数名
-                logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v");
-                
-                // 立即刷新
-                logger->flush_on(spdlog::level::trace);
-                
-                // 设置全局日志器
+        static std::unordered_map<std::string, std::shared_ptr<spdlog::logger>> s_loggers;
+        static std::mutex s_mutex;
+        std::lock_guard<std::mutex> lock(s_mutex);
+        auto it = s_loggers.find(name);
+        if (it != s_loggers.end())
+            return it->second;
+        try {
+            auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            std::string logFilePath = "logs/" + name + ".log";
+            auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath, true);
+            auto logger = std::make_shared<spdlog::logger>(name, spdlog::sinks_init_list{console_sink, file_sink});
+            logger->set_level(spdlog::level::trace);
+            logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v");
+            logger->flush_on(spdlog::level::trace);
+            if (s_loggers.empty())
                 spdlog::set_default_logger(logger);
-            } catch (const spdlog::spdlog_ex& ex) {
-                spdlog::error("Log initialization failed: {}", ex.what());
-            }
+            s_loggers[name] = logger;
+            return logger;
+        } catch (const spdlog::spdlog_ex& ex) {
+            if (!s_loggers.empty())
+                spdlog::error("Log initialization failed for {}: {}", name, ex.what());
+            return s_loggers.empty() ? nullptr : s_loggers.begin()->second;
         }
-        
-        return logger;
     }
-    
+
     inline void initLogger(const std::string& name = "app") {
         getLogger(name);
     }
