@@ -1,4 +1,4 @@
-﻿#ifndef PICPLAYERSHOWWINDOW_H
+#ifndef PICPLAYERSHOWWINDOW_H
 #define PICPLAYERSHOWWINDOW_H
 
 #ifdef _WIN32
@@ -12,6 +12,8 @@ class PicPlayerShowWindow : public PicPlayerGui
 {
 public:
     static void WindowSizeCallback(GLFWwindow* window, int width, int height);
+    /** 设置 OpenGL/ImGui 主题背景色（0~1），由宿主在换肤时调用 */
+    static void SetThemeBackgroundColor(float r, float g, float b);
 
 public:
     PicPlayerShowWindow(Window_ShowID hParent, int iCacheNum = 10);
@@ -30,6 +32,8 @@ protected:
     void DestroyRenderWindow();
 
 private:
+    static void ApplyThemeClearColor();
+
     GLFWwindow* m_window;
     int m_iCacheNum;
     #ifdef _WIN32

@@ -35,7 +35,10 @@ PicMatchWidget::~PicMatchWidget()
 {
     LOG_DEBUG("~PicMatchWidget");
     DestroyFaceRecognition();
-    PicPlayer_UnInit();
+    if (m_handle != -1) {
+        PicPlayer_DestroyInstance(m_handle);
+        m_handle = -1;
+    }
     LOG_DEBUG("~PicMatchWidget suc");
 }
 
@@ -118,10 +121,11 @@ void PicMatchWidget::Quit()
     if (m_faceShowWidget) {
         m_faceShowWidget->clearFaceImages(true);
     }
-    if(m_handle != -1) {
+    if (m_handle != -1) {
         PicPlayer_DestroyInstance(m_handle);
         m_handle = -1;
     }
+    PicPlayer_UnInit();
     m_showId.clear();
     // 重置图片索引和初始化状态
     m_currentIndex = 0;

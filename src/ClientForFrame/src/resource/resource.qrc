@@ -12,5 +12,10 @@
     <file>styles/dark_theme.qss</file>
     <file>styles/main_theme.qss</file>
     <file>icons/app_title.svg</file>
+    <file>icons/face_recognition.svg</file>
+    <file>icons/settings.svg</file>
+    <file>icons/home.svg</file>
+    <file>themes/light.json</file>
+    <file>themes/dark.json</file>
   </qresource>
 </RCC>

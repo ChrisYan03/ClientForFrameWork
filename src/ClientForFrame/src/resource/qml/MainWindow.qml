@@ -1,6 +1,5 @@
-// 主窗口：布局与样式跨平台（Windows / macOS 共用）
-// - 圆角：Win 下由 DWM 或内容区绘制，Mac 下由 setMask 圆角
-// - 字体：QSS/TitleBar 使用 Segoe UI + SF Pro Text/Helvetica Neue 回退，Mac 上自动用系统字体
+// 主窗口：框架主体 = 标题栏 + 内容区（桌面 / 独立组件）
+// 内容区为 StackView：默认显示桌面（App 图标），点击图标加载对应组件（如图像匹配）
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -9,34 +8,29 @@ import App 1.0
 
 Window {
     id: root
-    // 由 C++ 在首帧就绪后再 show，避免 Windows 下白屏
     visible: false
     title: "小闫客户端"
     width: 1400
     height: 900
-    minimumWidth: 1400
-    minimumHeight: 900
+    minimumWidth: 1000
+    minimumHeight: 700
     flags: Qt.Window | Qt.FramelessWindowHint
-    // Windows 下透明会导致整窗白屏；与内容区一致，VS Code 风格浅灰
-    color: "#f3f3f3"
+    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.windowBackground : "#f3f3f3"
 
-    property string mainStatusText: "● 就绪"
+    property string mainStatusText: ""
     property bool isMaximized: visibility === Window.Maximized
+    property bool toastVisible: false
     readonly property int titleBarHeight: 38
     readonly property int cornerRadius: 8
-    readonly property real splitRatio: 0.7
     readonly property int contentMargin: 0
-    readonly property int splitterWidth: 1
-    readonly property color splitterColor: "#e4e4e4"
 
-    // 圆角内容区（VS Code 风格：8px 圆角 + 细边框）；最大化时取消圆角
     Rectangle {
         id: roundBack
         anchors.fill: parent
         radius: root.isMaximized ? 0 : root.cornerRadius
-        color: "#ffffff"
+        color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.contentBackground : "#ffffff"
         border.width: root.isMaximized ? 0 : 1
-        border.color: "#e0e0e0"
+        border.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.border : "#e0e0e0"
         clip: true
 
         TitleBar {
@@ -47,6 +41,7 @@ Window {
             height: root.titleBarHeight
             statusText: root.mainStatusText
             isMaximized: root.isMaximized
+            showBackButton: contentStack.depth > 1
             onRequestMove: (dx, dy) => {
                 if (!root.isMaximized)
                     root.x += dx; root.y += dy
@@ -63,10 +58,28 @@ Window {
             onStopClicked: {
                 root.mainStatusText = "● 已停止"
             }
+            onBackToDesktopClicked: {
+                if (contentStack.depth > 1) {
+                    if (appController && appController.hasRunnableComponent && appController.isRunning) {
+                        toastVisible = true
+                        toastTimer.restart()
+                    } else if (appController) {
+                        appController.requestBackToDesktop()
+                    }
+                }
+            }
+            onSettingsClicked: contentStack.push(settingsPageComp)
         }
 
-        Item {
-            id: contentArea
+        Timer {
+            id: toastTimer
+            interval: 2000
+            repeat: false
+            onTriggered: root.toastVisible = false
+        }
+
+        StackView {
+            id: contentStack
             anchors.top: titleBar.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -75,28 +88,34 @@ Window {
             anchors.rightMargin: root.contentMargin
             anchors.bottomMargin: root.contentMargin
 
-            PlayerHostItem {
-                objectName: "playerHost"
-                anchors.fill: parent
-            }
-
-            Rectangle {
-                id: splitterLine
-                width: root.splitterWidth
-                anchors.top: contentArea.top
-                anchors.bottom: contentArea.bottom
-                x: Math.round(contentArea.width * root.splitRatio) - Math.floor(root.splitterWidth / 2)
-                color: splitterHover.hovered ? "#cccccc" : root.splitterColor
-                z: 10
-                visible: contentArea.width > 0 && contentArea.height > 0
-                MouseArea {
-                    id: splitterHover
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.SizeHorCursor
-                }
+            Component.onCompleted: {
+                push(appDesktopComp)
             }
         }
+
+        Component {
+            id: appDesktopComp
+            AppDesktop {
+                onOpenApp: (appId) => root.openAppFromDesktop(appId)
+            }
+        }
+        Component {
+            id: picMatchPageComp
+            PicMatchPage { }
+        }
+        Component {
+            id: settingsPageComp
+            SettingsPage { }
+        }
+    }
+
+    function openAppFromDesktop(appId) {
+        if (appId === "picmatch")
+            contentStack.push(picMatchPageComp)
+    }
+    function popToDesktop() {
+        while (contentStack.depth > 1)
+            contentStack.pop()
     }
 
     Component.onCompleted: {
@@ -115,6 +134,41 @@ Window {
         function onStatusTextChanged() {
             if (appController)
                 root.mainStatusText = appController.statusText
+        }
+        function onBackToDesktopRequested() {
+            root.popToDesktop()
+        }
+    }
+
+    Window {
+        id: toastWindow
+        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        color: "transparent"
+        width: 260
+        height: 48
+        x: root.x + (root.width - width) / 2
+        y: root.y + root.titleBarHeight + 40
+        visible: root.toastVisible
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 6
+            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tooltipBackground : "#ffffff"
+            border.width: 1
+            border.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tooltipBorder : "#dadce0"
+
+            Label {
+                anchors.centerIn: parent
+                text: "请暂停后再回到主界面"
+                font.pixelSize: 13
+                font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
+                color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
+            }
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.toastVisible = false
+            }
         }
     }
 }

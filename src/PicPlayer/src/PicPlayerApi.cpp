@@ -3,23 +3,42 @@
 #include <GLFW/glfw3.h>
 #include "PicPlayerHandleManager.h"
 #include "PicPlayer.h"
+#include "PlayerInstance/PicPlayerShowWindow.h"
 #include "PicPlayerLog.h"
+
+namespace {
+static bool s_glfwInited = false;
+}
+
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_Init()
 {
+    if (s_glfwInited)
+        return true;
     LogUtil::initLogger("PicPlayer");
-    if(!glfwInit()){
+    if (!glfwInit()) {
         LOG_ERROR("Failed to initialize GLFW");
         return false;
     }
-
+    s_glfwInited = true;
     return true;
 }
 
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_UnInit()
 {
+    if (!s_glfwInited)
+        return true;
     glfwTerminate();
-    PicPlayerHandleManager::free();
+    s_glfwInited = false;
     return true;
+}
+
+PICPLAYER_API void PICPLAYER_CALL PicPlayer_Shutdown()
+{
+    if (s_glfwInited) {
+        glfwTerminate();
+        s_glfwInited = false;
+    }
+    PicPlayerHandleManager::free();
 }
 
 // 注册消息回调
@@ -60,6 +79,11 @@ PICPLAYER_API void PICPLAYER_CALL PicPlayer_Play(int handle)
     if (player) {
         player->StartPlayer();
     }
+}
+
+PICPLAYER_API void PICPLAYER_CALL PicPlayer_SetBackgroundColor(float r, float g, float b)
+{
+    PicPlayerShowWindow::SetThemeBackgroundColor(r, g, b);
 }
 
 // 输入图片数据

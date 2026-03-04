@@ -1,5 +1,7 @@
 #include "QmlBridge/AppController.h"
 #include "QmlBridge/PlayerHostItem.h"
+#include "Common/StyleManager.h"
+#include "PicPlayerApi.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -97,6 +99,8 @@ int main(int argc, char *argv[])
 #endif
     QApplication app(argc, argv);
 
+    StyleManager::instance()->applyTheme(StyleManager::LightTheme);
+
     // 使用支持 background/contentItem 自定义的样式；Fusion 在 Windows 下比 Basic 更稳定，避免白屏
     QQuickStyle::setStyle("Fusion");
 
@@ -161,19 +165,8 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    // 从 QML 场景中拿到嵌入的 PlayerHostItem，把 PicMatchWidget 交给 AppController（运行/停止用）
-    // Windows 下窗口延后 show，此时 widget 可能尚未创建，需等 widgetReady 再 setPlayer
-    QObject *hostObj = root->findChild<QObject *>("playerHost");
-    if (PlayerHostItem *hostItem = qobject_cast<PlayerHostItem *>(hostObj)) {
-        if (hostItem->picMatchWidget())
-            appController.setPlayer(hostItem->picMatchWidget(), nullptr);
-        QObject::connect(hostItem, &PlayerHostItem::widgetReady, &appController, [&appController, hostItem]() {
-            if (hostItem->picMatchWidget()) {
-                appController.setPlayer(hostItem->picMatchWidget(), nullptr);
-                LOG_INFO("AppController setPlayer from widgetReady (PicMatchWidget now available)");
-            }
-        });
-    }
+    // 组件注册改为由 QML 在加载对应组件页时调用 appController.registerPicMatchHost(hostItem)，
+    // 不再在启动时查找 playerHost。
 
     // 关闭请求：用 QueuedConnection 在下一次事件循环执行，先关窗再延迟 quit，避免 macOS IMK/runloop 报错或无法退出
     QObject::connect(&appController, &AppController::requestQuit, &app, [&app, root]() {
@@ -182,6 +175,9 @@ int main(int argc, char *argv[])
         QApplication::closeAllWindows();
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
+
+    // 应用退出时释放 PicPlayer 全局资源（HandleManager 等）
+    QObject::connect(&app, &QApplication::aboutToQuit, &app, []() { PicPlayer_Shutdown(); });
 
     LOG_INFO("-------------------------------Application started (QML).");
     return app.exec();

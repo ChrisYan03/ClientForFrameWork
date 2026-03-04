@@ -6,26 +6,30 @@ import QtQuick.Window
 Rectangle {
     id: titleBarRoot
     z: 100
-    color: "#ffffff"
+    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBackground : "#ffffff"
     border.width: 0
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 1
-        color: "#e0e0e0"
+        color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBorder : "#e0e0e0"
     }
 
     signal requestMove(real dx, real dy)
     signal requestMaximize()
     signal runClicked()
     signal stopClicked()
+    signal backToDesktopClicked()
+    signal settingsClicked()
 
     property bool pressed: false
     property real lastMouseX: 0
     property real lastMouseY: 0
-    property string statusText: "● 就绪"
+    property string statusText: ""
     property bool isMaximized: false
+    /** 是否显示“返回桌面”按钮（当前已加载独立组件时为 true） */
+    property bool showBackButton: false
 
     // 独立小窗口显示 ToolTip，浅色系
     Window {
@@ -39,13 +43,13 @@ Rectangle {
         minimumHeight: 28
         Rectangle {
             anchors.fill: parent
-            color: "#ffffff"
-            border.color: "#dadce0"
+            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tooltipBackground : "#ffffff"
+            border.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tooltipBorder : "#dadce0"
             radius: 4
             Label {
                 id: tipContent
                 anchors.centerIn: parent
-                color: "#3c4043"
+                color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tooltipText : "#3c4043"
                 font.pixelSize: 12
                 text: tooltipWindow.tipText
             }
@@ -85,7 +89,7 @@ Rectangle {
                     text: "小闫客户端"
                     font.pixelSize: 13
                     font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-                    color: "#323232"
+                    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
@@ -122,17 +126,89 @@ Rectangle {
             text: titleBarRoot.statusText
             font.pixelSize: 12
             font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-            color: "#5f6368"
+            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textSecondary : "#5f6368"
             Layout.alignment: Qt.AlignVCenter
             Layout.rightMargin: 12
+            visible: text.length > 0 && (typeof appController !== "undefined" && appController && appController.hasRunnableComponent)
         }
 
         RowLayout {
             spacing: 0
             Layout.alignment: Qt.AlignVCenter
 
+            // 设置：仅在主界面（未加载组件）时显示，放在最大化旁边
+            Button {
+                id: settingsBtn
+                visible: !titleBarRoot.showBackButton
+                implicitWidth: 46
+                implicitHeight: 38
+                topPadding: 0
+                bottomPadding: 0
+                leftPadding: 0
+                rightPadding: 0
+                contentItem.opacity: settingsBtn.hovered ? 1 : 0.9
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: settingsBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
+                    radius: 0
+                }
+                icon.source: "qrc:/icons/settings.svg"
+                icon.width: 16
+                icon.height: 16
+                icon.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
+                display: AbstractButton.IconOnly
+                hoverEnabled: true
+                onHoveredChanged: {
+                    if (hovered) {
+                        tooltipWindow.tipText = "设置"
+                        var pt = settingsBtn.mapToGlobal(0, settingsBtn.height + 4)
+                        tooltipWindow.x = pt.x
+                        tooltipWindow.y = pt.y
+                        tooltipWindow.visible = true
+                    } else if (!backBtn.hovered && !startBtn.hovered && !stopBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                        tooltipWindow.visible = false
+                }
+                onClicked: titleBarRoot.settingsClicked()
+            }
+
+            // 返回主界面：仅在已加载组件时显示，使用图标
+            Button {
+                id: backBtn
+                visible: titleBarRoot.showBackButton
+                implicitWidth: 46
+                implicitHeight: 38
+                topPadding: 0
+                bottomPadding: 0
+                leftPadding: 0
+                rightPadding: 0
+                contentItem.opacity: backBtn.hovered ? 1 : 0.9
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: backBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
+                    radius: 0
+                }
+                icon.source: "qrc:/icons/home.svg"
+                icon.width: 16
+                icon.height: 16
+                icon.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
+                display: AbstractButton.IconOnly
+                hoverEnabled: true
+                onHoveredChanged: {
+                    if (hovered) {
+                        tooltipWindow.tipText = "返回主界面"
+                        var pt = backBtn.mapToGlobal(0, backBtn.height + 4)
+                        tooltipWindow.x = pt.x
+                        tooltipWindow.y = pt.y
+                        tooltipWindow.visible = true
+                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                        tooltipWindow.visible = false
+                }
+                onClicked: titleBarRoot.backToDesktopClicked()
+            }
+
             Button {
                 id: startBtn
+                visible: typeof appController !== "undefined" && appController && appController.hasRunnableComponent
                 implicitWidth: 46
                 implicitHeight: 38
                 topPadding: 0
@@ -148,7 +224,7 @@ Rectangle {
                 icon.source: "qrc:/icons/start.svg"
                 icon.width: 16
                 icon.height: 16
-                icon.color: startBtn.hovered ? "#ffffff" : "#323232"
+                icon.color: startBtn.hovered ? "#ffffff" : (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232")
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -158,7 +234,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!stopBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                    } else if (!stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: {
@@ -168,6 +244,7 @@ Rectangle {
             }
             Button {
                 id: stopBtn
+                visible: typeof appController !== "undefined" && appController && appController.hasRunnableComponent
                 implicitWidth: 46
                 implicitHeight: 38
                 topPadding: 0
@@ -177,13 +254,13 @@ Rectangle {
                 contentItem.opacity: stopBtn.hovered ? 1 : 0.9
                 background: Rectangle {
                     anchors.fill: parent
-                    color: stopBtn.hovered ? "#e5e5e5" : "transparent"
+                    color: stopBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
                     radius: 0
                 }
                 icon.source: "qrc:/icons/stop.svg"
                 icon.width: 16
                 icon.height: 16
-                icon.color: "#323232"
+                icon.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -193,7 +270,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                    } else if (!startBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: {
@@ -212,13 +289,13 @@ Rectangle {
                 contentItem.opacity: maxBtn.hovered ? 1 : 0.9
                 background: Rectangle {
                     anchors.fill: parent
-                    color: maxBtn.hovered ? "#e5e5e5" : "transparent"
+                    color: maxBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
                     radius: 0
                 }
                 icon.source: titleBarRoot.isMaximized ? "qrc:/icons/restore.svg" : "qrc:/icons/maximize.svg"
                 icon.width: 16
                 icon.height: 16
-                icon.color: "#323232"
+                icon.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -228,7 +305,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !stopBtn.hovered && !closeBtn.hovered)
+                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: requestMaximize()
@@ -250,7 +327,7 @@ Rectangle {
                 icon.source: "qrc:/icons/close.svg"
                 icon.width: 16
                 icon.height: 16
-                icon.color: closeBtn.hovered ? "#ffffff" : "#323232"
+                icon.color: closeBtn.hovered ? "#ffffff" : (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232")
                 display: AbstractButton.IconOnly
                 hoverEnabled: true
                 onHoveredChanged: {
@@ -260,7 +337,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !stopBtn.hovered && !maxBtn.hovered)
+                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: {

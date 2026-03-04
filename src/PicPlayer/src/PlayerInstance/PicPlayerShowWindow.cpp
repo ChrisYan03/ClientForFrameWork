@@ -3,6 +3,7 @@
 #include "imgui_impl_opengl3.h"
 #include "glfw3.h"
 #include "../Render/PicPlayerRender.h"
+#include <mutex>
 #ifdef __APPLE__
     #include "PicPlayerWindowForMac.h"
     #include <dispatch/dispatch.h>
@@ -14,6 +15,31 @@
 
 #include "../Render/DrawPicByImgui/PicTexture.h"
 #include "PicPlayerLog.h"
+
+namespace {
+    float s_themeBgR = 0.15f, s_themeBgG = 0.15f, s_themeBgB = 0.15f;
+    std::mutex s_themeBgMutex;
+}
+
+void PicPlayerShowWindow::SetThemeBackgroundColor(float r, float g, float b)
+{
+    std::lock_guard<std::mutex> lock(s_themeBgMutex);
+    s_themeBgR = r;
+    s_themeBgG = g;
+    s_themeBgB = b;
+}
+
+void PicPlayerShowWindow::ApplyThemeClearColor()
+{
+    float r, g, b;
+    {
+        std::lock_guard<std::mutex> lock(s_themeBgMutex);
+        r = s_themeBgR;
+        g = s_themeBgG;
+        b = s_themeBgB;
+    }
+    glClearColor(r, g, b, 1.0f);
+}
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -77,12 +103,13 @@ int PicPlayerShowWindow::RunRendLoop()
             break;
         }
         
+        ApplyThemeClearColor();
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
         glfwPollEvents();
         Draw();
         Render();
-        
+
         // 再次检查窗口状态
         if (m_window && !glfwWindowShouldClose(m_window)) {
             glfwSwapBuffers(m_window);
@@ -95,6 +122,7 @@ int PicPlayerShowWindow::RunRendLoop()
 #else
     // Windows/Linux 版本保持原样
     while (m_window && !glfwWindowShouldClose(m_window)) {
+        ApplyThemeClearColor();
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
         glfwPollEvents();
@@ -234,7 +262,11 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     ImGui::StyleColorsDark();
     ImGuiStyle& imguiStyle = ImGui::GetStyle();
     imguiStyle.WindowRounding = 0.0f;
-    imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 0.8f);imguiStyle.WindowPadding = ImVec2(0, 0);
+    {
+        std::lock_guard<std::mutex> lock(s_themeBgMutex);
+        imguiStyle.Colors[ImGuiCol_WindowBg] = ImVec4(s_themeBgR, s_themeBgG, s_themeBgB, 0.95f);
+    }
+    imguiStyle.WindowPadding = ImVec2(0, 0);
     imguiStyle.WindowBorderSize = 0.0;
     imguiStyle.DisplayWindowPadding = ImVec2(0, 0);
     imguiStyle.DisplaySafeAreaPadding = ImVec2(0, 0);
@@ -257,6 +289,10 @@ bool PicPlayerShowWindow::CreateRenderWindow()
 
 void PicPlayerShowWindow::Draw()
 {
+    {
+        std::lock_guard<std::mutex> lock(s_themeBgMutex);
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(s_themeBgR, s_themeBgG, s_themeBgB, 0.95f);
+    }
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
