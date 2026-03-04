@@ -100,9 +100,8 @@ void PlayerHostItem::updateEmbeddedGeometry()
 #endif
     QRect geom(x, y, qRound(w), qRound(h));
     m_containerWidget->windowHandle()->setGeometry(geom);
-#if defined(Q_OS_WIN)
+    // 所有平台都同步设置容器尺寸，否则最大化时 QWidget 不随宿主 resize，嵌入的 GLFW 区域也不会更新
     m_containerWidget->setFixedSize(geom.width(), geom.height());
-#endif
     if (!m_containerWidget->windowHandle()->isVisible())
         m_containerWidget->windowHandle()->show();
 }

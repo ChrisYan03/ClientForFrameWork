@@ -107,6 +107,7 @@ int PicPlayerShowWindow::RunRendLoop()
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
         glfwPollEvents();
+        checkAndApplyResize();
         Draw();
         Render();
 
@@ -126,6 +127,7 @@ int PicPlayerShowWindow::RunRendLoop()
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
         glfwPollEvents();
+        checkAndApplyResize();
         Draw();
         Render();
         glfwSwapBuffers(m_window);
@@ -282,9 +284,42 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     LOG_DEBUG("glfwGetWindowSize size: {} x {}", width, height);
     glfwSetWindowPos(m_window, 4, 6);
     glfwSetWindowSize(m_window, width - 4, height - 6);
+    m_lastViewportWidth = width - 4;
+    m_lastViewportHeight = height - 6;
     GetRender()->InitScene(ImRect(4, 6, width - 4, height - 6));
 
     return true;
+}
+
+void PicPlayerShowWindow::SetDesiredSize(int width, int height)
+{
+    if (width > 0 && height > 0) {
+        m_desiredWidth.store(width);
+        m_desiredHeight.store(height);
+    }
+}
+
+void PicPlayerShowWindow::checkAndApplyResize()
+{
+    if (!m_window)
+        return;
+    int w, h;
+    int desiredW = m_desiredWidth.exchange(0);
+    int desiredH = m_desiredHeight.exchange(0);
+    if (desiredW > 0 && desiredH > 0) {
+        w = desiredW;
+        h = desiredH;
+        glfwSetWindowSize(m_window, w, h);
+    } else {
+        glfwGetWindowSize(m_window, &w, &h);
+    }
+    if (w < 1) w = 1;
+    if (h < 1) h = 1;
+    if (w != m_lastViewportWidth || h != m_lastViewportHeight) {
+        m_lastViewportWidth = w;
+        m_lastViewportHeight = h;
+        OnResize(w, h);
+    }
 }
 
 void PicPlayerShowWindow::Draw()

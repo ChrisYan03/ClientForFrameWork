@@ -142,7 +142,6 @@ void AppController::setPlayer(PicMatchWidget *widget, QWidget *hostWindow)
 void AppController::start()
 {
     setRunning(true);
-    setStatusText(QStringLiteral("● 运行中"));
     if (m_hostWindow) {
         m_hostWindow->show();
         m_hostWindow->raise();
@@ -154,7 +153,6 @@ void AppController::start()
 void AppController::stop()
 {
     setRunning(false);
-    setStatusText(QStringLiteral("● 已停止"));
     if (m_picMatchWidget)
         m_picMatchWidget->Quit();
     if (m_hostWindow)

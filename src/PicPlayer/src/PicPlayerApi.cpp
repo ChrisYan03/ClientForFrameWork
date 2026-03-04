@@ -72,6 +72,18 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_RegisterWindow(int handle, Window_Sh
     return false;
 }
 
+PICPLAYER_API void PICPLAYER_CALL PicPlayer_SetWindowSize(int handle, int width, int height)
+{
+    PicPlayer* player = PicPlayerHandleManager::instance()->GetPlayer(handle);
+    if (player) {
+        PicPlayerGui* gui = player->GetGui();
+        if (gui) {
+            PicPlayerShowWindow* showWin = static_cast<PicPlayerShowWindow*>(gui);
+            showWin->SetDesiredSize(width, height);
+        }
+    }
+}
+
 // 开始播放
 PICPLAYER_API void PICPLAYER_CALL PicPlayer_Play(int handle)
 {

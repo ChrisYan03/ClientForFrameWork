@@ -4,6 +4,7 @@
 #ifdef _WIN32
     #include <Windows.h>
 #endif
+#include <atomic>
 #include "glew.h"
 #include "PicPlayerGui.h"
 
@@ -24,6 +25,8 @@ public:
     virtual void Quit() override;
 
     void OnResize(int width, int height);
+    /** 由宿主（Qt）在嵌入区域 resize 时调用，下一帧渲染时会应用并更新视口 */
+    void SetDesiredSize(int width, int height);
 
 protected:
     bool CreateRenderWindow();
@@ -33,8 +36,13 @@ protected:
 
 private:
     static void ApplyThemeClearColor();
+    void checkAndApplyResize();
 
     GLFWwindow* m_window;
+    int m_lastViewportWidth = 0;
+    int m_lastViewportHeight = 0;
+    std::atomic<int> m_desiredWidth{0};
+    std::atomic<int> m_desiredHeight{0};
     int m_iCacheNum;
     #ifdef _WIN32
     HWND m_hParent;

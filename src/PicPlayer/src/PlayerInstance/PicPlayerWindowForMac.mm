@@ -62,6 +62,9 @@ bool SetChildWindow(void* parentWnd, void* childWnd)
     [nsChildWindow setFrame:parentFrame display:YES];
     // 将子窗口的内容视图添加到父窗口的内容视图中
     [nsParentView addSubview:childContentView];
+    // 随父 view 一起 resize（如主窗口最大化时），否则 GLFW 区域不会跟着变大
+    [childContentView setFrame:[nsParentView bounds]];
+    [childContentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
     return true;
 }

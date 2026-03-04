@@ -1,4 +1,4 @@
-﻿#ifndef PICPLAYER_H
+#ifndef PICPLAYER_H
 #define PICPLAYER_H
 
 #include <thread>
@@ -14,6 +14,7 @@ public:
 
     inline void SetWid(Window_ShowID wid) { m_wid = wid; }
     inline Window_ShowID GetWid() const { return m_wid; }
+    PicPlayerGui* GetGui() const { return m_guiPtr.get(); }
 
     void SetHandle(int handle);
     void SetPicCallback(PlayerMsgCallback callback, void* pUser);

@@ -52,12 +52,8 @@ Window {
                 else
                     root.showMaximized()
             }
-            onRunClicked: {
-                root.mainStatusText = "● 运行中"
-            }
-            onStopClicked: {
-                root.mainStatusText = "● 已停止"
-            }
+            onRunClicked: { }
+            onStopClicked: { }
             onBackToDesktopClicked: {
                 if (contentStack.depth > 1) {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {

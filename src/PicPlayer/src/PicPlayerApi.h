@@ -28,6 +28,9 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_DestroyInstance(int handle);
 // 注册窗口句柄
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_RegisterWindow(int handle, Window_ShowID winshowId);
 
+// 由宿主在嵌入区域 resize 时调用，通知播放器窗口期望尺寸（如最大化时），渲染循环会应用并更新视口
+PICPLAYER_API void PICPLAYER_CALL PicPlayer_SetWindowSize(int handle, int width, int height);
+
 // 开始播放
 PICPLAYER_API void PICPLAYER_CALL PicPlayer_Play(int handle);
 

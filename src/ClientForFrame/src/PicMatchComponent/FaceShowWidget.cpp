@@ -60,7 +60,14 @@ void FaceShowWidget::clearFaceImages(bool clearPending)
         m_containerWidget->update();
         m_scrollArea->update();
     }
-    
+    // 停止时需同时清掉尚未展示的 pending，否则下次运行会与新一轮的 pending 一起展示导致重复/变多
+    if (clearPending) {
+        for (const auto& tuple : m_pendingFaceLabels) {
+            delete std::get<0>(tuple);
+            delete[] std::get<1>(tuple);
+        }
+        m_pendingFaceLabels.clear();
+    }
     this->repaint();
 }
 

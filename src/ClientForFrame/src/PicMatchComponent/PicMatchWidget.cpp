@@ -15,6 +15,7 @@
 #include "LogUtil.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QTimer>
 #include <memory>
 
 PicMatchWidget::PicMatchWidget(BaseWidget *parent)
@@ -136,8 +137,14 @@ void PicMatchWidget::Quit()
 
 void PicMatchWidget::resizeEvent(QResizeEvent *event)
 {
-    // 由布局管理 m_playerWidget 与 m_faceShowWidget 的尺寸（7:3），不再强制播放器占满导致人脸列被遮挡
     QWidget::resizeEvent(event);
+    // 布局完成后通知 PicPlayer 期望尺寸，便于嵌入窗口随宿主最大化等场景下更新视口
+    if (m_handle >= 0 && m_playerWidget && m_playerWidget->width() > 0 && m_playerWidget->height() > 0) {
+        QTimer::singleShot(0, this, [this]() {
+            if (m_playerWidget)
+                PicPlayer_SetWindowSize(m_handle, m_playerWidget->width(), m_playerWidget->height());
+        });
+    }
 }
 
 void PicMatchWidget::OnRun(const std::string& showid)
