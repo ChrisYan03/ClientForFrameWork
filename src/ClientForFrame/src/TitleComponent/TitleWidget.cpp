@@ -97,7 +97,7 @@ void TitleWidget::setupUI()
         titleLayout->addWidget(appIconLabel);
         
         // 应用标题 - VSCode风格
-        QLabel *titleLabel = new QLabel("图像识别系统", titleContainer);
+        QLabel *titleLabel = new QLabel("小闫客户端", titleContainer);
         titleLabel->setObjectName("TitleLabel");
         titleLayout->addWidget(titleLabel);
     }

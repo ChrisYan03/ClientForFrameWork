@@ -61,15 +61,18 @@ Rectangle {
         anchors.bottomMargin: 0
         spacing: 8
 
-        // 左侧：图标 + 标题（VS Code 风格）
+        // 左侧：图标 + 标题（紧贴一体）
         Item {
-            Layout.fillWidth: true
-            Layout.minimumWidth: 80
+            id: leftBlock
+            Layout.preferredWidth: leftRow.implicitWidth
             Layout.preferredHeight: 38
+            Layout.alignment: Qt.AlignVCenter
 
             RowLayout {
-                anchors.fill: parent
-                spacing: 6
+                id: leftRow
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 4
                 Image {
                     source: "qrc:/icons/app_title.svg"
                     sourceSize.width: 20
@@ -79,7 +82,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignVCenter
                 }
                 Label {
-                    text: "图像识别系统"
+                    text: "小闫客户端"
                     font.pixelSize: 13
                     font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
                     color: "#323232"
@@ -108,6 +111,11 @@ Rectangle {
                     }
                 }
             }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 8
         }
 
         Label {

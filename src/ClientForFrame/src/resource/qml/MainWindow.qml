@@ -11,7 +11,7 @@ Window {
     id: root
     // 由 C++ 在首帧就绪后再 show，避免 Windows 下白屏
     visible: false
-    title: "图像识别系统"
+    title: "小闫客户端"
     width: 1400
     height: 900
     minimumWidth: 1400
