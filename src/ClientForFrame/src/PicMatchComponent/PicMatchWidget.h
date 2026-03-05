@@ -5,6 +5,8 @@
 #include "../Common/BaseWidget.h"
 #include "FaceShowWidget.h"
 
+class QTimer;
+
 class PicMatchWidget : public BaseWidget
 {
     Q_OBJECT
@@ -39,5 +41,8 @@ private:
     size_t m_currentIndex;                      // Current index as member
     bool m_initialized;                         // Initialization flag as member
     bool m_runing;                              // Run initialization flag as member
+#if defined(Q_OS_WIN)
+    QTimer *m_resizeNotifyTimer = nullptr;     // 合并连续 resize，只通知一次 PicPlayer
+#endif
 };
 #endif // PICMATCHWIDGET_H

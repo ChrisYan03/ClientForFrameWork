@@ -44,11 +44,12 @@ private:
     std::atomic<int> m_desiredWidth{0};
     std::atomic<int> m_desiredHeight{0};
     int m_iCacheNum;
-    #ifdef _WIN32
+#ifdef _WIN32
     HWND m_hParent;
-    #else
-        Window_ShowID m_hParent;
-    #endif
+    unsigned int m_resizeThrottleFrame = 0;  // 按帧节流：仅偶数帧读父窗口尺寸，减轻最大化/恢复时卡顿
+#else
+    Window_ShowID m_hParent;
+#endif
 };
 
 #endif // PICPLAYERSHOWWINDOW_H

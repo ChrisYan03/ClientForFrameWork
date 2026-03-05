@@ -138,13 +138,25 @@ void PicMatchWidget::Quit()
 void PicMatchWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    // 布局完成后通知 PicPlayer 期望尺寸，便于嵌入窗口随宿主最大化等场景下更新视口
-    if (m_handle >= 0 && m_playerWidget && m_playerWidget->width() > 0 && m_playerWidget->height() > 0) {
+    if (m_handle < 0 || !m_playerWidget)
+        return;
+#if defined(Q_OS_WIN)
+    if (!m_resizeNotifyTimer) {
+        m_resizeNotifyTimer = new QTimer(this);
+        m_resizeNotifyTimer->setSingleShot(true);
+        connect(m_resizeNotifyTimer, &QTimer::timeout, this, [this]() {
+            if (m_handle >= 0 && m_playerWidget && m_playerWidget->width() > 0 && m_playerWidget->height() > 0)
+                PicPlayer_SetWindowSize(m_handle, m_playerWidget->width(), m_playerWidget->height());
+        });
+    }
+    m_resizeNotifyTimer->start(0);
+#else
+    if (m_playerWidget->width() > 0 && m_playerWidget->height() > 0)
         QTimer::singleShot(0, this, [this]() {
             if (m_playerWidget)
                 PicPlayer_SetWindowSize(m_handle, m_playerWidget->width(), m_playerWidget->height());
         });
-    }
+#endif
 }
 
 void PicMatchWidget::OnRun(const std::string& showid)

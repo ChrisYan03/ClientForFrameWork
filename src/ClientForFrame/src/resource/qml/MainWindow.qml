@@ -20,6 +20,7 @@ Window {
     property string mainStatusText: ""
     property bool isMaximized: visibility === Window.Maximized
     property bool toastVisible: false
+    property bool settingsOpen: false
     readonly property int titleBarHeight: 38
     readonly property int cornerRadius: 8
     readonly property int contentMargin: 0
@@ -64,7 +65,7 @@ Window {
                     }
                 }
             }
-            onSettingsClicked: contentStack.push(settingsPageComp)
+            onSettingsClicked: root.settingsOpen = !root.settingsOpen
         }
 
         Timer {
@@ -74,8 +75,8 @@ Window {
             onTriggered: root.toastVisible = false
         }
 
-        StackView {
-            id: contentStack
+        Item {
+            id: contentArea
             anchors.top: titleBar.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -84,8 +85,50 @@ Window {
             anchors.rightMargin: root.contentMargin
             anchors.bottomMargin: root.contentMargin
 
-            Component.onCompleted: {
-                push(appDesktopComp)
+            StackView {
+                id: contentStack
+                anchors.top: contentArea.top
+                anchors.bottom: contentArea.bottom
+                anchors.left: contentArea.left
+                anchors.right: root.settingsOpen ? settingsPanel.left : contentArea.right
+
+                Component.onCompleted: {
+                    push(appDesktopComp)
+                }
+            }
+
+            Item {
+                id: settingsPanel
+                anchors.top: contentArea.top
+                anchors.right: contentArea.right
+                anchors.bottom: contentArea.bottom
+                width: root.settingsOpen ? (contentArea.width / 4) : 0
+                visible: root.settingsOpen || width > 0
+                clip: true
+
+                Behavior on width {
+                    NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.contentBackground : "#ffffff"
+                }
+                Rectangle {
+                    width: 1
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.border : "#e0e0e0"
+                }
+
+                Loader {
+                    id: settingsLoader
+                    anchors.fill: parent
+                    anchors.leftMargin: 1
+                    active: root.settingsOpen || settingsPanel.width > 0
+                    sourceComponent: settingsPageComp
+                }
             }
         }
 
@@ -106,6 +149,7 @@ Window {
     }
 
     function openAppFromDesktop(appId) {
+        root.settingsOpen = false
         if (appId === "picmatch")
             contentStack.push(picMatchPageComp)
     }

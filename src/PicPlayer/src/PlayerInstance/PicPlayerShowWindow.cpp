@@ -311,7 +311,23 @@ void PicPlayerShowWindow::checkAndApplyResize()
         h = desiredH;
         glfwSetWindowSize(m_window, w, h);
     } else {
-        glfwGetWindowSize(m_window, &w, &h);
+        w = 0;
+        h = 0;
+#ifdef _WIN32
+        // 按帧节流：仅偶数帧读取父窗口尺寸并同步，减少 GetClientRect/glfwSetWindowSize 频率，最大化/恢复更顺滑
+        const bool throttleFrame = (m_resizeThrottleFrame++ & 1u) != 0;
+        if (m_hParent != NULL && !throttleFrame) {
+            RECT rect;
+            if (GetClientRect(m_hParent, &rect)) {
+                w = rect.right - rect.left;
+                h = rect.bottom - rect.top;
+                if (w > 0 && h > 0 && (w != m_lastViewportWidth || h != m_lastViewportHeight))
+                    glfwSetWindowSize(m_window, w, h);
+            }
+        }
+#endif
+        if (w < 1 || h < 1)
+            glfwGetWindowSize(m_window, &w, &h);
     }
     if (w < 1) w = 1;
     if (h < 1) h = 1;

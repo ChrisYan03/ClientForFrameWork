@@ -4,6 +4,7 @@
 #include <QQuickItem>
 
 class PicMatchWidget;
+class QTimer;
 class QWidget;
 
 /**
@@ -34,6 +35,9 @@ private:
 
     QWidget *m_containerWidget;
     PicMatchWidget *m_picMatchWidget;
+#if defined(Q_OS_WIN)
+    QTimer *m_geometryDeferTimer = nullptr;  // 合并连续几何变化，最大化/恢复时只做一次布局
+#endif
 };
 
 #endif // PLAYERHOSTITEM_H

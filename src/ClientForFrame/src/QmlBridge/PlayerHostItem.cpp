@@ -30,6 +30,17 @@ void PlayerHostItem::geometryChange(const QRectF &newGeometry, const QRectF &old
 {
     QQuickItem::geometryChange(newGeometry, oldGeometry);
     ensureWidgetCreated();
+#if defined(Q_OS_WIN)
+    if (m_containerWidget) {
+        if (!m_geometryDeferTimer) {
+            m_geometryDeferTimer = new QTimer(this);
+            m_geometryDeferTimer->setSingleShot(true);
+            connect(m_geometryDeferTimer, &QTimer::timeout, this, &PlayerHostItem::updateEmbeddedGeometry);
+        }
+        m_geometryDeferTimer->start(0);
+        return;
+    }
+#endif
     updateEmbeddedGeometry();
 }
 

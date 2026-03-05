@@ -147,7 +147,14 @@ int main(int argc, char *argv[])
         };
         QObject::connect(win, &QWindow::widthChanged, win, updateMask);
         QObject::connect(win, &QWindow::heightChanged, win, updateMask);
+#if defined(Q_OS_WIN)
+        // 最大化/恢复时延后约一帧再更新 mask，与系统动画错峰，过渡更顺滑
+        QObject::connect(win, &QWindow::visibilityChanged, win, [win, updateMask]() {
+            QTimer::singleShot(16, win, updateMask);
+        });
+#else
         QObject::connect(win, &QWindow::visibilityChanged, win, updateMask);
+#endif
 #if defined(Q_OS_WIN)
         // Windows：延后 show，让 QML 完成布局和首帧后再显示，避免白屏；并启用 Win11 原生圆角
         QTimer::singleShot(80, win, [win, updateMask]() {

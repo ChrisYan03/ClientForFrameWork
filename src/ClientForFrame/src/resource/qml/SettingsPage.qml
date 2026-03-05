@@ -18,10 +18,10 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.leftMargin: 60
-        anchors.rightMargin: 60
-        anchors.topMargin: 30
-        anchors.bottomMargin: 30
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
+        anchors.topMargin: 24
+        anchors.bottomMargin: 24
         spacing: 14
 
         Label {
@@ -41,8 +41,8 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 40
-            spacing: 14
+            Layout.leftMargin: 10
+            spacing: 10
             Label {
                 text: root.isDark ? "皮肤模式 [深色模式]" : "皮肤模式 [浅色模式]"
                 font.pixelSize: 13
