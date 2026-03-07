@@ -53,8 +53,6 @@ Window {
                 else
                     root.showMaximized()
             }
-            onRunClicked: { }
-            onStopClicked: { }
             onBackToDesktopClicked: {
                 if (contentStack.depth > 1) {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {
@@ -150,8 +148,11 @@ Window {
 
     function openAppFromDesktop(appId) {
         root.settingsOpen = false
-        if (appId === "picmatch")
+        if (appId === "picmatch") {
             contentStack.push(picMatchPageComp)
+            if (appController)
+                appController.setPageTitle("图像人脸识别")
+        }
     }
     function popToDesktop() {
         while (contentStack.depth > 1)
@@ -176,6 +177,8 @@ Window {
                 root.mainStatusText = appController.statusText
         }
         function onBackToDesktopRequested() {
+            if (appController)
+                appController.unregisterComponentHost()
             root.popToDesktop()
         }
     }

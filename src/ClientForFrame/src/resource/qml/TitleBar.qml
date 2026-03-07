@@ -18,8 +18,6 @@ Rectangle {
 
     signal requestMove(real dx, real dy)
     signal requestMaximize()
-    signal runClicked()
-    signal stopClicked()
     signal backToDesktopClicked()
     signal settingsClicked()
 
@@ -86,7 +84,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignVCenter
                 }
                 Label {
-                    text: "小闫客户端"
+                    text: typeof appController !== "undefined" && appController ? appController.pageTitle : "小闫客户端"
                     font.pixelSize: 13
                     font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
                     color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
@@ -136,10 +134,10 @@ Rectangle {
             spacing: 0
             Layout.alignment: Qt.AlignVCenter
 
-            // 设置：仅在主界面（未加载组件）时显示，放在最大化旁边
+            // 设置：主框架按钮，始终显示
             Button {
                 id: settingsBtn
-                visible: !titleBarRoot.showBackButton
+                visible: true
                 implicitWidth: 46
                 implicitHeight: 38
                 topPadding: 0
@@ -165,13 +163,13 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!backBtn.hovered && !startBtn.hovered && !stopBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                    } else if (!backBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: titleBarRoot.settingsClicked()
             }
 
-            // 返回主界面：仅在已加载组件时显示，使用图标
+            // 返回主界面：组件页时展示
             Button {
                 id: backBtn
                 visible: titleBarRoot.showBackButton
@@ -200,84 +198,12 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
+                    } else if (!settingsBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: titleBarRoot.backToDesktopClicked()
             }
 
-            Button {
-                id: startBtn
-                visible: typeof appController !== "undefined" && appController && appController.hasRunnableComponent
-                implicitWidth: 46
-                implicitHeight: 38
-                topPadding: 0
-                bottomPadding: 0
-                leftPadding: 0
-                rightPadding: 0
-                contentItem.opacity: startBtn.hovered ? 1 : 0.9
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: startBtn.hovered ? "#4CAF50" : "transparent"
-                    radius: 0
-                }
-                icon.source: "qrc:/icons/start.svg"
-                icon.width: 16
-                icon.height: 16
-                icon.color: startBtn.hovered ? "#ffffff" : (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232")
-                display: AbstractButton.IconOnly
-                hoverEnabled: true
-                onHoveredChanged: {
-                    if (hovered) {
-                        tooltipWindow.tipText = "开始执行图像匹配任务"
-                        var pt = startBtn.mapToGlobal(0, startBtn.height + 4)
-                        tooltipWindow.x = pt.x
-                        tooltipWindow.y = pt.y
-                        tooltipWindow.visible = true
-                    } else if (!stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
-                        tooltipWindow.visible = false
-                }
-                onClicked: {
-                    runClicked()
-                    if (appController) appController.start()
-                }
-            }
-            Button {
-                id: stopBtn
-                visible: typeof appController !== "undefined" && appController && appController.hasRunnableComponent
-                implicitWidth: 46
-                implicitHeight: 38
-                topPadding: 0
-                bottomPadding: 0
-                leftPadding: 0
-                rightPadding: 0
-                contentItem.opacity: stopBtn.hovered ? 1 : 0.9
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: stopBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
-                    radius: 0
-                }
-                icon.source: "qrc:/icons/stop.svg"
-                icon.width: 16
-                icon.height: 16
-                icon.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
-                display: AbstractButton.IconOnly
-                hoverEnabled: true
-                onHoveredChanged: {
-                    if (hovered) {
-                        tooltipWindow.tipText = "停止当前图像匹配任务"
-                        var pt = stopBtn.mapToGlobal(0, stopBtn.height + 4)
-                        tooltipWindow.x = pt.x
-                        tooltipWindow.y = pt.y
-                        tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered && !closeBtn.hovered)
-                        tooltipWindow.visible = false
-                }
-                onClicked: {
-                    stopClicked()
-                    if (appController) appController.stop()
-                }
-            }
             Button {
                 id: maxBtn
                 implicitWidth: 46
@@ -305,7 +231,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !closeBtn.hovered)
+                    } else if (!settingsBtn.hovered && !backBtn.hovered && !closeBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: requestMaximize()
@@ -337,7 +263,7 @@ Rectangle {
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
                         tooltipWindow.visible = true
-                    } else if (!startBtn.hovered && !stopBtn.hovered && !settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered)
+                    } else if (!settingsBtn.hovered && !backBtn.hovered && !maxBtn.hovered)
                         tooltipWindow.visible = false
                 }
                 onClicked: {

@@ -1,7 +1,5 @@
 #include "QmlBridge/AppController.h"
-#include "QmlBridge/PlayerHostItem.h"
 #include "Common/StyleManager.h"
-#include "PicPlayerApi.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -16,8 +14,15 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QtGlobal>
+#include <QLibrary>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QPair>
 #include "LogUtil.h"
 #if defined(Q_OS_WIN)
+#include <Windows.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 #ifndef DWMWA_WINDOW_CORNER_PREFERENCE
@@ -76,6 +81,103 @@ static void applyWindowRoundedMask(QWindow *window, int radiusPx)
 #endif
 }
 
+/** 从 config/components.json 读取启用的组件 ID 列表 */
+static QStringList loadEnabledComponents()
+{
+    QString path = QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(QStringLiteral("config/components.json"));
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return QStringList();
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &err);
+    file.close();
+    if (err.error != QJsonParseError::NoError || !doc.isObject())
+        return QStringList();
+    QJsonArray arr = doc.object().value(QStringLiteral("components")).toArray();
+    QStringList list;
+    for (const QJsonValue &v : arr) {
+        QString id = v.toString().trimmed();
+        if (!id.isEmpty())
+            list.append(id);
+    }
+    return list;
+}
+
+/** (module, symbol) 用于退出时调用组件的 shutdown */
+using ShutdownEntry = QPair<QString, QString>;
+
+/** 加载组件 DLL 并调用 Register(engine, appController)，组件自行注册 QML 类型；shutdownList 收集 manifest 中的 shutdownModule/shutdownSymbol 供退出时调用 */
+static void loadComponentDll(QQmlEngine *engine, QObject *appController, const QString &componentId, QList<ShutdownEntry> *shutdownList)
+{
+    if (!engine || !appController)
+        return;
+    QString exeDir = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+    QString manifestPath = exeDir + QStringLiteral("/Component/") + componentId + QStringLiteral("/meta_info/manifest.json");
+    QFile mf(manifestPath);
+    if (!mf.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        LOG_INFO("Component {}: manifest not found at {}", componentId.toStdString(), manifestPath.toStdString());
+        return;
+    }
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(mf.readAll(), &err);
+    mf.close();
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        LOG_INFO("Component {}: invalid manifest", componentId.toStdString());
+        return;
+    }
+    QJsonObject obj = doc.object();
+    QString module = obj.value(QStringLiteral("module")).toString();
+    QString registerSymbol = obj.value(QStringLiteral("registerSymbol")).toString();
+    QString shutdownModule = obj.value(QStringLiteral("shutdownModule")).toString();
+    QString shutdownSymbol = obj.value(QStringLiteral("shutdownSymbol")).toString();
+    if (module.isEmpty() || registerSymbol.isEmpty()) {
+        LOG_INFO("Component {}: missing module or registerSymbol", componentId.toStdString());
+        return;
+    }
+    if (shutdownList && !shutdownModule.isEmpty() && !shutdownSymbol.isEmpty()) {
+        QString shutdownPath = exeDir + QStringLiteral("/Component/") + componentId + QStringLiteral("/bin/") + shutdownModule;
+        shutdownList->append(qMakePair(shutdownPath, shutdownSymbol));
+    }
+    QString dllPath = exeDir + QStringLiteral("/Component/") + componentId + QStringLiteral("/bin/") + module;
+#if defined(Q_OS_WIN)
+    // 将 exe 目录和组件 bin 目录加入 DLL 搜索路径，确保 PicMatchComponent 能加载其依赖（PicPlayer、PicRecognition 等）
+    QString componentBin = exeDir + QStringLiteral("/Component/") + componentId + QStringLiteral("/bin");
+    const DWORD SEARCH_DEFAULT = 0x00001000;  // LOAD_LIBRARY_SEARCH_DEFAULT_DIRS
+    const DWORD SEARCH_USER = 0x00000200;     // LOAD_LIBRARY_SEARCH_USER_DIRS
+    if (auto setDefault = reinterpret_cast<BOOLEAN (WINAPI *)(DWORD)>(::GetProcAddress(::GetModuleHandleW(L"kernel32.dll"), "SetDefaultDllDirectories"))) {
+        if (setDefault(SEARCH_DEFAULT | SEARCH_USER)) {
+            if (auto addDir = reinterpret_cast<DLL_DIRECTORY_COOKIE (WINAPI *)(PCWSTR)>(::GetProcAddress(::GetModuleHandleW(L"kernel32.dll"), "AddDllDirectory"))) {
+                std::wstring exeW = exeDir.toStdWString();
+                std::wstring binW = componentBin.toStdWString();
+                addDir(exeW.c_str());
+                addDir(binW.c_str());
+            }
+        }
+    } else {
+        ::SetDllDirectoryW(componentBin.toStdWString().c_str());
+    }
+    QLibrary lib(dllPath);
+#else
+    QString libPath = dllPath;
+    if (!libPath.endsWith(QStringLiteral(".so")) && !libPath.endsWith(QStringLiteral(".dylib")))
+        libPath += QStringLiteral(".so");
+    QLibrary lib(libPath);
+#endif
+    if (!lib.load()) {
+        LOG_INFO("Component {}: failed to load {}: {}", componentId.toStdString(), dllPath.toStdString(), lib.errorString().toStdString());
+        return;
+    }
+    typedef void (*RegisterFunc)(QQmlEngine *, QObject *);
+    auto fn = reinterpret_cast<RegisterFunc>(lib.resolve(registerSymbol.toUtf8().constData()));
+    if (!fn) {
+        LOG_INFO("Component {}: symbol {} not found", componentId.toStdString(), registerSymbol.toStdString());
+        lib.unload();
+        return;
+    }
+    fn(engine, appController);
+    LOG_INFO("Component {}: registered", componentId.toStdString());
+}
+
 #if defined(Q_OS_WIN)
 /** Windows 11+ 下启用系统原生圆角（VS Code 风格），Win10 无效果 */
 static void applyWindows11RoundedCorners(QWindow *window)
@@ -114,8 +216,12 @@ int main(int argc, char *argv[])
     AppController appController;
 
     QQmlApplicationEngine engine;
-    qmlRegisterType<PlayerHostItem>("App", 1, 0, "PlayerHostItem");
     engine.rootContext()->setContextProperty("appController", &appController);
+
+    // 动态加载组件 DLL，组件自行注册 QML 类型（如 PlayerHostItem）
+    QList<ShutdownEntry> shutdownList;
+    for (const QString &compId : loadEnabledComponents())
+        loadComponentDll(&engine, &appController, compId, &shutdownList);
 
     // 打印 QML 警告/错误，便于排查
     QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
@@ -183,8 +289,18 @@ int main(int argc, char *argv[])
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
 
-    // 应用退出时释放 PicPlayer 全局资源（HandleManager 等）
-    QObject::connect(&app, &QApplication::aboutToQuit, &app, []() { PicPlayer_Shutdown(); });
+    // 应用退出时调用各组件的 shutdown 符号（如 PicPlayer_Shutdown），释放组件资源
+    QObject::connect(&app, &QApplication::aboutToQuit, &app, [shutdownList]() {
+        for (const auto &e : shutdownList) {
+            QLibrary lib(e.first);
+            if (lib.load()) {
+                typedef void (*ShutdownFunc)();
+                auto fn = reinterpret_cast<ShutdownFunc>(lib.resolve(e.second.toUtf8().constData()));
+                if (fn)
+                    fn();
+            }
+        }
+    });
 
     LOG_INFO("-------------------------------Application started (QML).");
     return app.exec();

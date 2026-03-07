@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ClientForFrameWork VERSION 0.1 LANGUAGES CXX)
 
 # 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 定义第三方库路径
@@ -13,9 +13,10 @@ include_directories(
     ${EXT_DIR}/include
     ${EXT_DIR}/include/spdlog
     ${CMAKE_SOURCE_DIR}/LogUtil
+    ${CMAKE_SOURCE_DIR}/Common
 )
 
-# 输出基目录（放在工程根下的 target）
+# 输出基目录（放在工程根下��� target）
 set(OUTPUT_BASE_DIR ${CMAKE_SOURCE_DIR}/../target)
 message("project setup ing... CMAKE_SOURCE_DIR will be in: ${CMAKE_SOURCE_DIR}")
 # 根据平台选择子目录（区分 mac 与 win64）
@@ -35,9 +36,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}/lib)
 
-# 添加子项目
+# 添加子项目：先构建组件（含 PicPlayer、PicRecognition），再构建主框架
+add_subdirectory(Component/PicMatch_Component)
 add_subdirectory(ClientForFrame)
-add_subdirectory(PicPlayer)
-add_subdirectory(PicRecognition)
 
 message("project setup complete. Output will be in: ${OUTPUT_DIR}")

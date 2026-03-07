@@ -1,40 +1,24 @@
 #include "AppController.h"
-#include "PlayerHostItem.h"
-#include "../PicMatchComponent/PicMatchWidget.h"
 #include "../Common/StyleManager.h"
-#include "PicPlayerApi.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMetaObject>
+
+static const QString kDefaultPageTitle(QStringLiteral("小闫客户端"));
 
 AppController::AppController(QObject *parent)
     : QObject(parent)
 {
     setStatusText(QString());
+    m_pageTitle = kDefaultPageTitle;
     loadThemeColors();
-}
-
-static void hexToRgbF(const QString &hex, float &r, float &g, float &b)
-{
-    r = g = b = 0.15f;
-    if (hex.isEmpty() || (hex.size() != 7 && hex.size() != 4))
-        return;
-    QString h = hex.startsWith(QLatin1Char('#')) ? hex.mid(1) : hex;
-    if (h.size() >= 6) {
-        bool ok;
-        r = h.mid(0, 2).toInt(&ok, 16) / 255.0f;
-        if (ok) g = h.mid(2, 2).toInt(&ok, 16) / 255.0f;
-        if (ok) b = h.mid(4, 2).toInt(&ok, 16) / 255.0f;
-    }
 }
 
 void AppController::applyThemeToPicPlayer()
 {
-    QVariant v = m_themeColors.value(QStringLiteral("contentBackground"));
-    QString hex = v.toString();
-    float r, g, b;
-    hexToRgbF(hex, r, g, b);
-    PicPlayer_SetBackgroundColor(r, g, b);
+    if (m_componentHost)
+        QMetaObject::invokeMethod(m_componentHost, "applyTheme", Q_ARG(QVariantMap, m_themeColors));
 }
 
 void AppController::loadThemeColors()
@@ -73,11 +57,7 @@ void AppController::setTheme(int theme)
 
 AppController::~AppController()
 {
-    if (m_hostWindow) {
-        m_hostWindow->deleteLater();
-        m_hostWindow = nullptr;
-    }
-    m_picMatchWidget = nullptr;
+    m_componentHost = nullptr;
 }
 
 void AppController::setStatusText(const QString &text)
@@ -85,6 +65,14 @@ void AppController::setStatusText(const QString &text)
     if (m_statusText != text) {
         m_statusText = text;
         emit statusTextChanged();
+    }
+}
+
+void AppController::setPageTitle(const QString &title)
+{
+    if (m_pageTitle != title) {
+        m_pageTitle = title;
+        emit pageTitleChanged();
     }
 }
 
@@ -104,28 +92,25 @@ void AppController::setRunning(bool on)
     }
 }
 
-void AppController::registerPicMatchHost(QObject *hostItem)
+void AppController::registerComponentHost(QObject *hostItem)
 {
-    PlayerHostItem *host = qobject_cast<PlayerHostItem *>(hostItem);
-    if (!host)
+    if (!hostItem)
         return;
+    m_componentHost = hostItem;
     setHasRunnableComponent(true);
-    auto trySetPlayer = [this, host]() {
-        if (PicMatchWidget *w = host->picMatchWidget()) {
-            setPlayer(w, nullptr);
-        }
-    };
-    trySetPlayer();
-    connect(host, &PlayerHostItem::widgetReady, this, trySetPlayer, Qt::UniqueConnection);
+    QObject::connect(hostItem, &QObject::destroyed, this, [this]() { m_componentHost = nullptr; setHasRunnableComponent(false); });
+    applyThemeToPicPlayer(); // 组件注册后立即应用当前主题，使右侧面板等与主框架换肤一致
 }
 
-void AppController::unregisterPicMatchHost()
+void AppController::unregisterComponentHost()
 {
-    if (m_picMatchWidget)
-        m_picMatchWidget->Quit();
+    if (m_componentHost) {
+        QMetaObject::invokeMethod(m_componentHost, "quit", Qt::DirectConnection);
+        m_componentHost = nullptr;
+    }
     setRunning(false);
-    setPlayer(nullptr, nullptr);
     setHasRunnableComponent(false);
+    setPageTitle(kDefaultPageTitle);
 }
 
 void AppController::requestBackToDesktop()
@@ -133,35 +118,23 @@ void AppController::requestBackToDesktop()
     emit backToDesktopRequested();
 }
 
-void AppController::setPlayer(PicMatchWidget *widget, QWidget *hostWindow)
-{
-    m_picMatchWidget = widget;
-    m_hostWindow = hostWindow;
-}
-
 void AppController::start()
 {
     setRunning(true);
-    if (m_hostWindow) {
-        m_hostWindow->show();
-        m_hostWindow->raise();
-    }
-    if (m_picMatchWidget)
-        m_picMatchWidget->Run();
+    if (m_componentHost)
+        QMetaObject::invokeMethod(m_componentHost, "run", Qt::DirectConnection);
 }
 
 void AppController::stop()
 {
     setRunning(false);
-    if (m_picMatchWidget)
-        m_picMatchWidget->Quit();
-    if (m_hostWindow)
-        m_hostWindow->hide();
+    if (m_componentHost)
+        QMetaObject::invokeMethod(m_componentHost, "quit", Qt::DirectConnection);
 }
 
 void AppController::closeApp()
 {
-    if (m_picMatchWidget)
-        m_picMatchWidget->Quit();
+    if (m_componentHost)
+        QMetaObject::invokeMethod(m_componentHost, "quit", Qt::DirectConnection);
     emit requestQuit();
 }

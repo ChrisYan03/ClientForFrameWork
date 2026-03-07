@@ -1,0 +1,10 @@
+{
+  "id": "picmatch",
+  "name": "图像人脸识别",
+  "module": "PicMatchComponent.dll",
+  "registerSymbol": "PicMatchComponent_Register",
+  "shutdownModule": "PicPlayer.dll",
+  "shutdownSymbol": "PicPlayer_Shutdown",
+  "icon": "face_recognition.svg",
+  "qmlPage": "qrc:/qml/PicMatchPage.qml"
+}

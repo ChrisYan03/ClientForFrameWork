@@ -2,10 +2,8 @@
 #define STYLEMANAGER_H
 
 #include <QObject>
-#include <QFile>
-#include <QTextStream>
-#include <QApplication>
 
+/** 主框架为 QML 工程，主题由 themes/light.json、dark.json 与 appController.themeColors 驱动，此处仅记录当前主题类型供 setTheme 使用。 */
 class StyleManager : public QObject
 {
     Q_OBJECT
@@ -20,8 +18,7 @@ public:
     static StyleManager* instance();
 
     void applyTheme(ThemeType theme);
-    void applyStyleSheet(const QString& fileName);
-    QString loadStyleSheet(const QString& fileName);
+    ThemeType currentTheme() const { return m_currentTheme; }
 
 private:
     static StyleManager* m_instance;

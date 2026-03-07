@@ -57,6 +57,9 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(RESOURCE_DIR ${SOURCE_DIR}/resource)
 include_directories(${SOURCE_DIR})
 
+# 纯 QML 框架：不包含业务组件头文件，组件由运行时动态加载
+include_directories(${CMAKE_SOURCE_DIR}/LogUtil)
+
 # 定义源码文件
 # 使用 file(GLOB ...) 自动收集源文件
 file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
@@ -66,7 +69,11 @@ file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
 )
 list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
 if(USE_QML)
-    list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main.cpp")
+    list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main.cpp"
+        "${SOURCE_DIR}/QmlBridge/PlayerHostItem.cpp"
+        "${SOURCE_DIR}/QmlBridge/PlayerHostItem.h"
+        "${SOURCE_DIR}/Common/BaseWidget.cpp"
+        "${SOURCE_DIR}/Common/BaseWidget.h")
 else()
     list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main_qml.cpp"
         "${SOURCE_DIR}/QmlBridge/AppController.cpp"
@@ -75,19 +82,6 @@ else()
         "${SOURCE_DIR}/QmlBridge/PlayerHostItem.h")
 endif()
 list(REMOVE_DUPLICATES PROJECT_SOURCES)
-
-# 添加 PicPlayer 库路径
-set(PICPLAYER_DIR ${CMAKE_SOURCE_DIR}/PicPlayer)
-message("picplayer_dir: ${PICPLAYER_DIR}")
-# 添加 PicPlayer 库的头文件路径
-include_directories(${PICPLAYER_DIR}/src)
-# 添加 PicRecognition 库路径
-set(PICRECOGNITION_DIR ${CMAKE_SOURCE_DIR}/PicRecognition)
-message("picrecognition_dir: ${PICRECOGNITION_DIR}")
-# 添加 PicRecognition 库的头文件路径
-include_directories(${PICRECOGNITION_DIR}/src)
-set(OpenCV_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/../ext/lib/opencv2/Win64)
-message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     # USE_QML 时用 add_executable 避免 qt_finalize_executable 触发的 QML 导入扫描（在部分环境会失败）
@@ -99,8 +93,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
             Qt${QT_VERSION_MAJOR}::Widgets
             Qt${QT_VERSION_MAJOR}::Quick
             Qt${QT_VERSION_MAJOR}::QuickControls2
-            PicPlayer
-            PicRecognition
         )
         if(APPLE)
             target_link_libraries(ClientForFrame PRIVATE
@@ -126,8 +118,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         )
         # M1芯片Mac的特殊处理
         if(APPLE)
-            # 先链接我们的库
-            target_link_libraries(ClientForFrame PRIVATE PicPlayer PicRecognition)
+            target_link_libraries(ClientForFrame PRIVATE)
             # 手动指定Qt库，避免自动添加AGL
             target_link_libraries(ClientForFrame PRIVATE 
                 ${Qt${QT_VERSION_MAJOR}Widgets_LIBRARIES}
@@ -151,17 +142,17 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
                 INSTALL_RPATH "@executable_path/../Frameworks"
             )
         else()
-            target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+            target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
         endif()
         qt_finalize_executable(ClientForFrame)
     endif()
 else()
     if(ANDROID)
         add_library(ClientForFrame SHARED ${PROJECT_SOURCES})
-        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
     else()
         add_executable(ClientForFrame ${PROJECT_SOURCES})
-        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PicPlayer PicRecognition)
+        target_link_libraries(ClientForFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
     endif()
 endif()
 
@@ -179,11 +170,7 @@ if(USE_QML)
     )
 endif()
 if(WIN32)
-    target_link_libraries(ClientForFrame PRIVATE
-        ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicPlayer.lib
-        ${CMAKE_SOURCE_DIR}/../target/Win64/lib/PicRecognition.lib
-        dwmapi
-    )
+    target_link_libraries(ClientForFrame PRIVATE dwmapi)
 endif()
 
 # 设置目标属性
