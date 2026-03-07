@@ -9,6 +9,8 @@ Item {
 
     property int cellSize: 120
     property int spacing: 24
+    /** 与 Windows 一致：从组件路径 Component/xxx/meta_info/icon 加载，无则回退 qrc */
+    property string picMatchIcon: appController ? appController.getComponentIconPath("picmatch") : ""
 
     Flow {
         id: appGrid
@@ -31,7 +33,7 @@ Item {
 
                 Image {
                     anchors.centerIn: parent
-                    source: "qrc:/icons/face_recognition.svg"
+                    source: root.picMatchIcon || "qrc:/icons/face_recognition.svg"
                     sourceSize.width: 48
                     sourceSize.height: 48
                 }

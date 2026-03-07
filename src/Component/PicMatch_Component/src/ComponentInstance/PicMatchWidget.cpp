@@ -25,7 +25,10 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QFont>
+#include <QPalette>
+#include <QColor>
 #include <QVariantMap>
+#include <QtGlobal>
 #include <memory>
 
 static QString themeColor(const QVariantMap& m, const char* key, const char* defaultHex)
@@ -34,19 +37,37 @@ static QString themeColor(const QVariantMap& m, const char* key, const char* def
     return v.isEmpty() ? QLatin1String(defaultHex) : v;
 }
 
-static QString applicationBasePath()
+/** 与主程序一致的“根目录”：macOS .app 下为 .app 所在目录（如 Release），否则为可执行文件所在目录。 */
+static QString getEffectiveBaseDir()
 {
     QString exeDir = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+#if defined(Q_OS_MAC)
+    if (exeDir.contains(QLatin1String(".app/Contents/MacOS"))) {
+        QDir dir(exeDir);
+        if (dir.cdUp() && dir.cdUp() && dir.cdUp())
+            return dir.absolutePath();
+    }
+#endif
     return exeDir;
 }
 
-/** 组件 bin 目录：主程序从 target/.../Release 运行时在 Component/PicMatch/bin */
+/** 组件 bin 目录：主程序从 target/.../Release 运行时在 Component/PicMatch/bin；macOS .app 下用 getEffectiveBaseDir 定位；从 .app 启动时 Component 在 baseDir/Release/ 下。 */
 static QString componentBinPath()
 {
-    QString exeDir = QDir(QCoreApplication::applicationDirPath()).absolutePath();
-    QString componentBin = exeDir + QStringLiteral("/Component/PicMatch/bin");
+    QString baseDir = getEffectiveBaseDir();
+    QString componentBin = baseDir + QStringLiteral("/Component/PicMatch/bin");
     if (QDir(componentBin).exists())
         return componentBin;
+#if defined(Q_OS_MAC)
+    // 从 .app 启动时 baseDir 为 bin，Component 在 bin/Release/Component/PicMatch/bin
+    QString releaseBin = baseDir + QStringLiteral("/Release/Component/PicMatch/bin");
+    if (QDir(releaseBin).exists())
+        return releaseBin;
+#endif
+    QString exeDir = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+    QString fallback = exeDir + QStringLiteral("/Component/PicMatch/bin");
+    if (QDir(fallback).exists())
+        return fallback;
     return exeDir;
 }
 
@@ -91,7 +112,16 @@ QString PicMatchWidget::getDataPath() const
 {
     if (!m_customDataPath.isEmpty() && QDir(m_customDataPath).exists())
         return QDir(m_customDataPath).absolutePath();
+#if defined(Q_OS_MAC)
+    // macOS 默认图片目录与主程序 ResourcePathManager 一致
+    static const QString macDefaultPicdata(QStringLiteral("/Users/chrisyan/ClientForFrameWork/picdata"));
+    QDir d(macDefaultPicdata);
+    if (!d.exists())
+        d.mkpath(QStringLiteral("."));
+    return d.absolutePath();
+#else
     return componentDataPath();
+#endif
 }
 
 PicMatchWidget::~PicMatchWidget()
@@ -538,9 +568,11 @@ void PicMatchWidget::updateButtonBarStyle()
     const QString titleBarBorder = themeColor(m_lastThemeColors, "titleBarBorder", "#3c3c3c");
     const QString buttonHover = themeColor(m_lastThemeColors, "buttonHover", "#3c3c3c");
     const QString textPrimary = themeColor(m_lastThemeColors, "textPrimary", "#cccccc");
+    // macOS 上 QToolButton 需显式指定 border-radius、min-width/height 和 background 才能覆盖原生样式
     QString sheet = QStringLiteral("QFrame#ButtonBarWidget { background-color: %1; border: none; border-bottom: 1px solid %2; } "
-                                  "QToolButton { border: none; background: transparent; color: %3; } "
+                                  "QToolButton { border: none; border-radius: 4px; background: transparent; color: %3; min-width: 46px; min-height: 38px; } "
                                   "QToolButton:hover { background-color: %4; } "
+                                  "QToolButton:pressed { background-color: %4; } "
                                   "QToolButton#ConfigButton, QToolButton#ConfigButton:hover { color: %3; } ")
                         .arg(titleBarBg, titleBarBorder, textPrimary, buttonHover);
     if (m_running && m_runButton) {
@@ -561,26 +593,47 @@ void PicMatchWidget::applyTheme(QVariantMap themeColors)
 
     if (m_rightPanel) {
         m_rightPanel->setStyleSheet(QStringLiteral("QWidget#RightPanel { background-color: %1; }").arg(contentBg));
+#if defined(Q_OS_MAC)
+        m_rightPanel->setAutoFillBackground(true);
+#endif
     }
     updateButtonBarStyle();
     if (m_faceShowWidget) {
+        // macOS 需指定 QScrollArea::viewport 背景，否则内部为白底；字体用 Mac/Windows 兼容栈
+        const QString fontFamily = QStringLiteral("'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei UI', sans-serif");
         const QString faceShowSheet =
-            QStringLiteral("QLabel#FaceShowSectionHeader { color: %1; font-size: 13px; font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif; padding: 8px 0 4px 0; } "
-                           "QScrollArea#FaceShowScrollArea { background-color: %2; border: none; } "
-                           "QWidget#FaceShowContainer { background-color: %2; } ")
-                .arg(textPrimary, contentBg);
+            QStringLiteral("QLabel#FaceShowSectionHeader { color: %1; font-size: 13px; font-family: %2; padding: 8px 0 4px 0; } "
+                           "QScrollArea#FaceShowScrollArea { background-color: %3; border: none; } "
+                           "QScrollArea#FaceShowScrollArea::viewport { background-color: %3; border: none; } "
+                           "QWidget#FaceShowContainer { background-color: %3; } "
+                           "QLabel#FaceImageLabel { color: %1; } ")
+                .arg(textPrimary, fontFamily, contentBg);
         m_faceShowWidget->setStyleSheet(faceShowSheet);
+#if defined(Q_OS_MAC)
+        m_faceShowWidget->setAutoFillBackground(true);
+        if (QScrollArea* sa = m_faceShowWidget->findChild<QScrollArea*>(QStringLiteral("FaceShowScrollArea"), Qt::FindDirectChildrenOnly)) {
+            if (QWidget* vp = sa->viewport()) {
+                vp->setAutoFillBackground(true);
+                QPalette p = vp->palette();
+                p.setColor(QPalette::Window, QColor(contentBg));
+                vp->setPalette(p);
+            }
+            if (QWidget* container = sa->widget())
+                container->setAutoFillBackground(true);
+        }
+#endif
     }
     if (m_configPanel) {
+        const QString fontFamily = QStringLiteral("'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei UI', sans-serif");
         const QString configSheet =
             QStringLiteral("QFrame#ConfigPanel { background-color: %1; } "
-                           "QLabel { color: %2; font-size: 12px; } "
-                           "QLineEdit { background-color: %3; color: %2; border: 1px solid %3; padding: 6px; } "
-                           "QPushButton#PrimaryButton { background: %4; color: white; border: none; padding: 6px 16px; } "
+                           "QLabel { color: %2; font-size: 12px; font-family: %6; } "
+                           "QLineEdit { background-color: %3; color: %2; border: 1px solid %3; padding: 6px; border-radius: 4px; } "
+                           "QPushButton#PrimaryButton { background: %4; color: white; border: none; padding: 6px 16px; min-height: 28px; border-radius: 4px; } "
                            "QPushButton#PrimaryButton:hover { background: %4; } "
-                           "QPushButton#SecondaryButton { background: %3; color: %2; border: 1px solid %3; padding: 6px 16px; } "
+                           "QPushButton#SecondaryButton { background: %3; color: %2; border: 1px solid %3; padding: 6px 16px; min-height: 28px; border-radius: 4px; } "
                            "QPushButton#SecondaryButton:hover { background: %5; }")
-                .arg(contentBg, textPrimary, borderColor, appTileBorder, buttonHover);
+                .arg(contentBg, textPrimary, borderColor, appTileBorder, buttonHover, fontFamily);
         m_configPanel->setStyleSheet(configSheet);
     }
 }

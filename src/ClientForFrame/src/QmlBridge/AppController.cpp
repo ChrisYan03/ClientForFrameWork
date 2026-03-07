@@ -1,6 +1,7 @@
 #include "AppController.h"
 #include "../Common/StyleManager.h"
 #include <QFile>
+#include <QUrl>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaObject>
@@ -137,4 +138,16 @@ void AppController::closeApp()
     if (m_componentHost)
         QMetaObject::invokeMethod(m_componentHost, "quit", Qt::DirectConnection);
     emit requestQuit();
+}
+
+void AppController::registerComponentIcon(const QString &appId, const QString &iconPath)
+{
+    if (!appId.isEmpty() && !iconPath.isEmpty())
+        m_componentIconPaths.insert(appId, iconPath);
+}
+
+QString AppController::getComponentIconPath(const QString &appId) const
+{
+    QString path = m_componentIconPaths.value(appId, QString());
+    return path.isEmpty() ? path : QUrl::fromLocalFile(path).toString();
 }

@@ -1,6 +1,7 @@
 #include "FaceShowWidget.h"
 #include <QSizePolicy>
 #include <QLabel>
+#include <QtGlobal>
 #include "LogUtil.h"
 #include "ResourceManager.h"
 #include <memory>
@@ -23,13 +24,19 @@ FaceShowWidget::FaceShowWidget(QWidget *parent)
     m_scrollArea->setObjectName("FaceShowScrollArea");
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    
+#if defined(Q_OS_MAC)
+    if (QWidget* vp = m_scrollArea->viewport())
+        vp->setAutoFillBackground(true);
+#endif
     m_containerWidget = new QWidget();
+#if defined(Q_OS_MAC)
+    m_containerWidget->setAutoFillBackground(true);
+#endif
     QVBoxLayout* containerLayout = new QVBoxLayout(m_containerWidget);
     containerLayout->setAlignment(Qt::AlignTop);
     containerLayout->setSpacing(8);
     containerLayout->setContentsMargins(8, 12, 8, 12);
-    
+
     m_scrollArea->setWidget(m_containerWidget);
     m_containerWidget->setObjectName("FaceShowContainer");
     m_layout->addWidget(m_scrollArea, 1);

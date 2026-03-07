@@ -326,6 +326,10 @@ void PicPlayerShowWindow::checkAndApplyResize()
             }
         }
 #endif
+#ifdef __APPLE__
+        if (m_hParent && m_window && GetWindowSizeForMac((void*)m_hParent, w, h) && w > 0 && h > 0 && (w != m_lastViewportWidth || h != m_lastViewportHeight))
+            glfwSetWindowSize(m_window, w, h);
+#endif
         if (w < 1 || h < 1)
             glfwGetWindowSize(m_window, &w, &h);
     }
@@ -335,6 +339,16 @@ void PicPlayerShowWindow::checkAndApplyResize()
         m_lastViewportWidth = w;
         m_lastViewportHeight = h;
         OnResize(w, h);
+#ifdef __APPLE__
+        // 子窗口方式嵌入时，主线程更新 NSWindow frame 以跟随父 view
+        if (m_hParent && m_window) {
+            void* parent = reinterpret_cast<void*>(m_hParent);
+            GLFWwindow* win = m_window;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UpdateChildWindowFrameForMac(parent, win);
+            });
+        }
+#endif
     }
 }
 
@@ -380,7 +394,16 @@ void PicPlayerShowWindow::DestroyRenderWindow()
     }
     // 释放GLFW资源
     if (m_window) {
-        // 强制设置窗口关闭标志
+#ifdef __APPLE__
+        // 先从父窗口移除子窗口（须在主线程），再销毁，避免 view 层级错乱
+        void* parent = reinterpret_cast<void*>(m_hParent);
+        GLFWwindow* win = m_window;
+        if (parent && win) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                RemoveChildWindowForMac(parent, win);
+            });
+        }
+#endif
         glfwSetWindowShouldClose(m_window, 1);
         glfwDestroyWindow(m_window);
         LOG_DEBUG("glfwSetWindowShouldClose");

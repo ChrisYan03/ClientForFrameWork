@@ -1,6 +1,7 @@
 #ifndef APPCONTROLLER_H
 #define APPCONTROLLER_H
 
+#include <QMap>
 #include <QObject>
 #include <QVariantMap>
 
@@ -42,6 +43,11 @@ public:
     Q_INVOKABLE void setPageTitle(const QString &title);
     Q_INVOKABLE void requestBackToDesktop();
 
+    /** 注册组件桌面图标路径（manifest 的 id -> 本地文件路径），与 Windows 一致从 Component/xxx/meta_info/ 加载 */
+    Q_INVOKABLE void registerComponentIcon(const QString &appId, const QString &iconPath);
+    /** 获取组件桌面图标 URL（file://），空则 QML 用主程序 qrc 兜底 */
+    Q_INVOKABLE QString getComponentIconPath(const QString &appId) const;
+
 signals:
     void statusTextChanged();
     void pageTitleChanged();
@@ -66,6 +72,7 @@ private:
     int m_theme = 0;
     QVariantMap m_themeColors;
     QObject *m_componentHost = nullptr;
+    QMap<QString, QString> m_componentIconPaths;
 };
 
 #endif // APPCONTROLLER_H

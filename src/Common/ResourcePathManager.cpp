@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QtGlobal>
 #include <algorithm>
 
 namespace ClientForFrame {
@@ -70,11 +71,22 @@ std::string ResourcePathManager::getLogPath() {
 
 std::string ResourcePathManager::getDataPath() {
     std::string basePath = getApplicationBasePath();
+#if defined(Q_OS_MAC)
+    // macOS 默认使用工程下的 picdata 目录
+    static const std::string macDefaultPicdata("/Users/chrisyan/ClientForFrameWork/picdata");
+    std::vector<std::string> dataPaths = {
+        macDefaultPicdata,
+        getComponentDataPath() + "/picdata",
+        basePath + "/picdata",
+        basePath + "/../picdata"
+    };
+#else
     std::vector<std::string> dataPaths = {
         getComponentDataPath() + "/picdata",
         basePath + "/picdata",
         basePath + "/../picdata"
     };
+#endif
 
     for (const auto& path : dataPaths) {
         if (fileExists(path)) {
@@ -82,8 +94,11 @@ std::string ResourcePathManager::getDataPath() {
         }
     }
 
-    // Default to picdata in exe path
+#if defined(Q_OS_MAC)
+    std::string defaultPath = macDefaultPicdata;
+#else
     std::string defaultPath = basePath + "/picdata";
+#endif
     ensureDirectoryExists(defaultPath);
     return defaultPath;
 }

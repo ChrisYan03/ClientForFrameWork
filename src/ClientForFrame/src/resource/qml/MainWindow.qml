@@ -124,7 +124,8 @@ Window {
                     id: settingsLoader
                     anchors.fill: parent
                     anchors.leftMargin: 1
-                    active: root.settingsOpen || settingsPanel.width > 0
+                    // macOS 上若在 width 为 0 时激活，加载的页面会保持 0 尺寸显示空白；等面板有足够宽度后再加载
+                    active: root.settingsOpen && settingsPanel.width > 80
                     sourceComponent: settingsPageComp
                 }
             }

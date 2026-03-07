@@ -15,10 +15,14 @@ if(WIN32)
     add_compile_options(/utf-8)
 endif()
 
-# 设置 OpenCV 路径（工程根下的 ext，CMAKE_SOURCE_DIR 为 src）
-set(OPENCV_ROOT_DIR ${CMAKE_SOURCE_DIR}/..)
-message(STATUS "OpenCV Root Directory: ${OPENCV_ROOT_DIR}")
-set(OpenCV_INCLUDE_DIRS ${OPENCV_ROOT_DIR}/ext/include)
+# 设置 OpenCV 路径（与根 CMake 的 EXT_DIR 一致：ext 在工程根下，根 CMake 已 set(EXT_DIR ${CMAKE_SOURCE_DIR}/../ext)）
+if(DEFINED EXT_DIR)
+  set(OPENCV_EXT_DIR ${EXT_DIR})
+else()
+  set(OPENCV_EXT_DIR ${CMAKE_SOURCE_DIR}/../ext)
+endif()
+message(STATUS "OpenCV/ext directory: ${OPENCV_EXT_DIR}")
+set(OpenCV_INCLUDE_DIRS ${OPENCV_EXT_DIR}/include)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 # 设置源码目录（PicPlayer 在同级 SubComponent/PicPlayer）
@@ -44,9 +48,9 @@ add_library(PicRecognition SHARED ${PROJECT_SOURCES})
 
 # 添加第三方库的库文件路径
 if(APPLE)
-    set(OpenCV_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/opencv2/Mac)
-    set(SPDLOG_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/spdlog/Mac)
-    message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
+    set(OpenCV_LIBRARY_DIR ${OPENCV_EXT_DIR}/lib/opencv2/Mac)
+    set(SPDLOG_LIBRARY_DIR ${OPENCV_EXT_DIR}/lib/spdlog/Mac)
+    message(STATUS "OpenCV_LIBRARY_DIR (Mac): ${OpenCV_LIBRARY_DIR}")
     # 创建导入库目标
     add_library(opencv_calib3d SHARED IMPORTED)
     set_target_properties(opencv_calib3d PROPERTIES
@@ -118,12 +122,12 @@ if(APPLE)
         spdlog
     )
 else()
-    # 设置库文件路径
-    set(OpenCV_LIBRARY_DIR ${OPENCV_ROOT_DIR}/ext/lib/opencv2/Win64)
-    message(STATUS "OpenCV_LIBRARY_DIR Directory: ${OpenCV_LIBRARY_DIR}")
+    # 设置库文件路径（Win64）
+    set(OpenCV_LIBRARY_DIR ${OPENCV_EXT_DIR}/lib/opencv2/Win64)
+    message(STATUS "OpenCV_LIBRARY_DIR (Win64): ${OpenCV_LIBRARY_DIR}")
     link_directories(
         ${OpenCV_LIBRARY_DIR}
-        ${EXT_DIR}/lib/spdlog/Win64
+        ${OPENCV_EXT_DIR}/lib/spdlog/Win64
     )
     target_compile_definitions(PicRecognition PRIVATE PICRECOGNITION_EXPORTS)
     target_link_libraries(PicRecognition PRIVATE
