@@ -1,5 +1,6 @@
 ﻿#include "PicPlayerScene.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
+#include "PicPlayerLog.h"
 
 PicPlayerScene::PicPlayerScene(const ImRect& rc, int cacheNum)
     : m_displayRect(rc)
@@ -30,9 +31,13 @@ void PicPlayerScene::SyncRemovePic(const std::string& picId)
 
 void PicPlayerScene::OnCurPicChange(const std::string& picId)
 {
+    LOG_DEBUG("OnCurPicChange called with picId: {}", picId);
     if (m_pRenderSync) {
         PicShowNow cmdPicShowNow(picId);
+        LOG_DEBUG("OnCurPicChange: calling RenderComCallback");
         m_pRenderSync->RenderComCallback(&cmdPicShowNow);
+    } else {
+        LOG_WARN("OnCurPicChange: m_pRenderSync is null!");
     }
 }
 

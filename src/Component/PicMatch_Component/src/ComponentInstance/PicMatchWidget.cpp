@@ -2,6 +2,7 @@
 #include "PicPlayerApi.h"
 #include "PicRecognitionApi.h"
 #include "StbImage/stb_image.h"
+#include "QmlBridge/PicMatchViewModel.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSplitter>
@@ -105,7 +106,88 @@ PicMatchWidget::PicMatchWidget(BaseWidget *parent)
     , m_rightStack(nullptr)
     , m_configPanel(nullptr)
     , m_configPathEdit(nullptr)
+    , m_viewModel(new PicMatchViewModel(this))
 {
+    setupViewModelConnections();
+}
+
+void PicMatchWidget::setupViewModelConnections()
+{
+    connect(m_viewModel, &PicMatchViewModel::runningChanged, this, &PicMatchWidget::onViewModelRunningChanged);
+    connect(m_viewModel, &PicMatchViewModel::imageUpdated, this, &PicMatchWidget::onViewModelImageUpdated);
+    connect(m_viewModel, &PicMatchViewModel::faceListChanged, this, &PicMatchWidget::onViewModelFaceListChanged);
+    connect(m_viewModel, &PicMatchViewModel::dataPathChanged, this, [this](const QString& path) {
+        m_customDataPath = path;
+        m_initialized = false;
+        m_imageNames.clear();
+        m_currentIndex = 0;
+    });
+}
+
+void PicMatchWidget::onViewModelRunningChanged(bool running)
+{
+    m_running = running;
+
+    if (running) {
+        // 当ViewModel开始运行时，注册QWidget的窗口ID用于渲染
+        if (m_playerWidget && m_viewModel) {
+            int handle = m_viewModel->playerHandle();
+            if (handle >= 0) {
+                m_handle = handle;  // ���步handle到本地
+                PicPlayer_RegisterWindow(handle, static_cast<Window_ShowID>(m_playerWidget->winId()));
+
+                // 通知窗口大小
+                if (m_playerWidget->width() > 0 && m_playerWidget->height() > 0) {
+                    PicPlayer_SetWindowSize(handle, m_playerWidget->width(), m_playerWidget->height());
+                }
+            }
+        }
+    } else {
+        // 停止时清理
+        m_handle = -1;
+        if (m_faceShowWidget) {
+            m_faceShowWidget->clearFaceImages(true);
+        }
+        m_showId.clear();
+        m_currentIndex = 0;
+        m_initialized = false;
+        m_imageNames.clear();
+    }
+
+    UpdateUIState();
+}
+
+void PicMatchWidget::onViewModelImageUpdated(const QString& showId, const QString& imagePath)
+{
+    // 更新本地状态
+    m_showId = showId.toStdString();
+
+    // ViewModel已经处理了图片加载和人脸检测
+    // 这里只需要更新本地showId，人脸显示由onViewModelFaceListChanged处理
+    LOG_DEBUG("onViewModelImageUpdated: showId={}", m_showId);
+}
+
+void PicMatchWidget::onViewModelFaceListChanged()
+{
+    // ViewModel 仅在收到 Callback_ShowPicId 时 emit faceListChanged，此处直接刷新人脸区即可
+    if (!m_faceShowWidget || !m_viewModel)
+        return;
+
+    m_faceShowWidget->clearFaceImages();
+    QVariantList faces = m_viewModel->faceList();
+    for (const auto& faceVar : faces) {
+        QVariantMap faceMap = faceVar.toMap();
+        QByteArray imageData = faceMap["imageData"].toByteArray();
+        int width = faceMap["width"].toInt();
+        int height = faceMap["height"].toInt();
+
+        if (!imageData.isEmpty() && width > 0 && height > 0) {
+            char* dataCopy = new char[imageData.size()];
+            memcpy(dataCopy, imageData.constData(), imageData.size());
+            m_faceShowWidget->addFaceImages(dataCopy, imageData.size(), width, height);
+        }
+    }
+    m_faceShowWidget->triggerDisplay();
 }
 
 QString PicMatchWidget::getDataPath() const
@@ -213,7 +295,7 @@ void PicMatchWidget::Run()
     if (!m_running) {
         m_running = true;
         InitPicPlayer();
-
+        LOG_DEBUG("InitPicPlayer success");
         m_initialized = false;
         m_currentIndex = 0;
         std::string firstName = GetNextImageName();
@@ -247,6 +329,7 @@ void PicMatchWidget::Quit()
     m_currentIndex = 0;
     m_initialized = false;
     m_imageNames.clear();
+    m_faceResultCache.clear();
 
     UpdateUIState();
 }
@@ -305,6 +388,7 @@ void PicMatchWidget::OnRun(const std::string& showid)
 
 void PicMatchWidget::UpdatePic(const std::string& showid, const std::string& imagePath)
 {
+    m_showId = showid;
     LOG_DEBUG("Run PicPlayer size: {} x {}", m_playerWidget->width(), m_playerWidget->height());
     std::unique_ptr<PicShowInfo> demodata = std::make_unique<PicShowInfo>();
     std::unique_ptr<FaceDetectionResult> faceResult = std::make_unique<FaceDetectionResult>();
@@ -339,12 +423,13 @@ void PicMatchWidget::UpdatePic(const std::string& showid, const std::string& ima
     if (!PicPlayer_InputFaceRecogResult(m_handle, (void*)faceResult.get())) {
         LOG_ERROR("Failed to input face recognition result to player");
     }
-    
-    if (faceResult->faces != nullptr && faceResult->faceCount > 0) {
-        for (int i = 0; i < faceResult->faceCount; ++i) {
-            m_faceShowWidget->addFaceImages(faceResult->faces[i].faceImageData, faceResult->faces[i].faceImageLength, faceResult->faces[i].faceImageWidth, faceResult->faces[i].faceImageHeight);
-        }
+
+    // 只缓存人脸结果，不在此处更新人脸区；等人脸区在收到 Callback_ShowPicId 时由 showFacesForShowId 展示
+    const size_t kMaxCacheSize = 3;
+    if (m_faceResultCache.size() >= kMaxCacheSize) {
+        m_faceResultCache.erase(m_faceResultCache.begin());
     }
+    m_faceResultCache[showid] = std::make_unique<FaceDetectionResult>(*faceResult);
 }
 
 std::string PicMatchWidget::GetNextImageName()
@@ -383,15 +468,35 @@ std::string PicMatchWidget::GetNextImageName()
 }
 
 
+void PicMatchWidget::showFacesForShowId(const std::string& showid)
+{
+    auto it = m_faceResultCache.find(showid);
+    if (it == m_faceResultCache.end() || !it->second || !m_faceShowWidget)
+        return;
+
+    FaceDetectionResult* result = it->second.get();
+    m_faceShowWidget->clearFaceImages();
+    if (result->faces && result->faceCount > 0) {
+        for (int i = 0; i < result->faceCount; ++i) {
+            const FaceInfo& fi = result->faces[i];
+            if (fi.faceImageData && fi.faceImageLength > 0 && fi.faceImageWidth > 0 && fi.faceImageHeight > 0)
+                m_faceShowWidget->addFaceImages(fi.faceImageData, fi.faceImageLength, fi.faceImageWidth, fi.faceImageHeight);
+        }
+        m_faceShowWidget->triggerDisplay();
+    }
+}
+
 void* PicMatchWidget::PicCallbackByPlayer(int handle, int iMsg, void* pData, void* pUser)
 {
     if (nullptr != pData && nullptr != pUser) {
         PicMatchWidget* pThis = reinterpret_cast<PicMatchWidget*>(pUser);
         if (Callback_ShowPicId == iMsg) {
             std::string showid((const char*)pData);
-            LOG_DEBUG("showid : {}", showid.data());
+            LOG_DEBUG("showid : {}", showid.c_str());
             LOG_DEBUG("Run PicPlayer size: {} x {}", pThis->m_playerWidget->width(), pThis->m_playerWidget->height());
+            // 收到「当前图已展示」回调时：先展示该图对应的人脸抠图，再加载下一张
             QMetaObject::invokeMethod(pThis, [pThis, showid]() {
+                pThis->showFacesForShowId(showid);
                 pThis->OnRun(showid);
             }, Qt::QueuedConnection);
         }
@@ -694,17 +799,17 @@ void PicMatchWidget::UpdateUIState()
 void PicMatchWidget::OnRunButtonClicked()
 {
     LOG_INFO("Run button clicked");
-    if (!m_running) {
-        Run();
-        UpdateUIState();
+    // 委托给ViewModel处理
+    if (m_viewModel && !m_viewModel->isRunning()) {
+        m_viewModel->run();
     }
 }
 
 void PicMatchWidget::OnStopButtonClicked()
 {
     LOG_INFO("Stop button clicked");
-    if (m_running) {
-        Quit();
-        UpdateUIState();
+    // 委托给ViewModel处理
+    if (m_viewModel && m_viewModel->isRunning()) {
+        m_viewModel->stop();
     }
 }

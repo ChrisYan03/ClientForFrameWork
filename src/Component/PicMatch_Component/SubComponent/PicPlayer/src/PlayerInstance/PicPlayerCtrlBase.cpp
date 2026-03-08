@@ -1,8 +1,10 @@
-﻿#include "PicPlayerCtrlBase.h"
+#include "PicPlayerCtrlBase.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
 #include "../PicPlayerDataDef.h"
+#include "PicPlayerLog.h"
 
 PicPlayerCtrlBase::PicPlayerCtrlBase()
+    : m_handle(0)
 {
     m_renderNodesPtr = std::make_unique<RenderNodesData>();
 }
@@ -12,8 +14,9 @@ PicPlayerCtrlBase::~PicPlayerCtrlBase()
 
 }
 
-void PicPlayerCtrlBase::SetCallback(PlayerMsgCallback callback, void* pUser)
+void PicPlayerCtrlBase::SetCallback(int handle, PlayerMsgCallback callback, void* pUser)
 {
+    m_handle = handle;
     m_callback = callback;
     m_pUser = pUser;
 }
@@ -52,7 +55,12 @@ void PicPlayerCtrlBase::InputFaceRecogResult(std::shared_ptr<FaceDetectionResult
 
 void PicPlayerCtrlBase::ShowPicCallback(const std::string& showPicId)
 {
-    std::string showid = showPicId;
-    m_callback(0, (int)Callback_ShowPicId, (void*)showid.c_str(), m_pUser);
+    LOG_DEBUG("ShowPicCallback: handle={}, showPicId={}", m_handle, showPicId);
+    if (m_callback) {
+        std::string showid = showPicId;
+        m_callback(m_handle, (int)Callback_ShowPicId, (void*)showid.c_str(), m_pUser);
+    } else {
+        LOG_WARN("ShowPicCallback: m_callback is null!");
+    }
 }
 

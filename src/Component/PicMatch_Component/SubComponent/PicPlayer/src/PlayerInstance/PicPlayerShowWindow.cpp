@@ -189,8 +189,10 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
     // 鍚敤澶氶噸閲囨牱锛屾姉閿娇
     glfwWindowHint(GLFW_SAMPLES, 4);
-    // 添加错误回调以便更好地诊断问题
+    // 添加错误回调以便更好地诊断问题；GLFW_NOT_INITIALIZED 多为退出/销毁顺序导致，不刷 error 日志
     glfwSetErrorCallback([](int error, const char* description) {
+        if (error == GLFW_NOT_INITIALIZED)
+            return;
         LOG_ERROR("GLFW Error {}: {}", error, description);
     });
 #ifdef _WIN32

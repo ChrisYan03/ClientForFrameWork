@@ -1,4 +1,4 @@
-﻿#include "PicPlayerHandleManager.h"
+#include "PicPlayerHandleManager.h"
 #include <iostream>
 #include <memory>
 
@@ -39,7 +39,7 @@ void PicPlayerHandleManager::SetPlayerCallback(int handle, PlayerMsgCallback cal
 {
     PicPlayer* pPlayer = instance()->GetPlayer(handle);
     if (pPlayer) {
-        pPlayer->SetPicCallback(callback, pUser);
+        pPlayer->SetPicCallback(handle, callback, pUser);
     }
 }
 

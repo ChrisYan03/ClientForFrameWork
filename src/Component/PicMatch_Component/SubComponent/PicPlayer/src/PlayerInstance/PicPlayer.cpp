@@ -32,10 +32,10 @@ void PicPlayer::SetHandle(int handle)
     m_handle = handle;
 }
 
-void PicPlayer::SetPicCallback(PlayerMsgCallback callback, void* pUser)
+void PicPlayer::SetPicCallback(int handle, PlayerMsgCallback callback, void* pUser)
 {
     if (m_ctrlDelPtr) {
-        m_ctrlDelPtr->SetPicCallbackByDelegate(callback, pUser);
+        m_ctrlDelPtr->SetPicCallbackByDelegate(handle, callback, pUser);
     }
 }
 

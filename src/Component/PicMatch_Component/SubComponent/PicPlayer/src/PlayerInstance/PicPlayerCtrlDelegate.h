@@ -1,4 +1,4 @@
-﻿#ifndef PICPLAYERCTRLDELEGATE_H
+#ifndef PICPLAYERCTRLDELEGATE_H
 #define PICPLAYERCTRLDELEGATE_H
 
 #include "../PicPlayerDataDef.h"
@@ -16,7 +16,7 @@ public:
     PicPlayerCtrlDelegate();
     ~PicPlayerCtrlDelegate();
 
-    void SetPicCallbackByDelegate(PlayerMsgCallback callback, void* pUser);
+    void SetPicCallbackByDelegate(int handle, PlayerMsgCallback callback, void* pUser);
     void InputPicData(int type, void* showData);
     void InputFaceRecogResult(void* recogResult);
 

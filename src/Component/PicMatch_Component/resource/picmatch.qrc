@@ -2,6 +2,9 @@
 <RCC>
   <qresource prefix="/">
     <file>qml/PicMatchPage.qml</file>
+    <file>qml/components/PicMatchToolBar.qml</file>
+    <file>qml/components/PicMatchConfigPanel.qml</file>
+    <file>qml/components/FaceShowPanel.qml</file>
     <file>icons/face_recognition.svg</file>
     <file>icons/start.svg</file>
     <file>icons/start_hover.svg</file>

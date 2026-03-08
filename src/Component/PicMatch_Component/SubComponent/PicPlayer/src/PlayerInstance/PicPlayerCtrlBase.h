@@ -1,4 +1,4 @@
-﻿#ifndef PICPLAYERCTRLBASE_H
+#ifndef PICPLAYERCTRLBASE_H
 #define PICPLAYERCTRLBASE_H
 
 #include "PicPlayerRenderSync.h"
@@ -11,7 +11,7 @@ public:
     explicit PicPlayerCtrlBase();
     ~PicPlayerCtrlBase();
 
-    void SetCallback(PlayerMsgCallback callback, void* pUser);
+    void SetCallback(int handle, PlayerMsgCallback callback, void* pUser);
     void SetRenderSync(std::shared_ptr<PicPlayerRenderSync> syncPtr);
     void CheckSyncRenderData();
     void InputPicData(std::shared_ptr<PicShowInfo> showData);
@@ -20,6 +20,7 @@ public:
     void ShowPicCallback(const std::string& showPicId);
 
 protected:
+    int m_handle;
     PlayerMsgCallback m_callback;
     void* m_pUser;
     std::shared_ptr<PicPlayerRenderSync> m_syncPtr;

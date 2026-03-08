@@ -17,7 +17,7 @@ public:
     PicPlayerGui* GetGui() const { return m_guiPtr.get(); }
 
     void SetHandle(int handle);
-    void SetPicCallback(PlayerMsgCallback callback, void* pUser);
+    void SetPicCallback(int handle, PlayerMsgCallback callback, void* pUser);
 
     bool InputPicData(int type, void* showData);
     bool StartPlayer();

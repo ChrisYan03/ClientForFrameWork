@@ -214,29 +214,38 @@ void PicPlayerMovieByScene::SetPicInfoToComponent(int index)
     for (auto iterPic = m_picList.begin(); iterPic != m_picList.end(); ++iterPic) {
         picVec.push_back(*iterPic);
     }
-    
-    if (picVec.size() > 0 && index < picVec.size()) {
-        auto curPic = picVec[index];
-        float scale = curPic->GetShowScale();
-        double displayWidth = (double)curPic->GetPicWidth();
-        double displayPos = m_picMovePos * scale;
-        
-        // 检查当前图片是否完全显示（位置达到或超过图片宽度）
-        if (ceil(displayPos) >= displayWidth) {
-            // id变化时回调数据
-            if (GetPicDrawPtr(m_curIndex)) {
-                std::string newShowId = GetPicDrawPtr(m_curIndex)->GetPicId();
-                if (m_curShowid.empty() || newShowId != m_curShowid) {  // 更严格的比较条件
-                    LOG_DEBUG("SetPicInfoToComponent called with allsize {}", m_picList.size());
-                    LOG_DEBUG("SetPicInfoToComponent called with index: {}, current m_curIndex: {}", 
-                        index, m_curIndex);
-                    m_curShowid = newShowId;
-                    LOG_DEBUG("ShowId changed from '{}' to '{}'", m_curShowid.c_str(), newShowId.c_str());
-                    if (!m_curShowid.empty())
-                        OnCurPicChange(m_curShowid);
-                }
-            }
-        }
-    }
+
+    if (picVec.empty() || index < 0 || index >= static_cast<int>(picVec.size()))
+        return;
+
+    auto curPic = picVec[index];
+    float scale = curPic->GetShowScale();
+    double displayWidth = static_cast<double>(curPic->GetPicWidth());
+    double displayPos = m_picMovePos * scale;
+
+    // 避免未布局或宽度异常时误触发
+    const double kMinDisplayWidth = 10.0;
+    if (displayWidth < kMinDisplayWidth || ceil(displayPos) < displayWidth)
+        return;
+
+    // 必须已经滚过该图才回调：要么已切到下一张（m_curIndex > index），要么是最后一张且已滚完
+    bool hasScrolledPast = (m_curIndex > index) || (index == static_cast<int>(picVec.size()) - 1);
+    if (!hasScrolledPast)
+        return;
+
+    std::shared_ptr<PicRenderForDraw> fullyDisplayedPic = GetPicDrawPtr(index);
+    if (!fullyDisplayedPic)
+        return;
+
+    std::string fullyDisplayedShowId = fullyDisplayedPic->GetPicId();
+    if (fullyDisplayedShowId.empty())
+        return;
+
+    if (fullyDisplayedShowId == m_curShowid)
+        return;
+
+    m_curShowid = fullyDisplayedShowId;
+    LOG_DEBUG("SetPicInfoToComponent: picture fully displayed and scrolled past, showId='{}' (index={})", fullyDisplayedShowId, index);
+    OnCurPicChange(fullyDisplayedShowId);
 }
 

@@ -1,6 +1,7 @@
-﻿#include "PicPlayerCtrlDelegate.h"
+#include "PicPlayerCtrlDelegate.h"
 #include "PicPlayerCtrlBase.h"
 #include "../NodeDataDef/NodesDataForDraw.h"
+#include "PicPlayerLog.h"
 
 PicPlayerCtrlDelegate::PicPlayerCtrlDelegate()
     : m_firstIdlePassed(false)
@@ -14,10 +15,10 @@ PicPlayerCtrlDelegate::~PicPlayerCtrlDelegate()
 
 }
 
-void PicPlayerCtrlDelegate::SetPicCallbackByDelegate(PlayerMsgCallback callback, void* pUser)
+void PicPlayerCtrlDelegate::SetPicCallbackByDelegate(int handle, PlayerMsgCallback callback, void* pUser)
 {
     if (m_playerBasePtr) {
-        m_playerBasePtr->SetCallback(callback, pUser);
+        m_playerBasePtr->SetCallback(handle, callback, pUser);
     }
 }
 
@@ -105,17 +106,20 @@ void PicPlayerCtrlDelegate::CreatePlayerController()
 
 void PicPlayerCtrlDelegate::OnRenderComCallback(RenderComData* cmd)
 {
+    LOG_DEBUG("OnRenderComCallback: RenderType={}", cmd->RenderType());
     if(cmd->RenderType() == (int)NodesType::PicChangeType) {
         PicShowNow* curPtr = static_cast<PicShowNow*>(cmd);
         if (curPtr) {
             std::string showPicId = curPtr->picId;
+            LOG_DEBUG("OnRenderComCallback: PicChangeType, picId={}", showPicId);
             m_loop.asyncInvokeAny([this, showPicId](){
+                LOG_DEBUG("ShowPicCallback invoked for picId: {}", showPicId);
                 m_playerBasePtr->ShowPicCallback(showPicId);
             });
         }
     }
-    else if (cmd->RenderType() == (int)NodesType::PicChangeType) {
-
+    else if (cmd->RenderType() == (int)NodesType::PicRemoveType) {
+        LOG_DEBUG("OnRenderComCallback: PicRemoveType");
     }
 }
 

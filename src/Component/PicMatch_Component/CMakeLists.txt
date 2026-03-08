@@ -26,6 +26,7 @@ include_directories(
     ${PICMATCH_SOURCE_DIR}/Common
     ${PICMATCH_SOURCE_DIR}/ComponentInstance
     ${PICMATCH_SOURCE_DIR}/QmlBridge
+    ${PICMATCH_SOURCE_DIR}/Core
     ${PICPLAYER_SRC_DIR}
     ${PICRECOGNITION_SRC_DIR}
 )
@@ -38,6 +39,8 @@ file(GLOB PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/ComponentInstance/*.h"
     "${PICMATCH_SOURCE_DIR}/ComponentInstance/StbImage/*.cpp"
     "${PICMATCH_SOURCE_DIR}/ComponentInstance/StbImage/*.h"
+    "${PICMATCH_SOURCE_DIR}/Core/*.cpp"
+    "${PICMATCH_SOURCE_DIR}/Core/*.h"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.cpp"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.h"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.cpp"

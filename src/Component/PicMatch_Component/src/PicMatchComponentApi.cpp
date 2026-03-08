@@ -1,5 +1,6 @@
 #include "PicMatchComponentApi.h"
 #include "QmlBridge/PlayerHostItem.h"
+#include "QmlBridge/PicMatchViewModel.h"
 #include <QQmlEngine>
 #include <QCoreApplication>
 #include <QDir>
@@ -13,4 +14,12 @@ extern "C" PICMATCHCOMPONENT_API void PICMATCHCOMPONENT_CALL PicMatchComponent_R
 
     // 注册 QML 类型
     qmlRegisterType<PlayerHostItem>("App", 1, 0, "PlayerHostItem");
+
+    // 注册 ViewModel 到 QML（作为单例）
+    qmlRegisterSingletonType<PicMatchViewModel>("PicMatchCore", 1, 0, "ViewModel",
+        [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+            Q_UNUSED(engine);
+            Q_UNUSED(scriptEngine);
+            return new PicMatchViewModel();
+        });
 }

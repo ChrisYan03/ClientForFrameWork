@@ -1,20 +1,9 @@
-[2026-03-07 22:45:38.030] [debug] [:] [PicPlayerShowWindow.cpp:284:CreateRenderWindow] glfwGetWindowSize size: 1144 x 858
-[2026-03-07 22:45:41.116] [debug] [:] [PicPlayerMovieByScene.cpp:230:SetPicInfoToComponent] SetPicInfoToComponent called with allsize 1
-[2026-03-07 22:45:41.117] [debug] [:] [PicPlayerMovieByScene.cpp:232:SetPicInfoToComponent] SetPicInfoToComponent called with index: 0, current m_curIndex: 0
-[2026-03-07 22:45:41.117] [debug] [:] [PicPlayerMovieByScene.cpp:234:SetPicInfoToComponent] ShowId changed from 'xiaoxiaoyan_1' to 'xiaoxiaoyan_1'
-[2026-03-07 22:45:44.184] [debug] [:] [PicPlayer.cpp:24:~PicPlayer] ~PicPlayer start
-[2026-03-07 22:45:44.190] [debug] [:] [PicPlayerShowWindow.cpp:150:Quit] Quit called on window: 0xb9835fc00
-[2026-03-07 22:45:44.201] [debug] [:] [PicPlayerShowWindow.cpp:164:Quit] Force destroying window
-[2026-03-07 22:45:44.215] [debug] [:] [PicPlayerShowWindow.cpp:169:Quit] Quit completed
-[2026-03-07 22:45:44.216] [debug] [:] [PicPlayer.cpp:27:~PicPlayer] ~PicPlayer suc
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [error] [:] [PicPlayerShowWindow.cpp:194:operator()] GLFW Error 65537: The GLFW library is not initialized
-[2026-03-07 22:45:44.216] [debug] [:] [PicPlayerShowWindow.cpp:118:RunRendLoop] Window closed during buffer swap
-[2026-03-07 22:45:44.216] [debug] [:] [PicPlayerShowWindow.cpp:137:RunRendLoop] Exit render loop, destroying window
-[2026-03-07 22:45:44.216] [debug] [:] [PicPlayerShowWindow.cpp:142:RunRendLoop] Render loop finished completely
+[2026-03-08 22:24:37.053] [debug] [:] [PicPlayerShowWindow.cpp:286:CreateRenderWindow] glfwGetWindowSize size: 1144 x 858
+[2026-03-08 22:24:38.331] [debug] [:] [PicPlayer.cpp:24:~PicPlayer] ~PicPlayer start
+[2026-03-08 22:24:38.339] [debug] [:] [PicPlayerShowWindow.cpp:150:Quit] Quit called on window: 0xc5ac57800
+[2026-03-08 22:24:38.350] [debug] [:] [PicPlayerShowWindow.cpp:164:Quit] Force destroying window
+[2026-03-08 22:24:38.356] [debug] [:] [PicPlayerShowWindow.cpp:169:Quit] Quit completed
+[2026-03-08 22:24:38.356] [debug] [:] [PicPlayer.cpp:27:~PicPlayer] ~PicPlayer suc
+[2026-03-08 22:24:38.358] [debug] [:] [PicPlayerShowWindow.cpp:118:RunRendLoop] Window closed during buffer swap
+[2026-03-08 22:24:38.358] [debug] [:] [PicPlayerShowWindow.cpp:137:RunRendLoop] Exit render loop, destroying window
+[2026-03-08 22:24:38.358] [debug] [:] [PicPlayerShowWindow.cpp:142:RunRendLoop] Render loop finished completely
