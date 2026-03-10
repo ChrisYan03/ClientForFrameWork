@@ -4,46 +4,49 @@
 #include <QQuickItem>
 #include <QObject>
 
-class PicMatchWidget;
+class QWindow;
 class QTimer;
-class QWidget;
 
 /**
- * 在 QML 中嵌入 PicMatchWidget（QWidget），用于在主窗口指定区域显示播放器与人脸区域。
- * 向框架提供 run/quit 与 hostWindow，供 AppController 通过 QObject 接口调用。
+ * 纯 QQuickItem：用 QWindow 作为播放区宿主，将 OpenGL 播放器嵌入 QML，不再嵌入 PicMatchWidget。
+ * 提供 hostWindow（QWindow*）供 ViewModel 注册；run/quit/applyTheme 转发给 viewModel。
  */
 class PlayerHostItem : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QObject* hostWindow READ hostWindow NOTIFY hostWindowChanged)
+    Q_PROPERTY(QObject* viewModel READ viewModel WRITE setViewModel NOTIFY viewModelChanged)
 
 public:
     explicit PlayerHostItem(QQuickItem *parent = nullptr);
     ~PlayerHostItem();
 
-    PicMatchWidget *picMatchWidget() const { return m_picMatchWidget; }
     QObject* hostWindow() const;
 
     Q_INVOKABLE void run();
     Q_INVOKABLE void quit();
-    /** 由框架在主题变更时调用，将 contentBackground 应用到 PicPlayer */
     Q_INVOKABLE void applyTheme(QVariantMap themeColors);
+
+    QObject* viewModel() const { return m_viewModel; }
+    void setViewModel(QObject* vm) { if (m_viewModel != vm) { m_viewModel = vm; emit viewModelChanged(); } }
 
 signals:
     void widgetReady();
     void hostWindowChanged();
+    void viewModelChanged();
 
 protected:
     void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
 private:
-    void ensureWidgetCreated();
-    void updateEmbeddedGeometry();
+    void ensureHostWindowCreated();
+    void updateHostWindowGeometry();
+    void notifyPlayerWindowSize();
 
-    QWidget *m_containerWidget;
-    PicMatchWidget *m_picMatchWidget;
+    QWindow* m_hostWindow = nullptr;
+    QObject* m_viewModel = nullptr;
 #if defined(Q_OS_WIN)
-    QTimer *m_geometryDeferTimer = nullptr;
+    QTimer* m_geometryDeferTimer = nullptr;
 #endif
 };
 

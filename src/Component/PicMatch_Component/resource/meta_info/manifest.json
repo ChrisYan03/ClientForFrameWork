@@ -6,5 +6,5 @@
   "shutdownModule": "PicPlayer.dll",
   "shutdownSymbol": "PicPlayer_Shutdown",
   "icon": "face_recognition.svg",
-  "qmlPage": "qrc:/qml/PicMatchPage.qml"
+  "qmlPage": "PicMatchPage.qml"
 }

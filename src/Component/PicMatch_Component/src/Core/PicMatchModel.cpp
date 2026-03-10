@@ -1,8 +1,14 @@
 #include "PicMatchModel.h"
+#include <QBuffer>
 #include <QDir>
 #include <QFileInfo>
+#include <QImage>
 #include <QSettings>
 #include <QCoreApplication>
+#include <QStandardPaths>
+#include <QUrl>
+#include <QFile>
+#include <QCryptographicHash>
 #include "LogUtil.h"
 
 const char* PicMatchModel::kSettingsOrg = "ClientForFrame";
@@ -116,8 +122,42 @@ void PicMatchModel::clearFaces()
 QVariantList PicMatchModel::facesToVariantList() const
 {
     QVariantList list;
+    QString tempDir = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(QStringLiteral("ClientForFrame_faces"));
+    QDir().mkpath(tempDir);
+    static quint64 fileCounter = 0;  // 静态计数器，每次调用递增
+    ++fileCounter;
+    int idx = 0;
     for (const auto& face : m_faces) {
-        list.append(face.toVariantMap());
+        QVariantMap map = face.toVariantMap();
+        size_t expectedSize = static_cast<size_t>(face.width) * static_cast<size_t>(face.height) * 4u;
+        bool sizeOk = (!face.imageData.isEmpty() && face.width > 0 && face.height > 0
+                      && expectedSize <= static_cast<size_t>(face.imageData.size()));
+        if (sizeOk) {
+            QImage img(reinterpret_cast<const uchar*>(face.imageData.constData()),
+                      face.width, face.height, face.width * 4, QImage::Format_RGBA8888);
+            if (!img.isNull()) {
+                // 使用 RGB PNG，避免上游 alpha 全透明导致 QML 已加载但看不到图像。
+                QImage exportImg = img.copy().convertToFormat(QImage::Format_RGB888);
+                QByteArray pngBytes;
+                QBuffer buf(&pngBytes);
+                if (buf.open(QIODevice::WriteOnly) && exportImg.save(&buf, "PNG")) {
+                    map["imageDataUrl"] = QStringLiteral("data:image/png;base64,") + QString::fromLatin1(pngBytes.toBase64());
+                    const QString safeId = face.id.isEmpty() ? QStringLiteral("face") : face.id;
+                    // 使用计数器 + idx 生成唯一文件名，确保每次都创建新文件
+                    const QString fileName = QStringLiteral("%1_%2_%3.png").arg(safeId).arg(fileCounter).arg(idx);
+                    QString filePath = QDir(tempDir).absoluteFilePath(fileName);
+                    QFile f(filePath);
+                    if (f.open(QIODevice::WriteOnly) && static_cast<qint64>(pngBytes.size()) == f.write(pngBytes)) {
+                        map["imageFileUrl"] = QUrl::fromLocalFile(filePath).toString();
+                        LOG_DEBUG("facesToVariantList face={} fileUrl={}", face.id.toStdString(), map["imageFileUrl"].toString().toStdString());
+                    } else {
+                        LOG_DEBUG("facesToVariantList write file failed face={} path={}", face.id.toStdString(), filePath.toStdString());
+                    }
+                }
+            }
+        }
+        list.append(map);
+        ++idx;
     }
     return list;
 }

@@ -9,6 +9,7 @@
 #include <QLibrary>
 #include <QQmlEngine>
 #include <QObject>
+#include <QUrl>
 #if defined(Q_OS_WIN)
 #include <Windows.h>
 #include <dwmapi.h>
@@ -163,6 +164,14 @@ void ComponentLoader::loadComponentDll(QQmlEngine *engine, QObject *appControlle
         return;
     }
     fn(engine, appController);
+
+    QString qmlPage = obj.value(QStringLiteral("qmlPage")).toString();
+    if (controller && !appId.isEmpty() && !qmlPage.isEmpty()) {
+        QString componentBin = exeDir + QStringLiteral("/Component/") + componentId + QStringLiteral("/bin");
+        engine->addImportPath(componentBin + QStringLiteral("/qml"));
+        controller->registerComponentPage(appId, QUrl::fromLocalFile(componentBin + QStringLiteral("/qml/") + qmlPage));
+    }
+
     LOG_INFO("Component {}: registered", componentId.toStdString());
 }
 

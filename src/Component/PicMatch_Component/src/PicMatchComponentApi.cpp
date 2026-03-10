@@ -14,12 +14,6 @@ extern "C" PICMATCHCOMPONENT_API void PICMATCHCOMPONENT_CALL PicMatchComponent_R
 
     // 注册 QML 类型
     qmlRegisterType<PlayerHostItem>("App", 1, 0, "PlayerHostItem");
-
-    // 注册 ViewModel 到 QML（作为单例）
-    qmlRegisterSingletonType<PicMatchViewModel>("PicMatchCore", 1, 0, "ViewModel",
-        [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-            Q_UNUSED(engine);
-            Q_UNUSED(scriptEngine);
-            return new PicMatchViewModel();
-        });
+    // 可实例化类型，供 PicMatchPage.qml 中 PicMatchViewModel { id: picMatchViewModel } 使用
+    qmlRegisterType<PicMatchViewModel>("PicMatchCore", 1, 0, "PicMatchViewModel");
 }

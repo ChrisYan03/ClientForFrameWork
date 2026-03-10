@@ -151,3 +151,14 @@ QString AppController::getComponentIconPath(const QString &appId) const
     QString path = m_componentIconPaths.value(appId, QString());
     return path.isEmpty() ? path : QUrl::fromLocalFile(path).toString();
 }
+
+void AppController::registerComponentPage(const QString &appId, const QUrl &pageUrl)
+{
+    if (!appId.isEmpty() && pageUrl.isValid())
+        m_componentPageUrls.insert(appId, pageUrl);
+}
+
+QUrl AppController::getComponentPageUrl(const QString &appId) const
+{
+    return m_componentPageUrls.value(appId, QUrl());
+}

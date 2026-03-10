@@ -6,7 +6,6 @@
     <file>qml/TitleBar.qml</file>
     <file>qml/App/qmldir</file>
     <file>qml/App/AppDesktop.qml</file>
-    <file>qml/PicMatchPage.qml</file>
     <file>qml/SettingsPage.qml</file>
   </qresource>
 </RCC>

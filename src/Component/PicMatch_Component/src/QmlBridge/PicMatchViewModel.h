@@ -7,7 +7,10 @@
 #include <QVariantMap>
 #include <QMap>
 #include <QTimer>
+#include <QPointer>
+#include <QWindow>
 #include "Core/PicMatchModel.h"
+#include "FaceListModel.h"
 
 /**
  * @brief PicMatch视图模型
@@ -30,8 +33,10 @@ class PicMatchViewModel : public QObject
     // 数据路径
     Q_PROPERTY(QString dataPath READ dataPath NOTIFY dataPathChanged)
 
-    // 人脸列表（供QML使用）
+    // 人脸列表（供QML使用，兼容旧代码）
     Q_PROPERTY(QVariantList faceList READ faceList NOTIFY faceListChanged)
+    // 人脸列表模型（供 GridView 使用命名 role，保证 imageDataUrl 等正确刷新）
+    Q_PROPERTY(FaceListModel* faceModel READ faceModel NOTIFY faceListChanged)
 
     // 引擎句柄
     Q_PROPERTY(int playerHandle READ playerHandle NOTIFY handleChanged)
@@ -49,6 +54,7 @@ public:
 
     // 人脸列表
     QVariantList faceList() const { return m_model->facesToVariantList(); }
+    FaceListModel* faceModel() const { return m_faceListModel; }
 
     // 引擎句柄
     int playerHandle() const { return m_playerHandle; }
@@ -63,12 +69,14 @@ public:
     // 主题应用
     Q_INVOKABLE void applyTheme(const QVariantMap& themeColors);
 
-    // 初始化
-    void initialize();
-    void shutdown();
+    // 初始化（QML 可调用）
+    Q_INVOKABLE void initialize();
+    Q_INVOKABLE void shutdown();
 
-    // 注册窗口句柄（由QML调用）
-    Q_INVOKABLE void registerWindow(void* windowId);
+    // 注册窗口句柄（由QML调用）。可传 QWindow* 或 void* 原生 id
+    Q_INVOKABLE void registerWindow(QObject* windowObject);
+    /** 播放区尺寸变化时由 PlayerHostItem 调用 */
+    Q_INVOKABLE void setPlayerWindowSize(int width, int height);
 
     // 供外部调用的回调处理
     void onPlayerCallback(int handle, int msg, void* data);
@@ -98,6 +106,7 @@ private slots:
 
 private:
     void updateUIState();
+    void publishFaceList(const QVariantList& list);
     QString getEffectiveBaseDir() const;
     QString getComponentDataPath() const;
 
@@ -111,9 +120,14 @@ private:
     static void* picCallbackByPlayer(int handle, int msg, void* data, void* user);
 
 private:
+    void doRegisterWindow(QWindow* w);
+
     PicMatchModel* m_model;
+    FaceListModel* m_faceListModel;
     /** 按 showId 缓存人脸列表，收到 Callback_ShowPicId 时恢复并 emit faceListChanged，保证「完全展示后才刷脸」 */
     QMap<QString, QList<FaceData>> m_faceCacheByShowId;
+    /** 播放区宿主窗口，可在 run() 前由 QML registerWindow 传入，run() 时再注册到 PicPlayer */
+    QPointer<QWindow> m_hostWindowForPlayer;
     bool m_running;
     QString m_statusText;
     QVariantMap m_themeColors;

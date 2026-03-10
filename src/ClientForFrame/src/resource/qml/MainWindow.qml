@@ -138,10 +138,6 @@ Window {
             }
         }
         Component {
-            id: picMatchPageComp
-            PicMatchPage { }
-        }
-        Component {
             id: settingsPageComp
             SettingsPage { }
         }
@@ -149,9 +145,12 @@ Window {
 
     function openAppFromDesktop(appId) {
         root.settingsOpen = false
-        if (appId === "picmatch") {
-            contentStack.push(picMatchPageComp)
-            if (appController)
+        if (!appController)
+            return
+        var pageUrl = appController.getComponentPageUrl(appId)
+        if (pageUrl && pageUrl.toString()) {
+            contentStack.push(pageUrl)
+            if (appId === "picmatch")
                 appController.setPageTitle("图像人脸识别")
         }
     }

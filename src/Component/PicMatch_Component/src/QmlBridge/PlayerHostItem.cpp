@@ -1,19 +1,15 @@
 #include "PlayerHostItem.h"
-#include "PicMatchWidget.h"
-#include "BaseWidget.h"
 #include "PicPlayerApi.h"
 #include <QQuickWindow>
-#include <QVariantMap>
-#include <QVBoxLayout>
 #include <QWindow>
+#include <QVariantMap>
 #include <QTimer>
+#include <QMetaObject>
 #include <QtGlobal>
 #include "LogUtil.h"
 
 PlayerHostItem::PlayerHostItem(QQuickItem *parent)
     : QQuickItem(parent)
-    , m_containerWidget(nullptr)
-    , m_picMatchWidget(nullptr)
 {
     setObjectName("playerHost");
     setFlag(ItemHasContents, false);
@@ -21,28 +17,31 @@ PlayerHostItem::PlayerHostItem(QQuickItem *parent)
 
 PlayerHostItem::~PlayerHostItem()
 {
-    if (m_containerWidget) {
-        m_containerWidget->deleteLater();
-        m_containerWidget = nullptr;
+    if (m_hostWindow) {
+        m_hostWindow->destroy();
+        m_hostWindow->deleteLater();
+        m_hostWindow = nullptr;
     }
-    m_picMatchWidget = nullptr;
+    m_viewModel = nullptr;
 }
 
 QObject* PlayerHostItem::hostWindow() const
 {
-    return m_containerWidget;
+    return m_hostWindow;
 }
 
 void PlayerHostItem::run()
 {
-    if (m_picMatchWidget)
-        m_picMatchWidget->Run();
+    if (m_viewModel) {
+        QMetaObject::invokeMethod(m_viewModel, "run", Qt::QueuedConnection);
+    }
 }
 
 void PlayerHostItem::quit()
 {
-    if (m_picMatchWidget)
-        m_picMatchWidget->Quit();
+    if (m_viewModel) {
+        QMetaObject::invokeMethod(m_viewModel, "stop", Qt::QueuedConnection);
+    }
 }
 
 void PlayerHostItem::applyTheme(QVariantMap themeColors)
@@ -60,76 +59,73 @@ void PlayerHostItem::applyTheme(QVariantMap themeColors)
         }
     }
     PicPlayer_SetBackgroundColor(r, g, b);
-    if (m_picMatchWidget)
-        m_picMatchWidget->applyTheme(themeColors);
+    if (m_viewModel) {
+        QMetaObject::invokeMethod(m_viewModel, "applyTheme", Qt::QueuedConnection,
+            Q_ARG(QVariantMap, themeColors));
+    }
 }
 
 void PlayerHostItem::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChange(newGeometry, oldGeometry);
-    ensureWidgetCreated();
+    ensureHostWindowCreated();
 #if defined(Q_OS_WIN)
-    if (m_containerWidget) {
+    if (m_hostWindow) {
         if (!m_geometryDeferTimer) {
             m_geometryDeferTimer = new QTimer(this);
             m_geometryDeferTimer->setSingleShot(true);
-            connect(m_geometryDeferTimer, &QTimer::timeout, this, &PlayerHostItem::updateEmbeddedGeometry);
+            connect(m_geometryDeferTimer, &QTimer::timeout, this, &PlayerHostItem::updateHostWindowGeometry);
         }
         m_geometryDeferTimer->start(0);
         return;
     }
 #endif
-    updateEmbeddedGeometry();
+    updateHostWindowGeometry();
+    notifyPlayerWindowSize();
 }
 
-void PlayerHostItem::ensureWidgetCreated()
+void PlayerHostItem::ensureHostWindowCreated()
 {
-    if (m_containerWidget || !window())
+    if (m_hostWindow || !window())
         return;
 
-    QQuickWindow *quickWin = window();
+    QQuickWindow* quickWin = window();
     if (!quickWin)
         return;
 #if defined(Q_OS_WIN)
     if (!quickWin->isVisible() || width() < 10 || height() < 10) {
-        QTimer::singleShot(50, this, [this]() { ensureWidgetCreated(); updateEmbeddedGeometry(); });
+        QTimer::singleShot(50, this, [this]() {
+            ensureHostWindowCreated();
+            updateHostWindowGeometry();
+            notifyPlayerWindowSize();
+        });
         return;
     }
 #endif
 
-    BaseWidget *container = new BaseWidget(nullptr);
-    m_containerWidget = container;
-    QVBoxLayout *layout = new QVBoxLayout(container);
-    layout->setContentsMargins(0, 0, 0, 0);
-    m_picMatchWidget = new PicMatchWidget(container);
-    layout->addWidget(m_picMatchWidget);
+    m_hostWindow = new QWindow(quickWin);
+    m_hostWindow->setFlags(Qt::Widget);
 
     const int w = qRound(width());
     const int h = qRound(height());
     if (w > 0 && h > 0)
-        m_containerWidget->setFixedSize(w, h);
+        m_hostWindow->setGeometry(0, 0, w, h);
 
-    m_picMatchWidget->InitUI();
+    m_hostWindow->setParent(quickWin);
+    m_hostWindow->show();
 
-    (void)m_containerWidget->winId();
-    QWindow *embedWin = m_containerWidget->windowHandle();
-    if (embedWin) {
-        embedWin->setParent(quickWin);
-        embedWin->show();
-    }
-
-    updateEmbeddedGeometry();
+    updateHostWindowGeometry();
 #if defined(Q_OS_WIN)
-    QTimer::singleShot(0, this, [this]() { updateEmbeddedGeometry(); });
+    QTimer::singleShot(0, this, [this]() { updateHostWindowGeometry(); notifyPlayerWindowSize(); });
 #endif
-    LOG_INFO("PlayerHostItem: embedded PicMatchWidget in QML window");
+    LOG_INFO("PlayerHostItem: created QWindow host for OpenGL player (no QWidget embed)");
     emit widgetReady();
     emit hostWindowChanged();
 }
 
-void PlayerHostItem::updateEmbeddedGeometry()
+void PlayerHostItem::updateHostWindowGeometry()
 {
-    if (!m_containerWidget || !m_containerWidget->windowHandle() || !window())
+    if (!m_hostWindow || !window())
         return;
 
     const qreal w = width();
@@ -145,9 +141,21 @@ void PlayerHostItem::updateEmbeddedGeometry()
     if (y < titleBarHeight)
         y = titleBarHeight;
 #endif
-    QRect geom(x, y, qRound(w), qRound(h));
-    m_containerWidget->windowHandle()->setGeometry(geom);
-    m_containerWidget->setFixedSize(geom.width(), geom.height());
-    if (!m_containerWidget->windowHandle()->isVisible())
-        m_containerWidget->windowHandle()->show();
+    m_hostWindow->setGeometry(x, y, qRound(w), qRound(h));
+    if (!m_hostWindow->isVisible())
+        m_hostWindow->show();
+
+    notifyPlayerWindowSize();
+}
+
+void PlayerHostItem::notifyPlayerWindowSize()
+{
+    if (!m_viewModel || !m_hostWindow || width() < 1 || height() < 1)
+        return;
+    const int w = qRound(width());
+    const int h = qRound(height());
+    if (w > 0 && h > 0) {
+        QMetaObject::invokeMethod(m_viewModel, "setPlayerWindowSize", Qt::QueuedConnection,
+            Q_ARG(int, w), Q_ARG(int, h));
+    }
 }

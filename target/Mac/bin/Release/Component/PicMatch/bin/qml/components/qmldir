@@ -1,0 +1,4 @@
+module components
+FaceShowPanel 1.0 FaceShowPanel.qml
+PicMatchToolBar 1.0 PicMatchToolBar.qml
+PicMatchConfigPanel 1.0 PicMatchConfigPanel.qml

@@ -46,6 +46,11 @@ file(GLOB PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.cpp"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.h"
 )
+# 显式加入 FaceListModel，避免 GLOB 在 configure 时未包含新文件导致链接缺失
+list(APPEND PICMATCH_SOURCES
+    "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceListModel.cpp"
+    "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceListModel.h"
+)
 
 add_library(PicMatchComponent SHARED ${PICMATCH_SOURCES})
 
@@ -99,6 +104,17 @@ add_custom_command(TARGET PicMatchComponent POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/stop.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/settings.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
     COMMENT "Copy PicMatch icons to output directory"
+)
+
+# 组件 QML 页与子组件复制到 bin/qml/，供主框架按 manifest.qmlPage 加载
+add_custom_command(TARGET PicMatchComponent POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/qml/components"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/qml/PicMatchPage.qml" "$<TARGET_FILE_DIR:PicMatchComponent>/qml/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/qml/components/FaceShowPanel.qml" "$<TARGET_FILE_DIR:PicMatchComponent>/qml/components/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/qml/components/PicMatchToolBar.qml" "$<TARGET_FILE_DIR:PicMatchComponent>/qml/components/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/qml/components/PicMatchConfigPanel.qml" "$<TARGET_FILE_DIR:PicMatchComponent>/qml/components/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/qml/components/qmldir" "$<TARGET_FILE_DIR:PicMatchComponent>/qml/components/"
+    COMMENT "Copy PicMatch QML page and components to bin/qml for framework load"
 )
 
 # meta_info：图标与 manifest 复制到 exe 同盘下的 Component/PicMatch/meta_info（主程序据此加载 DLL 与图标）

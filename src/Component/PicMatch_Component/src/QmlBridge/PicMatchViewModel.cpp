@@ -92,6 +92,7 @@ void PICPLAYER_CALL picCallbackBridge(int handle, int msg, void* data, void* use
 PicMatchViewModel::PicMatchViewModel(QObject* parent)
     : QObject(parent)
     , m_model(new PicMatchModel(this))
+    , m_faceListModel(new FaceListModel(this))
     , m_running(false)
     , m_statusText("")
     , m_playerHandle(-1)
@@ -131,8 +132,9 @@ void PicMatchViewModel::run()
     if (!m_running) {
         m_running = true;
         initPicPlayer();
+        if (m_hostWindowForPlayer)
+            doRegisterWindow(m_hostWindowForPlayer);
 
-        // 先发出runningChanged信号，让PicMatchWidget同步playerHandle
         updateUIState();
         emit runningChanged(true);
 
@@ -160,7 +162,7 @@ void PicMatchViewModel::stop()
 
     // 清理人脸
     m_model->clearFaces();
-    emit faceListChanged();
+    publishFaceList(QVariantList());
 
     // 销毁播放器
     if (m_playerHandle != -1) {
@@ -209,35 +211,47 @@ void PicMatchViewModel::applyTheme(const QVariantMap& themeColors)
     // TODO: 通过信号通知UI层应用主题
 }
 
-void PicMatchViewModel::registerWindow(void* windowId)
+void PicMatchViewModel::doRegisterWindow(QWindow* w)
 {
-    if (m_playerHandle < 0 || !windowId) {
+    if (!w || m_playerHandle < 0)
         return;
-    }
-
-    // 注册窗口到PicPlayer
-    PicPlayer_RegisterWindow(m_playerHandle, reinterpret_cast<Window_ShowID>(windowId));
-
+    WId wid = w->winId();
+    if (!wid)
+        return;
+    PicPlayer_RegisterWindow(m_playerHandle, static_cast<Window_ShowID>(wid));
     LOG_INFO("ViewModel: window registered, handle={}", m_playerHandle);
-
-    // 通知窗口大小
+    if (w->width() > 0 && w->height() > 0)
+        setPlayerWindowSize(w->width(), w->height());
 #if defined(Q_OS_WIN)
-    // Windows下需要延迟通知
     if (!m_resizeNotifyTimer) {
         m_resizeNotifyTimer = new QTimer(this);
         m_resizeNotifyTimer->setSingleShot(true);
         connect(m_resizeNotifyTimer, &QTimer::timeout, this, [this]() {
-            if (m_playerHandle >= 0) {
-                // TODO: 获取实际窗口尺寸
-                PicPlayer_SetWindowSize(m_playerHandle, 800, 600);
-            }
+            if (m_playerHandle >= 0 && m_hostWindowForPlayer && m_hostWindowForPlayer->width() > 0 && m_hostWindowForPlayer->height() > 0)
+                PicPlayer_SetWindowSize(m_playerHandle, m_hostWindowForPlayer->width(), m_hostWindowForPlayer->height());
         });
     }
     m_resizeNotifyTimer->start(100);
-#else
-    // macOS直接通知
-    PicPlayer_SetWindowSize(m_playerHandle, 800, 600);
 #endif
+}
+
+void PicMatchViewModel::registerWindow(QObject* windowObject)
+{
+    if (!windowObject)
+        return;
+    QWindow* w = qobject_cast<QWindow*>(windowObject);
+    if (!w)
+        return;
+    m_hostWindowForPlayer = w;
+    if (m_playerHandle >= 0)
+        doRegisterWindow(w);
+}
+
+void PicMatchViewModel::setPlayerWindowSize(int width, int height)
+{
+    if (m_playerHandle < 0 || width <= 0 || height <= 0)
+        return;
+    PicPlayer_SetWindowSize(m_playerHandle, width, height);
 }
 
 void PicMatchViewModel::updateUIState()
@@ -248,6 +262,15 @@ void PicMatchViewModel::updateUIState()
         m_statusText = "";
     }
     emit statusTextChanged(m_statusText);
+}
+
+void PicMatchViewModel::publishFaceList(const QVariantList& list)
+{
+    // 统一异步发布，给 QML 一次完整事件循环以触发布局/重绘。
+    QMetaObject::invokeMethod(this, [this, list]() {
+        m_faceListModel->setList(list);
+        emit faceListChanged();
+    }, Qt::QueuedConnection);
 }
 
 // ==================== PicPlayer/PicRecognition 初始化 ====================
@@ -312,7 +335,11 @@ void PicMatchViewModel::onPlayerCallback(int handle, int msg, void* data)
                 m_model->clearFaces();
                 for (const FaceData& f : list)
                     m_model->addFace(f);
-                emit faceListChanged();
+                QVariantList variantList = m_model->facesToVariantList();
+                publishFaceList(variantList);
+                LOG_DEBUG("onPlayerCallback restored and setList count={}", variantList.size());
+            } else {
+                LOG_DEBUG("onPlayerCallback cache miss for showId={}", showIdQ.toStdString());
             }
 
             // 获取下一张图片（人脸清空和列表更新在onImageUpdated中处理）
@@ -434,10 +461,11 @@ void PicMatchViewModel::onImageUpdated(const QString& showId, const QString& ima
         }
     }
 
-    // 仅缓存人脸，不在此处 emit faceListChanged；等收到 Callback_ShowPicId 时再恢复并 emit
+    // 缓存人脸；同时立即更新 faceModel 并 emit，避免仅依赖回调时界面不刷新（如回调 key 不一致或晚到）
     m_faceCacheByShowId[showId] = m_model->faces();
     while (m_faceCacheByShowId.size() > 10)
         m_faceCacheByShowId.remove(m_faceCacheByShowId.firstKey());
+    publishFaceList(m_model->facesToVariantList());
 
     emit imageUpdated(showId, imagePath);
 }
@@ -464,5 +492,5 @@ void PicMatchViewModel::setFacesFromDetectionResult(void* faceResult, const QStr
             m_model->addFace(faceData);
         }
     }
-    emit faceListChanged();
+    publishFaceList(m_model->facesToVariantList());
 }

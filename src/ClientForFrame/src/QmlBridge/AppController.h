@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QObject>
+#include <QUrl>
 #include <QVariantMap>
 
 /**
@@ -48,6 +49,11 @@ public:
     /** 获取组件桌面图标 URL（file://），空则 QML 用主程序 qrc 兜底 */
     Q_INVOKABLE QString getComponentIconPath(const QString &appId) const;
 
+    /** 由框架加载组件时调用：注册组件页 QML URL，点击桌面图标后按此 URL 加载（仅框架调用） */
+    Q_INVOKABLE void registerComponentPage(const QString &appId, const QUrl &pageUrl);
+    /** 获取已注册的组件页 URL，空则表示该组件无独立页 */
+    Q_INVOKABLE QUrl getComponentPageUrl(const QString &appId) const;
+
 signals:
     void statusTextChanged();
     void pageTitleChanged();
@@ -73,6 +79,7 @@ private:
     QVariantMap m_themeColors;
     QObject *m_componentHost = nullptr;
     QMap<QString, QString> m_componentIconPaths;
+    QMap<QString, QUrl> m_componentPageUrls;
 };
 
 #endif // APPCONTROLLER_H
