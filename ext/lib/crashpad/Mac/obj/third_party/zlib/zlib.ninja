@@ -1,0 +1,8 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs =
+label_name = zlib
+target_output_name = zlib
+
+
+build obj/third_party/zlib/zlib.stamp: stamp

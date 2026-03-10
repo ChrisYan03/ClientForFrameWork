@@ -61,17 +61,11 @@ Rectangle {
                     property string providerUrlValue: root.faceModel
                         ? (imageProviderUrl || "")
                         : ((modelData && modelData.imageProviderUrl) ? modelData.imageProviderUrl : "")
-                    property string fileUrlValue: root.faceModel
-                        ? (imageFileUrl || "")
-                        : ((modelData && modelData.imageFileUrl) ? modelData.imageFileUrl : "")
-                    property string dataUrlValue: root.faceModel
-                        ? (imageDataUrl || "")
-                        : ((modelData && modelData.imageDataUrl) ? modelData.imageDataUrl : "")
                     property real confidenceValue: root.faceModel
                         ? (confidence !== undefined ? confidence : 0)
                         : ((modelData && modelData.attributes && modelData.attributes.confidence !== undefined) ? modelData.attributes.confidence : 0)
                     property string resolvedSource: {
-                        var base = providerUrlValue || fileUrlValue || dataUrlValue
+                        var base = providerUrlValue
                         if (!base || base.length === 0)
                             return ""
                         if (base.indexOf("image://") === 0 || base.indexOf("file://") === 0)

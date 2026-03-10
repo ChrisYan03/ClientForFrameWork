@@ -1,0 +1,12 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = handler_test
+target_output_name = handler_test
+
+build obj/handler/handler_test.crash_report_upload_rate_limit_test.o: cxx ../../OrginPackage/crashpad-main/handler/crash_report_upload_rate_limit_test.cc || obj/util/mig.stamp
+build obj/handler/handler_test.minidump_to_upload_parameters_test.o: cxx ../../OrginPackage/crashpad-main/handler/minidump_to_upload_parameters_test.cc || obj/util/mig.stamp
+
+build obj/handler/handler_test.stamp: stamp obj/handler/handler_test.crash_report_upload_rate_limit_test.o obj/handler/handler_test.minidump_to_upload_parameters_test.o || obj/handler/libhandler.a obj/client/libclient.a obj/compat/compat.stamp obj/snapshot/libsnapshot.a obj/snapshot/libtest_support.a obj/test/libtest.a obj/third_party/googletest/libgoogletest.a obj/third_party/mini_chromium/base.stamp obj/util/libutil.a obj/handler/libcommon.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a obj/client/libcommon.a obj/minidump/libminidump.a obj/minidump/libformat.a obj/snapshot/libcontext.a obj/util/libnet.a obj/tools/tool_support.stamp

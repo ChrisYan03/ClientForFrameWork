@@ -1,0 +1,21 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = test_support
+target_output_name = libtest_support
+
+build obj/minidump/test/test_support.minidump_byte_array_writer_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_byte_array_writer_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_context_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_context_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_file_writer_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_file_writer_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_memory_writer_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_memory_writer_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_rva_list_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_rva_list_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_string_writer_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_string_writer_test_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_user_extension_stream_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_user_extension_stream_util.cc || obj/util/mig.stamp
+build obj/minidump/test/test_support.minidump_writable_test_util.o: cxx ../../OrginPackage/crashpad-main/minidump/test/minidump_writable_test_util.cc || obj/util/mig.stamp
+
+build obj/minidump/libtest_support.a: alink obj/minidump/test/test_support.minidump_byte_array_writer_test_util.o obj/minidump/test/test_support.minidump_context_test_util.o obj/minidump/test/test_support.minidump_file_writer_test_util.o obj/minidump/test/test_support.minidump_memory_writer_test_util.o obj/minidump/test/test_support.minidump_rva_list_test_util.o obj/minidump/test/test_support.minidump_string_writer_test_util.o obj/minidump/test/test_support.minidump_user_extension_stream_util.o obj/minidump/test/test_support.minidump_writable_test_util.o || obj/minidump/libminidump.a obj/third_party/mini_chromium/base.stamp obj/snapshot/libtest_support.a obj/test/libtest.a obj/third_party/googletest/libgoogletest.a obj/util/libutil.a obj/minidump/libformat.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/snapshot/libcontext.a obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a obj/snapshot/libsnapshot.a obj/client/libcommon.a obj/handler/libhandler.a obj/handler/libcommon.a obj/util/libnet.a obj/client/libclient.a obj/tools/tool_support.stamp
+  arflags =
+  output_extension = .a
+  output_dir = obj/minidump

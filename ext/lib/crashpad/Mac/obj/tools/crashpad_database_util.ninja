@@ -1,0 +1,17 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = crashpad_database_util
+target_output_name = crashpad_database_util
+
+build obj/tools/crashpad_database_util.crashpad_database_util.o: cxx ../../OrginPackage/crashpad-main/tools/crashpad_database_util.cc || obj/util/mig.stamp
+
+build ./crashpad_database_util: link obj/tools/crashpad_database_util.crashpad_database_util.o obj/tools/tool_support.tool_support.o obj/client/libclient.a obj/util/libutil.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/client/libcommon.a obj/util/libmig_output.a || obj/tools/tool_support.stamp obj/third_party/mini_chromium/base.stamp obj/build/default_exe_manifest_win.stamp obj/compat/compat.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs = -lbsm -lz
+  frameworks = -framework CoreFoundation -framework Foundation -framework Security -framework ApplicationServices -framework IOKit
+  swiftmodules =
+  output_extension = 
+  output_dir = .

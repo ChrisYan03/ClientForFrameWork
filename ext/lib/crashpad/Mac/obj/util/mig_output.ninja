@@ -1,0 +1,21 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_c = -std=c11
+label_name = mig_output
+target_output_name = libmig_output
+
+build obj/gen/util/mach/mig_output.excUser.o: cc gen/util/mach/excUser.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.excServer.o: cc gen/util/mach/excServer.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.mach_excUser.o: cc gen/util/mach/mach_excUser.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.mach_excServer.o: cc gen/util/mach/mach_excServer.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.notifyUser.o: cc gen/util/mach/notifyUser.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.notifyServer.o: cc gen/util/mach/notifyServer.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.child_portUser.o: cc gen/util/mach/child_portUser.c || obj/util/mig.stamp
+build obj/gen/util/mach/mig_output.child_portServer.o: cc gen/util/mach/child_portServer.c || obj/util/mig.stamp
+
+build obj/util/libmig_output.a: alink obj/gen/util/mach/mig_output.excUser.o obj/gen/util/mach/mig_output.excServer.o obj/gen/util/mach/mig_output.mach_excUser.o obj/gen/util/mach/mig_output.mach_excServer.o obj/gen/util/mach/mig_output.notifyUser.o obj/gen/util/mach/mig_output.notifyServer.o obj/gen/util/mach/mig_output.child_portUser.o obj/gen/util/mach/mig_output.child_portServer.o || obj/util/mig.stamp
+  arflags =
+  output_extension = .a
+  output_dir = obj/util

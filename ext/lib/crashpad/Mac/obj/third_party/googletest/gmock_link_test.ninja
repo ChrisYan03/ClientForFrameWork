@@ -1,0 +1,18 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/include -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = gmock_link_test
+target_output_name = gmock_link_test
+
+build obj/third_party/googletest/googletest/googlemock/test/gmock_link_test.gmock_link2_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock_link2_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_link_test.gmock_link_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock_link_test.cc
+
+build ./gmock_link_test: link obj/third_party/googletest/googletest/googlemock/test/gmock_link_test.gmock_link2_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_link_test.gmock_link_test.o obj/third_party/googletest/libgooglemock.a obj/third_party/googletest/libgooglemock_main.a obj/third_party/googletest/libgoogletest.a
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = 
+  output_dir = .

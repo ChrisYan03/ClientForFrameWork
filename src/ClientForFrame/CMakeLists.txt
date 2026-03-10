@@ -173,6 +173,40 @@ if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE dwmapi)
 endif()
 
+# Crashpad（macOS）：minidump 崩溃捕获，需在 target 创建后配置（产物在 ext/lib/crashpad/Mac）
+# ClientForFrame 在 src/ClientForFrame，项目根为 src，ext 在 src/../ext
+set(CRASHPAD_ROOT "${CMAKE_SOURCE_DIR}/../ext")
+set(CRASHPAD_INCLUDE "${CRASHPAD_ROOT}/include/crashpad")
+set(CRASHPAD_MINI_CHROMIUM "${CRASHPAD_INCLUDE}/third_party/mini_chromium/mini_chromium")
+set(CRASHPAD_MAC "${CRASHPAD_ROOT}/lib/crashpad/Mac")
+set(CRASHPAD_OBJ "${CRASHPAD_MAC}/obj")
+set(CRASHPAD_HANDLER "${CRASHPAD_MAC}/crashpad_handler")
+if(APPLE AND EXISTS "${CRASHPAD_OBJ}/client/libclient.a")
+    target_compile_definitions(ClientForFrame PRIVATE HAVE_CRASHPAD=1)
+    target_include_directories(ClientForFrame PRIVATE "${CRASHPAD_INCLUDE}" "${CRASHPAD_MINI_CHROMIUM}")
+    target_link_libraries(ClientForFrame PRIVATE
+        "${CRASHPAD_OBJ}/client/libclient.a"
+        "${CRASHPAD_OBJ}/client/libcommon.a"
+        "${CRASHPAD_OBJ}/util/libutil.a"
+        "${CRASHPAD_OBJ}/util/libmig_output.a"
+        "${CRASHPAD_OBJ}/minidump/libminidump.a"
+        "${CRASHPAD_OBJ}/minidump/libformat.a"
+        "${CRASHPAD_OBJ}/snapshot/libsnapshot.a"
+        "${CRASHPAD_OBJ}/snapshot/libcontext.a"
+        "${CRASHPAD_OBJ}/third_party/mini_chromium/mini_chromium/base/libbase.a"
+        bsm
+        "-framework Security"
+    )
+    # 将 crashpad_handler 拷贝到 target/Mac/bin，并拷贝进 app bundle，供 app 直接调用
+    add_custom_command(TARGET ClientForFrame POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CRASHPAD_HANDLER}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/crashpad_handler"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ClientForFrame.app/Contents/MacOS"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CRASHPAD_HANDLER}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ClientForFrame.app/Contents/MacOS/crashpad_handler"
+        COMMENT "Copy crashpad_handler to target/Mac/bin and into app bundle"
+    )
+    message(STATUS "Crashpad: enabled (handler in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} and app bundle)")
+endif()
+
 # 设置目标属性
 set_target_properties(ClientForFrame PROPERTIES
     MACOSX_BUNDLE TRUE

@@ -1,0 +1,20 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+cflags_objcc = -std=c++23 -fobjc-arc -fno-objc-arc-exceptions
+label_name = net
+target_output_name = libnet
+
+build obj/util/net/net.http_body.o: cxx ../../OrginPackage/crashpad-main/util/net/http_body.cc || obj/util/mig.stamp
+build obj/util/net/net.http_body_gzip.o: cxx ../../OrginPackage/crashpad-main/util/net/http_body_gzip.cc || obj/util/mig.stamp
+build obj/util/net/net.http_multipart_builder.o: cxx ../../OrginPackage/crashpad-main/util/net/http_multipart_builder.cc || obj/util/mig.stamp
+build obj/util/net/net.http_transport.o: cxx ../../OrginPackage/crashpad-main/util/net/http_transport.cc || obj/util/mig.stamp
+build obj/util/net/net.url.o: cxx ../../OrginPackage/crashpad-main/util/net/url.cc || obj/util/mig.stamp
+build obj/util/net/net.http_transport_mac.o: objcxx ../../OrginPackage/crashpad-main/util/net/http_transport_mac.mm || obj/util/mig.stamp
+
+build obj/util/libnet.a: alink obj/util/net/net.http_body.o obj/util/net/net.http_body_gzip.o obj/util/net/net.http_multipart_builder.o obj/util/net/net.http_transport.o obj/util/net/net.url.o obj/util/net/net.http_transport_mac.o || obj/util/libutil.a obj/third_party/mini_chromium/base.stamp obj/build/apple_enable_arc.stamp obj/util/no_cfi_icall.stamp obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/util

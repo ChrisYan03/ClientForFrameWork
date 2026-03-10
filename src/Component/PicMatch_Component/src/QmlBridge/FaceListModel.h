@@ -6,7 +6,7 @@
 
 /**
  * @brief 供 QML GridView/ListView 使用的人脸列表模型
- * 使用命名 role，确保 imageDataUrl 等能正确绑定与刷新
+ * 使用命名 role，供 QML 通过 imageProviderUrl 直接取图
  */
 class FaceListModel : public QAbstractListModel
 {
@@ -15,8 +15,6 @@ class FaceListModel : public QAbstractListModel
 public:
     enum FaceRoles {
         RoleId = Qt::UserRole + 1,
-        RoleImageDataUrl,
-        RoleImageFileUrl,
         RoleImageProviderUrl,
         RoleConfidence,
         RoleAge,

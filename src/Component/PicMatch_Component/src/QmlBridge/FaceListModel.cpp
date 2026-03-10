@@ -20,10 +20,6 @@ QVariant FaceListModel::data(const QModelIndex& index, int role) const
     switch (role) {
     case RoleId:
         return map.value(QStringLiteral("id"));
-    case RoleImageDataUrl:
-        return map.value(QStringLiteral("imageDataUrl"));
-    case RoleImageFileUrl:
-        return map.value(QStringLiteral("imageFileUrl"));
     case RoleImageProviderUrl:
         return map.value(QStringLiteral("imageProviderUrl"));
     case RoleConfidence:
@@ -47,8 +43,6 @@ QHash<int, QByteArray> FaceListModel::roleNames() const
 {
     QHash<int, QByteArray> names;
     names[RoleId] = "faceId";
-    names[RoleImageDataUrl] = "imageDataUrl";
-    names[RoleImageFileUrl] = "imageFileUrl";
     names[RoleImageProviderUrl] = "imageProviderUrl";
     names[RoleConfidence] = "confidence";
     names[RoleAge] = "age";

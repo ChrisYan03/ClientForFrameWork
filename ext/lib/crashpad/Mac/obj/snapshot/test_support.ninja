@@ -1,0 +1,21 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = test_support
+target_output_name = libtest_support
+
+build obj/snapshot/test/test_support.test_cpu_context.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_cpu_context.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_exception_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_exception_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_memory_map_region_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_memory_map_region_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_memory_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_memory_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_module_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_module_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_process_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_process_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_system_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_system_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/test/test_support.test_thread_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/test/test_thread_snapshot.cc || obj/util/mig.stamp
+
+build obj/snapshot/libtest_support.a: alink obj/snapshot/test/test_support.test_cpu_context.o obj/snapshot/test/test_support.test_exception_snapshot.o obj/snapshot/test/test_support.test_memory_map_region_snapshot.o obj/snapshot/test/test_support.test_memory_snapshot.o obj/snapshot/test/test_support.test_module_snapshot.o obj/snapshot/test/test_support.test_process_snapshot.o obj/snapshot/test/test_support.test_system_snapshot.o obj/snapshot/test/test_support.test_thread_snapshot.o || obj/snapshot/libsnapshot.a obj/third_party/mini_chromium/base.stamp obj/compat/compat.stamp obj/util/libutil.a obj/snapshot/libcontext.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a obj/client/libcommon.a obj/minidump/libformat.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/snapshot

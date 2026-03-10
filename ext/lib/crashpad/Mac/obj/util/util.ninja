@@ -1,0 +1,92 @@
+defines = -DZLIB_CONST -DNDEBUG -DCRASHPAD_FLOCK_ALWAYS_SUPPORTED=true -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -Igen/third_party/crashpad/crashpad -Igen -I../../OrginPackage/crashpad-main -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+asmflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+cflags_objcc = -std=c++23 -fobjc-arc -fno-objc-arc-exceptions
+label_name = util
+target_output_name = libutil
+
+build obj/util/file/util.delimited_file_reader.o: cxx ../../OrginPackage/crashpad-main/util/file/delimited_file_reader.cc || obj/util/mig.stamp
+build obj/util/file/util.file_helper.o: cxx ../../OrginPackage/crashpad-main/util/file/file_helper.cc || obj/util/mig.stamp
+build obj/util/file/util.file_io.o: cxx ../../OrginPackage/crashpad-main/util/file/file_io.cc || obj/util/mig.stamp
+build obj/util/file/util.file_reader.o: cxx ../../OrginPackage/crashpad-main/util/file/file_reader.cc || obj/util/mig.stamp
+build obj/util/file/util.file_seeker.o: cxx ../../OrginPackage/crashpad-main/util/file/file_seeker.cc || obj/util/mig.stamp
+build obj/util/file/util.file_writer.o: cxx ../../OrginPackage/crashpad-main/util/file/file_writer.cc || obj/util/mig.stamp
+build obj/util/file/util.output_stream_file_writer.o: cxx ../../OrginPackage/crashpad-main/util/file/output_stream_file_writer.cc || obj/util/mig.stamp
+build obj/util/file/util.scoped_remove_file.o: cxx ../../OrginPackage/crashpad-main/util/file/scoped_remove_file.cc || obj/util/mig.stamp
+build obj/util/file/util.string_file.o: cxx ../../OrginPackage/crashpad-main/util/file/string_file.cc || obj/util/mig.stamp
+build obj/util/misc/util.initialization_state_dcheck.o: cxx ../../OrginPackage/crashpad-main/util/misc/initialization_state_dcheck.cc || obj/util/mig.stamp
+build obj/util/misc/util.lexing.o: cxx ../../OrginPackage/crashpad-main/util/misc/lexing.cc || obj/util/mig.stamp
+build obj/util/misc/util.metrics.o: cxx ../../OrginPackage/crashpad-main/util/misc/metrics.cc || obj/util/mig.stamp
+build obj/util/misc/util.pdb_structures.o: cxx ../../OrginPackage/crashpad-main/util/misc/pdb_structures.cc || obj/util/mig.stamp
+build obj/util/misc/util.random_string.o: cxx ../../OrginPackage/crashpad-main/util/misc/random_string.cc || obj/util/mig.stamp
+build obj/util/misc/util.range_set.o: cxx ../../OrginPackage/crashpad-main/util/misc/range_set.cc || obj/util/mig.stamp
+build obj/util/misc/util.reinterpret_bytes.o: cxx ../../OrginPackage/crashpad-main/util/misc/reinterpret_bytes.cc || obj/util/mig.stamp
+build obj/util/misc/util.scoped_forbid_return.o: cxx ../../OrginPackage/crashpad-main/util/misc/scoped_forbid_return.cc || obj/util/mig.stamp
+build obj/util/misc/util.time.o: cxx ../../OrginPackage/crashpad-main/util/misc/time.cc || obj/util/mig.stamp
+build obj/util/misc/util.uuid.o: cxx ../../OrginPackage/crashpad-main/util/misc/uuid.cc || obj/util/mig.stamp
+build obj/util/misc/util.zlib.o: cxx ../../OrginPackage/crashpad-main/util/misc/zlib.cc || obj/util/mig.stamp
+build obj/util/numeric/util.checked_address_range.o: cxx ../../OrginPackage/crashpad-main/util/numeric/checked_address_range.cc || obj/util/mig.stamp
+build obj/util/process/util.process_memory.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory.cc || obj/util/mig.stamp
+build obj/util/process/util.process_memory_range.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory_range.cc || obj/util/mig.stamp
+build obj/util/stdlib/util.aligned_allocator.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/aligned_allocator.cc || obj/util/mig.stamp
+build obj/util/stdlib/util.string_number_conversion.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/string_number_conversion.cc || obj/util/mig.stamp
+build obj/util/stdlib/util.strlcpy.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/strlcpy.cc || obj/util/mig.stamp
+build obj/util/stdlib/util.strnlen.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/strnlen.cc || obj/util/mig.stamp
+build obj/util/stream/util.base94_output_stream.o: cxx ../../OrginPackage/crashpad-main/util/stream/base94_output_stream.cc || obj/util/mig.stamp
+build obj/util/stream/util.file_encoder.o: cxx ../../OrginPackage/crashpad-main/util/stream/file_encoder.cc || obj/util/mig.stamp
+build obj/util/stream/util.file_output_stream.o: cxx ../../OrginPackage/crashpad-main/util/stream/file_output_stream.cc || obj/util/mig.stamp
+build obj/util/stream/util.log_output_stream.o: cxx ../../OrginPackage/crashpad-main/util/stream/log_output_stream.cc || obj/util/mig.stamp
+build obj/util/stream/util.zlib_output_stream.o: cxx ../../OrginPackage/crashpad-main/util/stream/zlib_output_stream.cc || obj/util/mig.stamp
+build obj/util/string/util.split_string.o: cxx ../../OrginPackage/crashpad-main/util/string/split_string.cc || obj/util/mig.stamp
+build obj/util/thread/util.thread.o: cxx ../../OrginPackage/crashpad-main/util/thread/thread.cc || obj/util/mig.stamp
+build obj/util/thread/util.thread_log_messages.o: cxx ../../OrginPackage/crashpad-main/util/thread/thread_log_messages.cc || obj/util/mig.stamp
+build obj/util/thread/util.worker_thread.o: cxx ../../OrginPackage/crashpad-main/util/thread/worker_thread.cc || obj/util/mig.stamp
+build obj/util/file/util.directory_reader_posix.o: cxx ../../OrginPackage/crashpad-main/util/file/directory_reader_posix.cc || obj/util/mig.stamp
+build obj/util/file/util.file_io_posix.o: cxx ../../OrginPackage/crashpad-main/util/file/file_io_posix.cc || obj/util/mig.stamp
+build obj/util/file/util.filesystem_posix.o: cxx ../../OrginPackage/crashpad-main/util/file/filesystem_posix.cc || obj/util/mig.stamp
+build obj/util/misc/util.clock_posix.o: cxx ../../OrginPackage/crashpad-main/util/misc/clock_posix.cc || obj/util/mig.stamp
+build obj/util/posix/util.close_stdio.o: cxx ../../OrginPackage/crashpad-main/util/posix/close_stdio.cc || obj/util/mig.stamp
+build obj/util/posix/util.scoped_dir.o: cxx ../../OrginPackage/crashpad-main/util/posix/scoped_dir.cc || obj/util/mig.stamp
+build obj/util/posix/util.scoped_mmap.o: cxx ../../OrginPackage/crashpad-main/util/posix/scoped_mmap.cc || obj/util/mig.stamp
+build obj/util/posix/util.signals.o: cxx ../../OrginPackage/crashpad-main/util/posix/signals.cc || obj/util/mig.stamp
+build obj/util/synchronization/util.semaphore_posix.o: cxx ../../OrginPackage/crashpad-main/util/synchronization/semaphore_posix.cc || obj/util/mig.stamp
+build obj/util/thread/util.thread_posix.o: cxx ../../OrginPackage/crashpad-main/util/thread/thread_posix.cc || obj/util/mig.stamp
+build obj/util/posix/util.close_multiple.o: cxx ../../OrginPackage/crashpad-main/util/posix/close_multiple.cc || obj/util/mig.stamp
+build obj/util/posix/util.drop_privileges.o: cxx ../../OrginPackage/crashpad-main/util/posix/drop_privileges.cc || obj/util/mig.stamp
+build obj/util/posix/util.symbolic_constants_posix.o: cxx ../../OrginPackage/crashpad-main/util/posix/symbolic_constants_posix.cc || obj/util/mig.stamp
+build obj/util/posix/util.spawn_subprocess.o: cxx ../../OrginPackage/crashpad-main/util/posix/spawn_subprocess.cc || obj/util/mig.stamp
+build obj/util/mac/util.sysctl.o: cxx ../../OrginPackage/crashpad-main/util/mac/sysctl.cc || obj/util/mig.stamp
+build obj/util/mac/util.xattr.o: cxx ../../OrginPackage/crashpad-main/util/mac/xattr.cc || obj/util/mig.stamp
+build obj/util/mach/util.mach_extensions.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_extensions.cc || obj/util/mig.stamp
+build obj/util/misc/util.capture_context_mac.o: asm ../../OrginPackage/crashpad-main/util/misc/capture_context_mac.S || obj/util/mig.stamp
+build obj/util/misc/util.clock_mac.o: cxx ../../OrginPackage/crashpad-main/util/misc/clock_mac.cc || obj/util/mig.stamp
+build obj/util/misc/util.paths_mac.o: cxx ../../OrginPackage/crashpad-main/util/misc/paths_mac.cc || obj/util/mig.stamp
+build obj/util/synchronization/util.semaphore_mac.o: cxx ../../OrginPackage/crashpad-main/util/synchronization/semaphore_mac.cc || obj/util/mig.stamp
+build obj/util/mach/util.composite_mach_message_server.o: cxx ../../OrginPackage/crashpad-main/util/mach/composite_mach_message_server.cc || obj/util/mig.stamp
+build obj/util/mach/util.exc_client_variants.o: cxx ../../OrginPackage/crashpad-main/util/mach/exc_client_variants.cc || obj/util/mig.stamp
+build obj/util/mach/util.exc_server_variants.o: cxx ../../OrginPackage/crashpad-main/util/mach/exc_server_variants.cc || obj/util/mig.stamp
+build obj/util/mach/util.exception_behaviors.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_behaviors.cc || obj/util/mig.stamp
+build obj/util/mach/util.exception_ports.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_ports.cc || obj/util/mig.stamp
+build obj/util/mach/util.mach_message.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_message.cc || obj/util/mig.stamp
+build obj/util/mach/util.mach_message_server.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_message_server.cc || obj/util/mig.stamp
+build obj/util/mach/util.symbolic_constants_mach.o: cxx ../../OrginPackage/crashpad-main/util/mach/symbolic_constants_mach.cc || obj/util/mig.stamp
+build obj/util/mac/util.launchd.o: objcxx ../../OrginPackage/crashpad-main/util/mac/launchd.mm || obj/util/mig.stamp
+build obj/util/mac/util.mac_util.o: cxx ../../OrginPackage/crashpad-main/util/mac/mac_util.cc || obj/util/mig.stamp
+build obj/util/mac/util.service_management.o: cxx ../../OrginPackage/crashpad-main/util/mac/service_management.cc || obj/util/mig.stamp
+build obj/util/mach/util.bootstrap.o: cxx ../../OrginPackage/crashpad-main/util/mach/bootstrap.cc || obj/util/mig.stamp
+build obj/util/mach/util.child_port_handshake.o: cxx ../../OrginPackage/crashpad-main/util/mach/child_port_handshake.cc || obj/util/mig.stamp
+build obj/util/mach/util.child_port_server.o: cxx ../../OrginPackage/crashpad-main/util/mach/child_port_server.cc || obj/util/mig.stamp
+build obj/util/mach/util.exception_types.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_types.cc || obj/util/mig.stamp
+build obj/util/mach/util.notify_server.o: cxx ../../OrginPackage/crashpad-main/util/mach/notify_server.cc || obj/util/mig.stamp
+build obj/util/mach/util.scoped_task_suspend.o: cxx ../../OrginPackage/crashpad-main/util/mach/scoped_task_suspend.cc || obj/util/mig.stamp
+build obj/util/mach/util.task_for_pid.o: cxx ../../OrginPackage/crashpad-main/util/mach/task_for_pid.cc || obj/util/mig.stamp
+build obj/util/posix/util.process_info_mac.o: cxx ../../OrginPackage/crashpad-main/util/posix/process_info_mac.cc || obj/util/mig.stamp
+build obj/util/process/util.process_memory_mac.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory_mac.cc || obj/util/mig.stamp
+
+build obj/util/libutil.a: alink obj/util/file/util.delimited_file_reader.o obj/util/file/util.file_helper.o obj/util/file/util.file_io.o obj/util/file/util.file_reader.o obj/util/file/util.file_seeker.o obj/util/file/util.file_writer.o obj/util/file/util.output_stream_file_writer.o obj/util/file/util.scoped_remove_file.o obj/util/file/util.string_file.o obj/util/misc/util.initialization_state_dcheck.o obj/util/misc/util.lexing.o obj/util/misc/util.metrics.o obj/util/misc/util.pdb_structures.o obj/util/misc/util.random_string.o obj/util/misc/util.range_set.o obj/util/misc/util.reinterpret_bytes.o obj/util/misc/util.scoped_forbid_return.o obj/util/misc/util.time.o obj/util/misc/util.uuid.o obj/util/misc/util.zlib.o obj/util/numeric/util.checked_address_range.o obj/util/process/util.process_memory.o obj/util/process/util.process_memory_range.o obj/util/stdlib/util.aligned_allocator.o obj/util/stdlib/util.string_number_conversion.o obj/util/stdlib/util.strlcpy.o obj/util/stdlib/util.strnlen.o obj/util/stream/util.base94_output_stream.o obj/util/stream/util.file_encoder.o obj/util/stream/util.file_output_stream.o obj/util/stream/util.log_output_stream.o obj/util/stream/util.zlib_output_stream.o obj/util/string/util.split_string.o obj/util/thread/util.thread.o obj/util/thread/util.thread_log_messages.o obj/util/thread/util.worker_thread.o obj/util/file/util.directory_reader_posix.o obj/util/file/util.file_io_posix.o obj/util/file/util.filesystem_posix.o obj/util/misc/util.clock_posix.o obj/util/posix/util.close_stdio.o obj/util/posix/util.scoped_dir.o obj/util/posix/util.scoped_mmap.o obj/util/posix/util.signals.o obj/util/synchronization/util.semaphore_posix.o obj/util/thread/util.thread_posix.o obj/util/posix/util.close_multiple.o obj/util/posix/util.drop_privileges.o obj/util/posix/util.symbolic_constants_posix.o obj/util/posix/util.spawn_subprocess.o obj/util/mac/util.sysctl.o obj/util/mac/util.xattr.o obj/util/mach/util.mach_extensions.o obj/util/misc/util.capture_context_mac.o obj/util/misc/util.clock_mac.o obj/util/misc/util.paths_mac.o obj/util/synchronization/util.semaphore_mac.o obj/util/mach/util.composite_mach_message_server.o obj/util/mach/util.exc_client_variants.o obj/util/mach/util.exc_server_variants.o obj/util/mach/util.exception_behaviors.o obj/util/mach/util.exception_ports.o obj/util/mach/util.mach_message.o obj/util/mach/util.mach_message_server.o obj/util/mach/util.symbolic_constants_mach.o obj/util/mac/util.launchd.o obj/util/mac/util.mac_util.o obj/util/mac/util.service_management.o obj/util/mach/util.bootstrap.o obj/util/mach/util.child_port_handshake.o obj/util/mach/util.child_port_server.o obj/util/mach/util.exception_types.o obj/util/mach/util.notify_server.o obj/util/mach/util.scoped_task_suspend.o obj/util/mach/util.task_for_pid.o obj/util/posix/util.process_info_mac.o obj/util/process/util.process_memory_mac.o || obj/util/no_cfi_icall.stamp obj/compat/compat.stamp obj/third_party/zlib/zlib.stamp obj/third_party/mini_chromium/base.stamp obj/build/apple_enable_arc.stamp obj/util/libmig_output.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp
+  arflags =
+  output_extension = .a
+  output_dir = obj/util

@@ -35,7 +35,7 @@ class PicMatchViewModel : public QObject
 
     // 人脸列表（供QML使用，兼容旧代码）
     Q_PROPERTY(QVariantList faceList READ faceList NOTIFY faceListChanged)
-    // 人脸列表模型（供 GridView 使用命名 role，保证 imageDataUrl 等正确刷新）
+    // 人脸列表模型（供 QML 使用命名 role，通过 imageProviderUrl 取图）
     Q_PROPERTY(FaceListModel* faceModel READ faceModel NOTIFY faceListChanged)
 
     // 引擎句柄

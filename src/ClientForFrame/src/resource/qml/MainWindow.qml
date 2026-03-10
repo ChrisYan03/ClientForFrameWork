@@ -20,6 +20,7 @@ Window {
     property string mainStatusText: ""
     property bool isMaximized: visibility === Window.Maximized
     property bool toastVisible: false
+    property string toastMessage: "请暂停后再回到主界面"
     property bool settingsOpen: false
     readonly property int titleBarHeight: 38
     readonly property int cornerRadius: 8
@@ -56,6 +57,7 @@ Window {
             onBackToDesktopClicked: {
                 if (contentStack.depth > 1) {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {
+                        toastMessage = "请暂停后再回到主界面"
                         toastVisible = true
                         toastTimer.restart()
                     } else if (appController) {
@@ -63,7 +65,15 @@ Window {
                     }
                 }
             }
-            onSettingsClicked: root.settingsOpen = !root.settingsOpen
+            onSettingsClicked: {
+                if (appController && appController.hasRunnableComponent && appController.isRunning) {
+                    toastMessage = "停止运行后可配置"
+                    toastVisible = true
+                    toastTimer.restart()
+                    return
+                }
+                root.settingsOpen = !root.settingsOpen
+            }
         }
 
         Timer {
@@ -202,7 +212,7 @@ Window {
 
             Label {
                 anchors.centerIn: parent
-                text: "请暂停后再回到主界面"
+                text: root.toastMessage
                 font.pixelSize: 13
                 font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
                 color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"

@@ -140,8 +140,6 @@ QVariantList PicMatchModel::facesToVariantList() const
                 map["imageProviderUrl"] = QStringLiteral("image://picmatchfaces/%1?v=%2")
                                               .arg(QString::fromLatin1(QUrl::toPercentEncoding(safeId)))
                                               .arg(imageVersion);
-                map["imageFileUrl"] = QString();
-                map["imageDataUrl"] = QString();
                 LOG_DEBUG("facesToVariantList face={} providerUrl={}",
                           safeId.toStdString(),
                           map["imageProviderUrl"].toString().toStdString());

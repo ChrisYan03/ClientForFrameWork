@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs =
+label_name = crashpad_client_test
+target_output_name = crashpad_client_test
+
+
+build ./crashpad_client_test: link obj/client/client_test.annotation_list_test.o obj/client/client_test.annotation_test.o obj/client/client_test.crash_report_database_test.o obj/client/client_test.crashpad_info_test.o obj/client/client_test.length_delimited_ring_buffer_test.o obj/client/client_test.prune_crash_reports_test.o obj/client/client_test.ring_buffer_annotation_test.o obj/client/client_test.settings_test.o obj/client/client_test.simple_address_range_bag_test.o obj/client/client_test.simple_string_dictionary_test.o obj/client/client_test.simulate_crash_mac_test.o obj/tools/tool_support.tool_support.o obj/test/libgooglemock_main.a obj/client/libclient.a obj/client/libcommon.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/util/libutil.a obj/util/libmig_output.a obj/snapshot/libsnapshot.a obj/snapshot/libcontext.a obj/minidump/libformat.a obj/test/libtest.a obj/third_party/googletest/libgoogletest.a obj/handler/libhandler.a obj/handler/libcommon.a obj/minidump/libminidump.a obj/util/libnet.a obj/third_party/googletest/libgooglemock.a || obj/client/client_test.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/tools/tool_support.stamp
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs = -lbsm -lz
+  frameworks = -framework CoreFoundation -framework Foundation -framework Security -framework ApplicationServices -framework IOKit
+  swiftmodules =
+  output_extension = 
+  output_dir = .

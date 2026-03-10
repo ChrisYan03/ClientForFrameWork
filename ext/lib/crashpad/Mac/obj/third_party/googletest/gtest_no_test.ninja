@@ -1,0 +1,17 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = gtest_no_test
+target_output_name = gtest_no_test
+
+build obj/third_party/googletest/googletest/googletest/test/gtest_no_test.gtest_no_test_unittest.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_no_test_unittest.cc
+
+build ./gtest_no_test: link obj/third_party/googletest/googletest/googletest/test/gtest_no_test.gtest_no_test_unittest.o obj/third_party/googletest/libgoogletest.a
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = 
+  output_dir = .

@@ -1,0 +1,38 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = minidump
+target_output_name = libminidump
+
+build obj/minidump/minidump.minidump_annotation_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_annotation_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_byte_array_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_byte_array_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_context_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_context_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_crashpad_info_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_crashpad_info_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_exception_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_exception_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_file_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_file_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_handle_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_handle_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_memory_info_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_memory_info_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_memory_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_memory_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_misc_info_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_misc_info_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_module_crashpad_info_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_module_crashpad_info_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_module_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_module_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_rva_list_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_rva_list_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_simple_string_dictionary_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_simple_string_dictionary_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_stream_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_stream_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_string_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_string_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_system_info_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_system_info_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_thread_id_map.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_thread_id_map.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_thread_name_list_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_thread_name_list_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_thread_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_thread_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_unloaded_module_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_unloaded_module_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_user_extension_stream_data_source.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_user_extension_stream_data_source.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_user_stream_writer.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_user_stream_writer.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_writable.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_writable.cc || obj/util/mig.stamp
+build obj/minidump/minidump.minidump_writer_util.o: cxx ../../OrginPackage/crashpad-main/minidump/minidump_writer_util.cc || obj/util/mig.stamp
+
+build obj/minidump/libminidump.a: alink obj/minidump/minidump.minidump_annotation_writer.o obj/minidump/minidump.minidump_byte_array_writer.o obj/minidump/minidump.minidump_context_writer.o obj/minidump/minidump.minidump_crashpad_info_writer.o obj/minidump/minidump.minidump_exception_writer.o obj/minidump/minidump.minidump_file_writer.o obj/minidump/minidump.minidump_handle_writer.o obj/minidump/minidump.minidump_memory_info_writer.o obj/minidump/minidump.minidump_memory_writer.o obj/minidump/minidump.minidump_misc_info_writer.o obj/minidump/minidump.minidump_module_crashpad_info_writer.o obj/minidump/minidump.minidump_module_writer.o obj/minidump/minidump.minidump_rva_list_writer.o obj/minidump/minidump.minidump_simple_string_dictionary_writer.o obj/minidump/minidump.minidump_stream_writer.o obj/minidump/minidump.minidump_string_writer.o obj/minidump/minidump.minidump_system_info_writer.o obj/minidump/minidump.minidump_thread_id_map.o obj/minidump/minidump.minidump_thread_name_list_writer.o obj/minidump/minidump.minidump_thread_writer.o obj/minidump/minidump.minidump_unloaded_module_writer.o obj/minidump/minidump.minidump_user_extension_stream_data_source.o obj/minidump/minidump.minidump_user_stream_writer.o obj/minidump/minidump.minidump_writable.o obj/minidump/minidump.minidump_writer_util.o || obj/minidump/libformat.a obj/compat/compat.stamp obj/third_party/mini_chromium/base.stamp obj/snapshot/libsnapshot.a obj/util/libutil.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/snapshot/libcontext.a obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a obj/client/libcommon.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/minidump

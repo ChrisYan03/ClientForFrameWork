@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs =
+label_name = crashpad_snapshot_test
+target_output_name = crashpad_snapshot_test
+
+
+build ./crashpad_snapshot_test: link obj/snapshot/snapshot_test.cpu_context_test.o obj/snapshot/snapshot_test.memory_snapshot_test.o obj/snapshot/minidump/snapshot_test.process_snapshot_minidump_test.o obj/snapshot/mac/snapshot_test.cpu_context_mac_test.o obj/snapshot/mac/snapshot_test.mach_o_image_annotations_reader_test.o obj/snapshot/mac/snapshot_test.mach_o_image_reader_test.o obj/snapshot/mac/snapshot_test.mach_o_image_segment_reader_test.o obj/snapshot/mac/snapshot_test.process_reader_mac_test.o obj/snapshot/mac/snapshot_test.process_types_test.o obj/snapshot/mac/snapshot_test.system_snapshot_mac_test.o obj/snapshot/snapshot_test.crashpad_info_client_options_test.o obj/snapshot/posix/snapshot_test.timezone_test.o obj/tools/tool_support.tool_support.o obj/test/libgooglemock_main.a obj/snapshot/libtest_support.a obj/snapshot/libsnapshot.a obj/snapshot/libcontext.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/util/libutil.a obj/util/libmig_output.a obj/client/libcommon.a obj/minidump/libformat.a obj/test/libtest.a obj/third_party/googletest/libgoogletest.a obj/handler/libhandler.a obj/handler/libcommon.a obj/minidump/libminidump.a obj/util/libnet.a obj/client/libclient.a obj/third_party/googletest/libgooglemock.a || obj/snapshot/snapshot_test.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/tools/tool_support.stamp
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs = -lbsm -lz
+  frameworks = -framework OpenCL -framework CoreFoundation -framework Foundation -framework Security -framework ApplicationServices -framework IOKit
+  swiftmodules =
+  output_extension = 
+  output_dir = .

@@ -1,0 +1,18 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = common
+target_output_name = libcommon
+
+build obj/handler/common.crash_report_upload_rate_limit.o: cxx ../../OrginPackage/crashpad-main/handler/crash_report_upload_rate_limit.cc || obj/util/mig.stamp
+build obj/handler/common.crash_report_upload_thread.o: cxx ../../OrginPackage/crashpad-main/handler/crash_report_upload_thread.cc || obj/util/mig.stamp
+build obj/handler/common.minidump_to_upload_parameters.o: cxx ../../OrginPackage/crashpad-main/handler/minidump_to_upload_parameters.cc || obj/util/mig.stamp
+build obj/handler/common.user_stream_data_source.o: cxx ../../OrginPackage/crashpad-main/handler/user_stream_data_source.cc || obj/util/mig.stamp
+build obj/handler/mac/common.file_limit_annotation.o: cxx ../../OrginPackage/crashpad-main/handler/mac/file_limit_annotation.cc || obj/util/mig.stamp
+
+build obj/handler/libcommon.a: alink obj/handler/common.crash_report_upload_rate_limit.o obj/handler/common.crash_report_upload_thread.o obj/handler/common.minidump_to_upload_parameters.o obj/handler/common.user_stream_data_source.o obj/handler/mac/common.file_limit_annotation.o || obj/third_party/mini_chromium/base.stamp obj/util/libutil.a obj/client/libcommon.a obj/minidump/libminidump.a obj/snapshot/libsnapshot.a obj/util/libnet.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a obj/minidump/libformat.a obj/snapshot/libcontext.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/handler

@@ -1,0 +1,20 @@
+defines = -DNDEBUG -DCRASHPAD_FLOCK_ALWAYS_SUPPORTED=true -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+cflags_objcc = -std=c++23 -fobjc-arc -fno-objc-arc-exceptions
+label_name = common
+target_output_name = libcommon
+
+build obj/client/common.annotation.o: cxx ../../OrginPackage/crashpad-main/client/annotation.cc || obj/util/mig.stamp
+build obj/client/common.annotation_list.o: cxx ../../OrginPackage/crashpad-main/client/annotation_list.cc || obj/util/mig.stamp
+build obj/client/common.crash_report_database.o: cxx ../../OrginPackage/crashpad-main/client/crash_report_database.cc || obj/util/mig.stamp
+build obj/client/common.crashpad_info.o: cxx ../../OrginPackage/crashpad-main/client/crashpad_info.cc || obj/util/mig.stamp
+build obj/client/common.settings.o: cxx ../../OrginPackage/crashpad-main/client/settings.cc || obj/util/mig.stamp
+build obj/client/common.crash_report_database_mac.o: objcxx ../../OrginPackage/crashpad-main/client/crash_report_database_mac.mm || obj/util/mig.stamp
+
+build obj/client/libcommon.a: alink obj/client/common.annotation.o obj/client/common.annotation_list.o obj/client/common.crash_report_database.o obj/client/common.crashpad_info.o obj/client/common.settings.o obj/client/common.crash_report_database_mac.o || obj/third_party/mini_chromium/base.stamp obj/util/libutil.a obj/build/apple_enable_arc.stamp obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/client

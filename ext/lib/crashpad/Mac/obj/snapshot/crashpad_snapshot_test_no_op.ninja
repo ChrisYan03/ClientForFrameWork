@@ -1,0 +1,17 @@
+defines = -DNDEBUG
+framework_dirs =
+include_dirs =
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = crashpad_snapshot_test_no_op
+target_output_name = crashpad_snapshot_test_no_op
+
+build obj/snapshot/mac/crashpad_snapshot_test_no_op.mach_o_image_annotations_reader_test_no_op.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/mach_o_image_annotations_reader_test_no_op.cc
+
+build ./crashpad_snapshot_test_no_op: link obj/snapshot/mac/crashpad_snapshot_test_no_op.mach_o_image_annotations_reader_test_no_op.o
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = 
+  output_dir = .

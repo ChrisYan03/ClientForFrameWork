@@ -1,0 +1,86 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+cflags_objcc = -std=c++23 -fobjc-arc -fno-objc-arc-exceptions
+label_name = util_test
+target_output_name = util_test
+
+build obj/util/file/util_test.delimited_file_reader_test.o: cxx ../../OrginPackage/crashpad-main/util/file/delimited_file_reader_test.cc || obj/util/mig.stamp
+build obj/util/file/util_test.directory_reader_test.o: cxx ../../OrginPackage/crashpad-main/util/file/directory_reader_test.cc || obj/util/mig.stamp
+build obj/util/file/util_test.file_io_test.o: cxx ../../OrginPackage/crashpad-main/util/file/file_io_test.cc || obj/util/mig.stamp
+build obj/util/file/util_test.file_reader_test.o: cxx ../../OrginPackage/crashpad-main/util/file/file_reader_test.cc || obj/util/mig.stamp
+build obj/util/file/util_test.filesystem_test.o: cxx ../../OrginPackage/crashpad-main/util/file/filesystem_test.cc || obj/util/mig.stamp
+build obj/util/file/util_test.string_file_test.o: cxx ../../OrginPackage/crashpad-main/util/file/string_file_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.arraysize_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/arraysize_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.capture_context_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/capture_context_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.clock_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/clock_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.from_pointer_cast_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/from_pointer_cast_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.initialization_state_dcheck_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/initialization_state_dcheck_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.initialization_state_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/initialization_state_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.no_cfi_icall_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/no_cfi_icall_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.paths_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/paths_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.random_string_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/random_string_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.range_set_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/range_set_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.reinterpret_bytes_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/reinterpret_bytes_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.scoped_forbid_return_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/scoped_forbid_return_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.time_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/time_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.uuid_test.o: cxx ../../OrginPackage/crashpad-main/util/misc/uuid_test.cc || obj/util/mig.stamp
+build obj/util/net/util_test.http_body_gzip_test.o: cxx ../../OrginPackage/crashpad-main/util/net/http_body_gzip_test.cc || obj/util/mig.stamp
+build obj/util/net/util_test.http_body_test.o: cxx ../../OrginPackage/crashpad-main/util/net/http_body_test.cc || obj/util/mig.stamp
+build obj/util/net/util_test.http_body_test_util.o: cxx ../../OrginPackage/crashpad-main/util/net/http_body_test_util.cc || obj/util/mig.stamp
+build obj/util/net/util_test.http_multipart_builder_test.o: cxx ../../OrginPackage/crashpad-main/util/net/http_multipart_builder_test.cc || obj/util/mig.stamp
+build obj/util/net/util_test.url_test.o: cxx ../../OrginPackage/crashpad-main/util/net/url_test.cc || obj/util/mig.stamp
+build obj/util/numeric/util_test.checked_address_range_test.o: cxx ../../OrginPackage/crashpad-main/util/numeric/checked_address_range_test.cc || obj/util/mig.stamp
+build obj/util/numeric/util_test.checked_range_test.o: cxx ../../OrginPackage/crashpad-main/util/numeric/checked_range_test.cc || obj/util/mig.stamp
+build obj/util/numeric/util_test.in_range_cast_test.o: cxx ../../OrginPackage/crashpad-main/util/numeric/in_range_cast_test.cc || obj/util/mig.stamp
+build obj/util/numeric/util_test.int128_test.o: cxx ../../OrginPackage/crashpad-main/util/numeric/int128_test.cc || obj/util/mig.stamp
+build obj/util/process/util_test.process_memory_range_test.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory_range_test.cc || obj/util/mig.stamp
+build obj/util/process/util_test.process_memory_test.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.aligned_allocator_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/aligned_allocator_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.map_insert_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/map_insert_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.string_number_conversion_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/string_number_conversion_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.strlcpy_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/strlcpy_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.strnlen_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/strnlen_test.cc || obj/util/mig.stamp
+build obj/util/stdlib/util_test.thread_safe_vector_test.o: cxx ../../OrginPackage/crashpad-main/util/stdlib/thread_safe_vector_test.cc || obj/util/mig.stamp
+build obj/util/stream/util_test.base94_output_stream_test.o: cxx ../../OrginPackage/crashpad-main/util/stream/base94_output_stream_test.cc || obj/util/mig.stamp
+build obj/util/stream/util_test.file_encoder_test.o: cxx ../../OrginPackage/crashpad-main/util/stream/file_encoder_test.cc || obj/util/mig.stamp
+build obj/util/stream/util_test.log_output_stream_test.o: cxx ../../OrginPackage/crashpad-main/util/stream/log_output_stream_test.cc || obj/util/mig.stamp
+build obj/util/stream/util_test.test_output_stream.o: cxx ../../OrginPackage/crashpad-main/util/stream/test_output_stream.cc || obj/util/mig.stamp
+build obj/util/stream/util_test.zlib_output_stream_test.o: cxx ../../OrginPackage/crashpad-main/util/stream/zlib_output_stream_test.cc || obj/util/mig.stamp
+build obj/util/string/util_test.split_string_test.o: cxx ../../OrginPackage/crashpad-main/util/string/split_string_test.cc || obj/util/mig.stamp
+build obj/util/synchronization/util_test.scoped_spin_guard_test.o: cxx ../../OrginPackage/crashpad-main/util/synchronization/scoped_spin_guard_test.cc || obj/util/mig.stamp
+build obj/util/synchronization/util_test.semaphore_test.o: cxx ../../OrginPackage/crashpad-main/util/synchronization/semaphore_test.cc || obj/util/mig.stamp
+build obj/util/thread/util_test.thread_log_messages_test.o: cxx ../../OrginPackage/crashpad-main/util/thread/thread_log_messages_test.cc || obj/util/mig.stamp
+build obj/util/thread/util_test.thread_test.o: cxx ../../OrginPackage/crashpad-main/util/thread/thread_test.cc || obj/util/mig.stamp
+build obj/util/thread/util_test.worker_thread_test.o: cxx ../../OrginPackage/crashpad-main/util/thread/worker_thread_test.cc || obj/util/mig.stamp
+build obj/util/net/util_test.http_transport_test.o: cxx ../../OrginPackage/crashpad-main/util/net/http_transport_test.cc || obj/util/mig.stamp
+build obj/util/posix/util_test.process_info_test.o: cxx ../../OrginPackage/crashpad-main/util/posix/process_info_test.cc || obj/util/mig.stamp
+build obj/util/posix/util_test.signals_test.o: cxx ../../OrginPackage/crashpad-main/util/posix/signals_test.cc || obj/util/mig.stamp
+build obj/util/posix/util_test.symbolic_constants_posix_test.o: cxx ../../OrginPackage/crashpad-main/util/posix/symbolic_constants_posix_test.cc || obj/util/mig.stamp
+build obj/util/posix/util_test.scoped_mmap_test.o: cxx ../../OrginPackage/crashpad-main/util/posix/scoped_mmap_test.cc || obj/util/mig.stamp
+build obj/util/mac/util_test.xattr_test.o: cxx ../../OrginPackage/crashpad-main/util/mac/xattr_test.cc || obj/util/mig.stamp
+build obj/util/misc/util_test.capture_context_test_util_mac.o: cxx ../../OrginPackage/crashpad-main/util/misc/capture_context_test_util_mac.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.composite_mach_message_server_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/composite_mach_message_server_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.exc_server_variants_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/exc_server_variants_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.exception_behaviors_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_behaviors_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.mach_extensions_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_extensions_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.mach_message_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_message_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.symbolic_constants_mach_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/symbolic_constants_mach_test.cc || obj/util/mig.stamp
+build obj/util/mac/util_test.launchd_test.o: objcxx ../../OrginPackage/crashpad-main/util/mac/launchd_test.mm || obj/util/mig.stamp
+build obj/util/mac/util_test.mac_util_test.o: objcxx ../../OrginPackage/crashpad-main/util/mac/mac_util_test.mm || obj/util/mig.stamp
+build obj/util/mac/util_test.service_management_test.o: objcxx ../../OrginPackage/crashpad-main/util/mac/service_management_test.mm || obj/util/mig.stamp
+build obj/util/mac/util_test.sysctl_test.o: cxx ../../OrginPackage/crashpad-main/util/mac/sysctl_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.bootstrap_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/bootstrap_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.child_port_handshake_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/child_port_handshake_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.child_port_server_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/child_port_server_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.exc_client_variants_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/exc_client_variants_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.exception_ports_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_ports_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.exception_types_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/exception_types_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.mach_message_server_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/mach_message_server_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.notify_server_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/notify_server_test.cc || obj/util/mig.stamp
+build obj/util/mach/util_test.scoped_task_suspend_test.o: cxx ../../OrginPackage/crashpad-main/util/mach/scoped_task_suspend_test.cc || obj/util/mig.stamp
+build obj/util/process/util_test.process_memory_mac_test.o: cxx ../../OrginPackage/crashpad-main/util/process/process_memory_mac_test.cc || obj/util/mig.stamp
+
+build obj/util/util_test.stamp: stamp obj/util/file/util_test.delimited_file_reader_test.o obj/util/file/util_test.directory_reader_test.o obj/util/file/util_test.file_io_test.o obj/util/file/util_test.file_reader_test.o obj/util/file/util_test.filesystem_test.o obj/util/file/util_test.string_file_test.o obj/util/misc/util_test.arraysize_test.o obj/util/misc/util_test.capture_context_test.o obj/util/misc/util_test.clock_test.o obj/util/misc/util_test.from_pointer_cast_test.o obj/util/misc/util_test.initialization_state_dcheck_test.o obj/util/misc/util_test.initialization_state_test.o obj/util/misc/util_test.no_cfi_icall_test.o obj/util/misc/util_test.paths_test.o obj/util/misc/util_test.random_string_test.o obj/util/misc/util_test.range_set_test.o obj/util/misc/util_test.reinterpret_bytes_test.o obj/util/misc/util_test.scoped_forbid_return_test.o obj/util/misc/util_test.time_test.o obj/util/misc/util_test.uuid_test.o obj/util/net/util_test.http_body_gzip_test.o obj/util/net/util_test.http_body_test.o obj/util/net/util_test.http_body_test_util.o obj/util/net/util_test.http_multipart_builder_test.o obj/util/net/util_test.url_test.o obj/util/numeric/util_test.checked_address_range_test.o obj/util/numeric/util_test.checked_range_test.o obj/util/numeric/util_test.in_range_cast_test.o obj/util/numeric/util_test.int128_test.o obj/util/process/util_test.process_memory_range_test.o obj/util/process/util_test.process_memory_test.o obj/util/stdlib/util_test.aligned_allocator_test.o obj/util/stdlib/util_test.map_insert_test.o obj/util/stdlib/util_test.string_number_conversion_test.o obj/util/stdlib/util_test.strlcpy_test.o obj/util/stdlib/util_test.strnlen_test.o obj/util/stdlib/util_test.thread_safe_vector_test.o obj/util/stream/util_test.base94_output_stream_test.o obj/util/stream/util_test.file_encoder_test.o obj/util/stream/util_test.log_output_stream_test.o obj/util/stream/util_test.test_output_stream.o obj/util/stream/util_test.zlib_output_stream_test.o obj/util/string/util_test.split_string_test.o obj/util/synchronization/util_test.scoped_spin_guard_test.o obj/util/synchronization/util_test.semaphore_test.o obj/util/thread/util_test.thread_log_messages_test.o obj/util/thread/util_test.thread_test.o obj/util/thread/util_test.worker_thread_test.o obj/util/net/util_test.http_transport_test.o obj/util/posix/util_test.process_info_test.o obj/util/posix/util_test.signals_test.o obj/util/posix/util_test.symbolic_constants_posix_test.o obj/util/posix/util_test.scoped_mmap_test.o obj/util/mac/util_test.xattr_test.o obj/util/misc/util_test.capture_context_test_util_mac.o obj/util/mach/util_test.composite_mach_message_server_test.o obj/util/mach/util_test.exc_server_variants_test.o obj/util/mach/util_test.exception_behaviors_test.o obj/util/mach/util_test.mach_extensions_test.o obj/util/mach/util_test.mach_message_test.o obj/util/mach/util_test.symbolic_constants_mach_test.o obj/util/mac/util_test.launchd_test.o obj/util/mac/util_test.mac_util_test.o obj/util/mac/util_test.service_management_test.o obj/util/mac/util_test.sysctl_test.o obj/util/mach/util_test.bootstrap_test.o obj/util/mach/util_test.child_port_handshake_test.o obj/util/mach/util_test.child_port_server_test.o obj/util/mach/util_test.exc_client_variants_test.o obj/util/mach/util_test.exception_ports_test.o obj/util/mach/util_test.exception_types_test.o obj/util/mach/util_test.mach_message_server_test.o obj/util/mach/util_test.notify_server_test.o obj/util/mach/util_test.scoped_task_suspend_test.o obj/util/process/util_test.process_memory_mac_test.o || obj/util/libnet.a obj/util/libutil.a obj/third_party/mini_chromium/base.stamp obj/client/libclient.a obj/compat/compat.stamp obj/test/libtest.a obj/third_party/googletest/libgoogletest.a obj/third_party/googletest/libgooglemock.a obj/third_party/zlib/zlib.stamp obj/build/apple_enable_arc.stamp obj/util/no_cfi_icall.stamp obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/libmig_output.a obj/client/libcommon.a obj/handler/libhandler.a obj/handler/libcommon.a obj/minidump/libminidump.a obj/minidump/libformat.a obj/snapshot/libcontext.a obj/snapshot/libsnapshot.a obj/tools/tool_support.stamp ./http_transport_test_server

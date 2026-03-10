@@ -1,0 +1,152 @@
+rule cc
+  command = clang -MMD -MF ${out}.d ${defines} ${include_dirs} ${framework_dirs} ${cflags} ${cflags_c} -c ${in} -o ${out}
+  description = CC ${out}
+  depfile = ${out}.d
+  deps = gcc
+rule cxx
+  command = clang++ -MMD -MF ${out}.d ${defines} ${include_dirs} ${framework_dirs} ${cflags} ${cflags_cc} -c ${in} -o ${out}
+  description = CXX ${out}
+  depfile = ${out}.d
+  deps = gcc
+rule objc
+  command = clang -MMD -MF ${out}.d ${defines} ${include_dirs} ${framework_dirs} ${cflags} ${cflags_objc} -c ${in} -o ${out}
+  description = OBJC ${out}
+  depfile = ${out}.d
+  deps = gcc
+rule objcxx
+  command = clang++ -MMD -MF ${out}.d ${defines} ${include_dirs} ${framework_dirs} ${cflags} ${cflags_objcc} -c ${in} -o ${out}
+  description = OBJCXX ${out}
+  depfile = ${out}.d
+  deps = gcc
+rule asm
+  command = clang++ -MMD -MF ${out}.d ${defines} ${include_dirs} ${asmflags} -c ${in} -o ${out}
+  description = ASM ${out}
+  depfile = ${out}.d
+  deps = gcc
+rule alink
+  command = libtool -static -no_warning_for_no_symbols ${arflags} -o ${out} ${in}
+  description = AR ${out}
+rule solink_module
+  command = clang++ -shared ${ldflags} -o "${output_dir}/${target_output_name}${output_extension}" -Wl,-install_name,"${target_output_name}${output_extension}"  ${in} ${solibs} ${frameworks}  ${libs}
+  description = SOLINK_MODULE ${output_dir}/${target_output_name}${output_extension}
+rule link
+  command = clang++ ${ldflags} -o "${output_dir}/${target_output_name}${output_extension}"  ${in} ${solibs} ${frameworks}  ${libs}
+  description = LINK ${output_dir}/${target_output_name}${output_extension}
+rule copy
+  command = ln -f ${in} ${out} 2>/dev/null || (rm -rf ${out} && cp -af ${in} ${out})
+  description = COPY ${in} ${out}
+rule stamp
+  command = touch ${out}
+  description = STAMP ${out}
+rule copy_bundle_data
+  command = rm -rf ${out} && cp -fRc ${in} ${out} 2>/dev/null || (rm -rf ${out} && cp -fR ${in} ${out})
+  description = COPY_BUNDLE_DATA ${in} ${out}
+rule compile_xcassets
+  command = /bin/true
+
+subninja obj/crashpad_client_test.ninja
+subninja obj/crashpad_handler_test.ninja
+subninja obj/crashpad_minidump_test.ninja
+subninja obj/crashpad_snapshot_test.ninja
+subninja obj/crashpad_test_test.ninja
+subninja obj/crashpad_util_test.ninja
+build obj/build/apple_enable_arc.stamp: stamp
+build obj/build/default_exe_manifest_win.stamp: stamp
+subninja obj/client/client.ninja
+subninja obj/client/client_test.ninja
+subninja obj/client/common.ninja
+subninja obj/client/ring_buffer_annotation_load_test.ninja
+build obj/compat/compat.stamp: stamp obj/third_party/mini_chromium/base.stamp obj/util/no_cfi_icall.stamp
+subninja obj/handler/common.ninja
+subninja obj/handler/crashpad_handler.ninja
+subninja obj/handler/crashpad_handler_test_extended_handler.ninja
+subninja obj/handler/handler.ninja
+subninja obj/handler/handler_test.ninja
+subninja obj/minidump/format.ninja
+subninja obj/minidump/minidump.ninja
+subninja obj/minidump/minidump_test.ninja
+subninja obj/minidump/test_support.ninja
+subninja obj/snapshot/context.ninja
+subninja obj/snapshot/crashpad_snapshot_test_module.ninja
+subninja obj/snapshot/crashpad_snapshot_test_module_crashy_initializer.ninja
+subninja obj/snapshot/crashpad_snapshot_test_module_large.ninja
+subninja obj/snapshot/crashpad_snapshot_test_module_small.ninja
+subninja obj/snapshot/crashpad_snapshot_test_no_op.ninja
+subninja obj/snapshot/snapshot.ninja
+subninja obj/snapshot/snapshot_test.ninja
+build obj/snapshot/snapshot_test_ios_data.stamp: stamp ../../OrginPackage/crashpad-main/snapshot/ios/testdata/crash-1fa088dda0adb41459d063078a0f384a0bb8eefa ../../OrginPackage/crashpad-main/snapshot/ios/testdata/crash-5726011582644224 ../../OrginPackage/crashpad-main/snapshot/ios/testdata/crash-6605504629637120 ../../OrginPackage/crashpad-main/snapshot/ios/testdata/crash-c44acfcbccd8c7a8
+subninja obj/snapshot/test_support.ninja
+subninja obj/test/crashpad_test_test_multiprocess_exec_test_child.ninja
+subninja obj/test/googlemock_main.ninja
+subninja obj/test/googletest_main.ninja
+subninja obj/test/test.ninja
+subninja obj/test/test_test.ninja
+subninja obj/third_party/cpp-httplib/cpp-httplib.ninja
+subninja obj/third_party/googletest/gmock_all_test.ninja
+subninja obj/third_party/googletest/gmock_link_test.ninja
+subninja obj/third_party/googletest/gmock_stress_test.ninja
+subninja obj/third_party/googletest/googlemock.ninja
+build obj/third_party/googletest/googlemock_all_tests.stamp: stamp ./gmock_all_test ./gmock_link_test ./gmock_stress_test
+subninja obj/third_party/googletest/googlemock_main.ninja
+subninja obj/third_party/googletest/googletest.ninja
+build obj/third_party/googletest/googletest_all_tests.stamp: stamp ./gtest_all_test ./gtest_environment_test ./gtest_listener_test ./gtest_macro_stack_footprint_test ./gtest_no_test ./gtest_param_test ./gtest_premature_exit_test ./gtest_repeat_test ./gtest_skip_in_environment_setup_test ./gtest_sole_header_test ./gtest_stress_test ./gtest_unittest_api_test
+subninja obj/third_party/googletest/googletest_main.ninja
+subninja obj/third_party/googletest/gtest_all_test.ninja
+subninja obj/third_party/googletest/gtest_environment_test.ninja
+subninja obj/third_party/googletest/gtest_listener_test.ninja
+subninja obj/third_party/googletest/gtest_macro_stack_footprint_test.ninja
+subninja obj/third_party/googletest/gtest_no_test.ninja
+subninja obj/third_party/googletest/gtest_param_test.ninja
+subninja obj/third_party/googletest/gtest_premature_exit_test.ninja
+subninja obj/third_party/googletest/gtest_repeat_test.ninja
+subninja obj/third_party/googletest/gtest_skip_in_environment_setup_test.ninja
+subninja obj/third_party/googletest/gtest_sole_header_test.ninja
+subninja obj/third_party/googletest/gtest_stress_test.ninja
+subninja obj/third_party/googletest/gtest_unittest_api_test.ninja
+build obj/third_party/mini_chromium/base.stamp: stamp obj/third_party/mini_chromium/mini_chromium/base/libbase.a
+build obj/third_party/mini_chromium/base_test_support.stamp: stamp
+build obj/third_party/mini_chromium/build.stamp: stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp
+subninja obj/third_party/mini_chromium/mini_chromium/base/base.ninja
+subninja obj/third_party/mini_chromium/mini_chromium/build/build.ninja
+subninja obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.ninja
+rule __third_party_mini_chromium_mini_chromium_build_chromeos_buildflags___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule
+  command = python3 ../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium/build/write_buildflag_header.py --output build/chromeos_buildflags.h --rulename //third_party/mini_chromium/mini_chromium/build$:chromeos_buildflags --gen-dir gen --definitions gen/build/chromeos_buildflags.h.flags
+  description = ACTION //third_party/mini_chromium/mini_chromium/build:chromeos_buildflags(//third_party/mini_chromium/mini_chromium/build/config:gcc_like_toolchain)
+  restat = 1
+
+build gen/build/chromeos_buildflags.h: __third_party_mini_chromium_mini_chromium_build_chromeos_buildflags___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule | ../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium/build/write_buildflag_header.py gen/build/chromeos_buildflags.h.flags obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp
+
+build obj/third_party/mini_chromium/mini_chromium/build/chromeos_buildflags.stamp: stamp gen/build/chromeos_buildflags.h
+subninja obj/third_party/zlib/zlib.ninja
+subninja obj/tools/base94_encoder.ninja
+subninja obj/tools/catch_exception_tool.ninja
+subninja obj/tools/crashpad_database_util.ninja
+subninja obj/tools/crashpad_http_upload.ninja
+subninja obj/tools/dump_minidump_annotations.ninja
+subninja obj/tools/exception_port_tool.ninja
+subninja obj/tools/generate_dump.ninja
+subninja obj/tools/on_demand_service_tool.ninja
+subninja obj/tools/run_with_crashpad.ninja
+subninja obj/tools/tool_support.ninja
+subninja obj/util/http_transport_test_server.ninja
+rule __util_mig___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule
+  command = python3 ../../OrginPackage/crashpad-main/util/mach/mig.py ${in} --sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk --arch arm64 gen/util/mach/${source_name_part}User.c gen/util/mach/${source_name_part}Server.c gen/util/mach/${source_name_part}.h gen/util/mach/${source_name_part}Server.h -- -I../../OrginPackage/crashpad-main -I../../OrginPackage/crashpad-main/compat/mac -DMACH_EXC_SERVER_TASKIDTOKEN -DMACH_EXC_SERVER_TASKIDTOKEN_STATE
+  description = ACTION //util:mig(//third_party/mini_chromium/mini_chromium/build/config:gcc_like_toolchain)
+  restat = 1
+build obj/util/mig.inputdeps.stamp: stamp ../../OrginPackage/crashpad-main/util/mach/mig.py ../../OrginPackage/crashpad-main/util/mach/mig_fix.py ../../OrginPackage/crashpad-main/util/mach/mig_gen.py
+
+build gen/util/mach/excUser.c gen/util/mach/excServer.c gen/util/mach/exc.h gen/util/mach/excServer.h: __util_mig___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach/exc.defs | obj/util/mig.inputdeps.stamp
+  source_name_part = exc
+build gen/util/mach/mach_excUser.c gen/util/mach/mach_excServer.c gen/util/mach/mach_exc.h gen/util/mach/mach_excServer.h: __util_mig___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach/mach_exc.defs | obj/util/mig.inputdeps.stamp
+  source_name_part = mach_exc
+build gen/util/mach/notifyUser.c gen/util/mach/notifyServer.c gen/util/mach/notify.h gen/util/mach/notifyServer.h: __util_mig___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach/notify.defs | obj/util/mig.inputdeps.stamp
+  source_name_part = notify
+build gen/util/mach/child_portUser.c gen/util/mach/child_portServer.c gen/util/mach/child_port.h gen/util/mach/child_portServer.h: __util_mig___third_party_mini_chromium_mini_chromium_build_config_gcc_like_toolchain__rule ../../OrginPackage/crashpad-main/util/mach/child_port.defs | obj/util/mig.inputdeps.stamp
+  source_name_part = child_port
+
+build obj/util/mig.stamp: stamp gen/util/mach/excUser.c gen/util/mach/excServer.c gen/util/mach/exc.h gen/util/mach/excServer.h gen/util/mach/mach_excUser.c gen/util/mach/mach_excServer.c gen/util/mach/mach_exc.h gen/util/mach/mach_excServer.h gen/util/mach/notifyUser.c gen/util/mach/notifyServer.c gen/util/mach/notify.h gen/util/mach/notifyServer.h gen/util/mach/child_portUser.c gen/util/mach/child_portServer.c gen/util/mach/child_port.h gen/util/mach/child_portServer.h
+subninja obj/util/mig_output.ninja
+subninja obj/util/net.ninja
+subninja obj/util/no_cfi_icall.ninja
+subninja obj/util/util.ninja
+subninja obj/util/util_test.ninja

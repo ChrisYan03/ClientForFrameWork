@@ -1,12 +1,19 @@
-#pragma once
+// Copyright 2025 ClientForFrameWork. Crashpad 初始化，进程内尽早调用。
 
-namespace CrashpadInit {
+#ifndef CRASHPADINIT_H
+#define CRASHPADINIT_H
 
-/**
- * 在 main() 最早处调用，用于启动 Crashpad 崩溃捕获。
- * 需在 QApplication 等可能崩溃的代码之前调用。
- * 未定义 USE_CRASHPAD 时为空实现。
- */
-void initialize(int argc, char *argv[]);
+#include <QString>
 
-} // namespace CrashpadInit
+namespace Common {
+
+//! 使用当前可执行目录下的 crashpad_handler 与数据库目录初始化 Crashpad。
+//! 应在 QCoreApplication 创建后尽早调用（以便 applicationDirPath 可用）。
+//! \param handlerDir 放置 crashpad_handler 的目录，通常为 QCoreApplication::applicationDirPath()
+//! \param databaseDir 存放 minidump 的目录，若为空则使用 handlerDir + "/Crashpad"
+//! \return 是否初始化成功
+bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir = QString());
+
+} // namespace Common
+
+#endif // CRASHPADINIT_H

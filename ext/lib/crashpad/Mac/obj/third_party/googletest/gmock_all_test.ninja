@@ -1,0 +1,31 @@
+defines = -DNDEBUG -DGUNIT_NO_GOOGLE3=1
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/include -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -Wno-inconsistent-missing-override -Wno-sign-compare -std=c++23
+label_name = gmock_all_test
+target_output_name = gmock_all_test
+
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-actions_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-actions_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-cardinalities_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-cardinalities_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-function-mocker_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-function-mocker_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-internal-utils_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-internal-utils_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-arithmetic_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-matchers-arithmetic_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-comparisons_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-matchers-comparisons_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-containers_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-matchers-containers_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-misc_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-matchers-misc_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-more-actions_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-more-actions_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-nice-strict_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-nice-strict_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-port_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-port_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-pp-string_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-pp-string_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-pp_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-pp_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-spec-builders_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock-spec-builders_test.cc
+build obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googlemock/test/gmock_test.cc
+
+build ./gmock_all_test: link obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-actions_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-cardinalities_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-function-mocker_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-internal-utils_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-arithmetic_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-comparisons_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-containers_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-matchers-misc_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-more-actions_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-nice-strict_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-port_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-pp-string_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-pp_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock-spec-builders_test.o obj/third_party/googletest/googletest/googlemock/test/gmock_all_test.gmock_test.o obj/third_party/googletest/libgooglemock.a obj/third_party/googletest/libgooglemock_main.a obj/third_party/googletest/libgoogletest.a
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = 
+  output_dir = .

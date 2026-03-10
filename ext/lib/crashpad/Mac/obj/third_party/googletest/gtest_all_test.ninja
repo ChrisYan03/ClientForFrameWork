@@ -1,0 +1,31 @@
+defines = -DNDEBUG -DGUNIT_NO_GOOGLE3=1
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest -I../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/include
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = gtest_all_test
+target_output_name = gtest_all_test
+
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-death-test-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-death-test-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-filepath-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-filepath-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-message-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-message-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-options-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-options-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-port-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-port-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-test-part-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-test-part-test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest-typed-test2_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest-typed-test2_test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest-typed-test_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest-typed-test_test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_main_unittest.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_main_unittest.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_pred_impl_unittest.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_pred_impl_unittest.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_prod_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_prod_test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_skip_test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_skip_test.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_unittest.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/gtest_unittest.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.production.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/production.cc
+build obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-printers-test.o: cxx ../../OrginPackage/crashpad-main/third_party/googletest/googletest/googletest/test/googletest-printers-test.cc
+
+build ./gtest_all_test: link obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-death-test-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-filepath-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-message-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-options-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-port-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-test-part-test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest-typed-test2_test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest-typed-test_test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_main_unittest.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_pred_impl_unittest.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_prod_test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_skip_test.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.gtest_unittest.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.production.o obj/third_party/googletest/googletest/googletest/test/gtest_all_test.googletest-printers-test.o obj/third_party/googletest/libgoogletest.a obj/third_party/googletest/libgoogletest_main.a
+  ldflags = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -Wl,-dead_strip
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = 
+  output_dir = .

@@ -1,0 +1,44 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_SYSTEM
+framework_dirs =
+include_dirs = -I../../OrginPackage/crashpad-main -Igen -I../../OrginPackage/crashpad-main/third_party/mini_chromium/mini_chromium -I../../OrginPackage/crashpad-main/compat/mac -I../../OrginPackage/crashpad-main/compat/non_win
+cflags = -Wall -Werror -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing -fobjc-call-cxx-cdtors -fstack-protector-all -fvisibility-inlines-hidden -fvisibility=hidden -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -arch arm64 -mmacosx-version-min=12.0 -O3 -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = -std=c++23
+label_name = snapshot
+target_output_name = libsnapshot
+
+build obj/snapshot/snapshot.annotation_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/annotation_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/snapshot.capture_memory.o: cxx ../../OrginPackage/crashpad-main/snapshot/capture_memory.cc || obj/util/mig.stamp
+build obj/snapshot/snapshot.crashpad_info_client_options.o: cxx ../../OrginPackage/crashpad-main/snapshot/crashpad_info_client_options.cc || obj/util/mig.stamp
+build obj/snapshot/snapshot.handle_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/handle_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/snapshot.memory_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/memory_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.exception_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/exception_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.memory_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/memory_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.minidump_annotation_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/minidump_annotation_reader.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.minidump_context_converter.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/minidump_context_converter.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.minidump_simple_string_dictionary_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/minidump_simple_string_dictionary_reader.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.minidump_string_list_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/minidump_string_list_reader.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.minidump_string_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/minidump_string_reader.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.module_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/module_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.process_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/process_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.system_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/system_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/minidump/snapshot.thread_snapshot_minidump.o: cxx ../../OrginPackage/crashpad-main/snapshot/minidump/thread_snapshot_minidump.cc || obj/util/mig.stamp
+build obj/snapshot/snapshot.unloaded_module_snapshot.o: cxx ../../OrginPackage/crashpad-main/snapshot/unloaded_module_snapshot.cc || obj/util/mig.stamp
+build obj/snapshot/posix/snapshot.timezone.o: cxx ../../OrginPackage/crashpad-main/snapshot/posix/timezone.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.cpu_context_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/cpu_context_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.exception_snapshot_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/exception_snapshot_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.mach_o_image_annotations_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/mach_o_image_annotations_reader.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.mach_o_image_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/mach_o_image_reader.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.mach_o_image_segment_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/mach_o_image_segment_reader.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.mach_o_image_symbol_table_reader.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/mach_o_image_symbol_table_reader.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.module_snapshot_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/module_snapshot_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.process_reader_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/process_reader_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.process_snapshot_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/process_snapshot_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.process_types.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/process_types.cc || obj/util/mig.stamp
+build obj/snapshot/mac/process_types/snapshot.custom.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/process_types/custom.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.system_snapshot_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/system_snapshot_mac.cc || obj/util/mig.stamp
+build obj/snapshot/mac/snapshot.thread_snapshot_mac.o: cxx ../../OrginPackage/crashpad-main/snapshot/mac/thread_snapshot_mac.cc || obj/util/mig.stamp
+
+build obj/snapshot/libsnapshot.a: alink obj/snapshot/snapshot.annotation_snapshot.o obj/snapshot/snapshot.capture_memory.o obj/snapshot/snapshot.crashpad_info_client_options.o obj/snapshot/snapshot.handle_snapshot.o obj/snapshot/snapshot.memory_snapshot.o obj/snapshot/minidump/snapshot.exception_snapshot_minidump.o obj/snapshot/minidump/snapshot.memory_snapshot_minidump.o obj/snapshot/minidump/snapshot.minidump_annotation_reader.o obj/snapshot/minidump/snapshot.minidump_context_converter.o obj/snapshot/minidump/snapshot.minidump_simple_string_dictionary_reader.o obj/snapshot/minidump/snapshot.minidump_string_list_reader.o obj/snapshot/minidump/snapshot.minidump_string_reader.o obj/snapshot/minidump/snapshot.module_snapshot_minidump.o obj/snapshot/minidump/snapshot.process_snapshot_minidump.o obj/snapshot/minidump/snapshot.system_snapshot_minidump.o obj/snapshot/minidump/snapshot.thread_snapshot_minidump.o obj/snapshot/snapshot.unloaded_module_snapshot.o obj/snapshot/posix/snapshot.timezone.o obj/snapshot/mac/snapshot.cpu_context_mac.o obj/snapshot/mac/snapshot.exception_snapshot_mac.o obj/snapshot/mac/snapshot.mach_o_image_annotations_reader.o obj/snapshot/mac/snapshot.mach_o_image_reader.o obj/snapshot/mac/snapshot.mach_o_image_segment_reader.o obj/snapshot/mac/snapshot.mach_o_image_symbol_table_reader.o obj/snapshot/mac/snapshot.module_snapshot_mac.o obj/snapshot/mac/snapshot.process_reader_mac.o obj/snapshot/mac/snapshot.process_snapshot_mac.o obj/snapshot/mac/snapshot.process_types.o obj/snapshot/mac/process_types/snapshot.custom.o obj/snapshot/mac/snapshot.system_snapshot_mac.o obj/snapshot/mac/snapshot.thread_snapshot_mac.o || obj/snapshot/libcontext.a obj/third_party/mini_chromium/base.stamp obj/client/libcommon.a obj/compat/compat.stamp obj/minidump/libformat.a obj/util/libutil.a obj/third_party/mini_chromium/mini_chromium/base/libbase.a obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/zlib/zlib.stamp obj/util/libmig_output.a
+  arflags =
+  output_extension = .a
+  output_dir = obj/snapshot

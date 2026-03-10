@@ -2,6 +2,7 @@
 #include "Common/StyleManager.h"
 #include "Common/ComponentLoader.h"
 #include "Common/MainWindowSetup.h"
+#include "Common/CrashpadInit.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -19,6 +20,9 @@ int main(int argc, char *argv[])
     qputenv("QSG_RHI_BACKEND", "opengl");
 #endif
     QApplication app(argc, argv);
+
+    const QString appDir = QCoreApplication::applicationDirPath();
+    Common::initializeCrashpad(appDir, appDir + QStringLiteral("/Crashpad"));
 
     StyleManager::instance()->applyTheme(StyleManager::LightTheme);
     QQuickStyle::setStyle("Fusion");
