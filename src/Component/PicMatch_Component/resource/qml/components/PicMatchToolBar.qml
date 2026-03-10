@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Window
 
 /**
  * PicMatch 工具栏组件
@@ -26,6 +27,19 @@ Rectangle {
     property color primaryColor: themeColors.primaryColor || "#007acc"
     property color successColor: "#4CAF50"  // 运行时的绿色
 
+    function showTip(btn, text) {
+        tooltipWindow.tipText = text
+        var pt = btn.mapToGlobal(0, btn.height + 4)
+        tooltipWindow.x = pt.x
+        tooltipWindow.y = pt.y
+        tooltipWindow.visible = true
+    }
+
+    function tryHideTip() {
+        if (!runButton.hovered && !stopButton.hovered && !configButton.hovered)
+            tooltipWindow.visible = false
+    }
+
     height: 38
     color: bgColor
     border.color: borderColor
@@ -40,6 +54,34 @@ Rectangle {
         color: root.borderColor
     }
 
+    // 组件按钮提示：参考框架标题栏样式
+    Window {
+        id: tooltipWindow
+        flags: Qt.Tool | Qt.FramelessWindowHint
+        color: "transparent"
+        visible: false
+        width: tipContent.implicitWidth + 24
+        height: tipContent.implicitHeight + 16
+        minimumWidth: 60
+        minimumHeight: 28
+        property string tipText: ""
+
+        Rectangle {
+            anchors.fill: parent
+            color: themeColors.tooltipBackground || "#ffffff"
+            border.color: themeColors.tooltipBorder || "#dadce0"
+            radius: 4
+
+            Label {
+                id: tipContent
+                anchors.centerIn: parent
+                color: themeColors.tooltipText || "#3c4043"
+                font.pixelSize: 12
+                text: tooltipWindow.tipText
+            }
+        }
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 12
@@ -52,10 +94,7 @@ Rectangle {
             Layout.preferredWidth: 46
             Layout.preferredHeight: 38
             enabled: !root.running
-
-            ToolTip.text: qsTr("启动")
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
+            hoverEnabled: true
 
             Image {
                 source: Qt.resolvedUrl("../../resource/icons/start.svg")
@@ -82,6 +121,12 @@ Rectangle {
             }
 
             onClicked: root.runClicked()
+            onHoveredChanged: {
+                if (hovered)
+                    root.showTip(runButton, qsTr("启动"))
+                else
+                    root.tryHideTip()
+            }
         }
 
         // 停止按钮
@@ -90,10 +135,7 @@ Rectangle {
             Layout.preferredWidth: 46
             Layout.preferredHeight: 38
             enabled: root.running
-
-            ToolTip.text: qsTr("停止")
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
+            hoverEnabled: true
 
             Image {
                 source: Qt.resolvedUrl("../../resource/icons/stop.svg")
@@ -108,6 +150,12 @@ Rectangle {
             }
 
             onClicked: root.stopClicked()
+            onHoveredChanged: {
+                if (hovered)
+                    root.showTip(stopButton, qsTr("停止"))
+                else
+                    root.tryHideTip()
+            }
         }
 
         // 填充
@@ -120,10 +168,7 @@ Rectangle {
             id: configButton
             Layout.preferredWidth: 46
             Layout.preferredHeight: 38
-
-            ToolTip.text: qsTr("配置")
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
+            hoverEnabled: true
 
             Image {
                 source: Qt.resolvedUrl("../../resource/icons/settings.svg")
@@ -138,6 +183,12 @@ Rectangle {
             }
 
             onClicked: root.configClicked()
+            onHoveredChanged: {
+                if (hovered)
+                    root.showTip(configButton, qsTr("配置"))
+                else
+                    root.tryHideTip()
+            }
         }
     }
 }

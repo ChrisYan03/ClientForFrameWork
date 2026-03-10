@@ -17,6 +17,7 @@ public:
         RoleId = Qt::UserRole + 1,
         RoleImageDataUrl,
         RoleImageFileUrl,
+        RoleImageProviderUrl,
         RoleConfidence,
         RoleAge,
         RoleRectX,

@@ -50,6 +50,8 @@ file(GLOB PICMATCH_SOURCES
 list(APPEND PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceListModel.cpp"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceListModel.h"
+    "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceImageProvider.cpp"
+    "${PICMATCH_SOURCE_DIR}/QmlBridge/FaceImageProvider.h"
 )
 
 add_library(PicMatchComponent SHARED ${PICMATCH_SOURCES})

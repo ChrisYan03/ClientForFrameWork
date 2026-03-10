@@ -1,6 +1,7 @@
 #include "PicMatchComponentApi.h"
 #include "QmlBridge/PlayerHostItem.h"
 #include "QmlBridge/PicMatchViewModel.h"
+#include "QmlBridge/FaceImageProvider.h"
 #include <QQmlEngine>
 #include <QCoreApplication>
 #include <QDir>
@@ -16,4 +17,10 @@ extern "C" PICMATCHCOMPONENT_API void PICMATCHCOMPONENT_CALL PicMatchComponent_R
     qmlRegisterType<PlayerHostItem>("App", 1, 0, "PlayerHostItem");
     // 可实例化类型，供 PicMatchPage.qml 中 PicMatchViewModel { id: picMatchViewModel } 使用
     qmlRegisterType<PicMatchViewModel>("PicMatchCore", 1, 0, "PicMatchViewModel");
+
+    // 仅注册一次图片 provider，供 QML 通过 image://picmatchfaces/<faceId> 取图。
+    if (!engine->property("picmatchFacesProviderInstalled").toBool()) {
+        engine->addImageProvider(QStringLiteral("picmatchfaces"), new FaceImageProvider());
+        engine->setProperty("picmatchFacesProviderInstalled", true);
+    }
 }

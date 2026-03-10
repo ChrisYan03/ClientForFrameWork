@@ -188,19 +188,3 @@ set_target_properties(ClientForFrame PROPERTIES
 message("ClientForFrame output run_directory: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 message("ClientForFrame output lib_directory: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
 
-# macOS：PicMatch 组件独立后，人脸识别数据应从 Component/PicMatch/bin 加载。若当前数据在 .app/Contents/MacOS 下，构建时同步到组件目录
-if(APPLE)
-  set(COMPONENT_PICMATCH_BIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/Component/PicMatch/bin")
-  add_custom_command(TARGET ClientForFrame POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Mac: mirroring face recognition data to Component/PicMatch/bin..."
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${COMPONENT_PICMATCH_BIN}/data"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE_DIR:ClientForFrame>/data" "${COMPONENT_PICMATCH_BIN}/data" || true
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${COMPONENT_PICMATCH_BIN}/face_detector"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE_DIR:ClientForFrame>/face_detector" "${COMPONENT_PICMATCH_BIN}/face_detector" || true
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${COMPONENT_PICMATCH_BIN}/age_model"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE_DIR:ClientForFrame>/age_model" "${COMPONENT_PICMATCH_BIN}/age_model" || true
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${COMPONENT_PICMATCH_BIN}/models"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE_DIR:ClientForFrame>/models" "${COMPONENT_PICMATCH_BIN}/models" || true
-    COMMENT "Mac: copy face recognition data from .app/Contents/MacOS to Component/PicMatch/bin"
-  )
-endif()

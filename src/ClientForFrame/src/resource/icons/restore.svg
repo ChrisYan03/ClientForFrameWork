@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-  <!-- 还原：后窗(大) + 前窗(小，偏左上) -->
-  <path fill="currentColor" d="M4 8h12v12H4V8z M8 4h12v12H8V4z"/>
+  <!-- 还原：外框填充，内框空心 -->
+  <rect x="4.75" y="8.75" width="11.5" height="11.5" fill="currentColor"/>
+  <rect x="8.75" y="4.75" width="11.5" height="11.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
 </svg>
