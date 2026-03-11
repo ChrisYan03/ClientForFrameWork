@@ -23,13 +23,17 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
     return false;
 #elif (defined(Q_OS_MAC) || defined(Q_OS_WIN)) && defined(HAVE_CRASHPAD)
 
-    std::string handlerPath;
+    QString handlerPath;
 #if defined(Q_OS_MAC)
-    handlerPath = (handlerDir + QStringLiteral("/crashpad_handler")).toStdString();
+    handlerPath = handlerDir + QStringLiteral("/crashpad_handler");
 #else
-    handlerPath = (handlerDir + QStringLiteral("/crashpad_handler.exe")).toStdString();
+    handlerPath = handlerDir + QStringLiteral("/crashpad_handler.exe");
 #endif
-    const base::FilePath handler(handlerPath);
+#if defined(Q_OS_WIN)
+    const base::FilePath handler(handlerPath.toStdWString());
+#else
+    const base::FilePath handler(handlerPath.toStdString());
+#endif
 
     QDir hDir(handlerDir);
 #if defined(Q_OS_MAC)
@@ -37,7 +41,7 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
 #else
     if (!hDir.exists(QStringLiteral("crashpad_handler.exe"))) {
 #endif
-        LOG_WARN("Crashpad: handler not found at {}", handlerPath);
+        LOG_WARN("Crashpad: handler not found at {}", handlerPath.toStdString());
         return false;
     }
 
@@ -45,8 +49,15 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
     if (dbDir.isEmpty())
         dbDir = handlerDir + QStringLiteral("/Crashpad");
     QDir().mkpath(dbDir);
-    const base::FilePath database(dbDir.toStdString());
-    const base::FilePath metricsDir(dbDir.toStdString());
+#if defined(Q_OS_WIN)
+    const std::wstring dbDirNative = dbDir.toStdWString();
+    const base::FilePath database(dbDirNative);
+    const base::FilePath metricsDir(dbDirNative);
+#else
+    const std::string dbDirNative = dbDir.toStdString();
+    const base::FilePath database(dbDirNative);
+    const base::FilePath metricsDir(dbDirNative);
+#endif
 
     std::map<std::string, std::string> annotations;
     annotations["prod"] = "ClientForFrame";
@@ -66,7 +77,7 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
         false   // asynchronous_start
     );
     if (ok)
-        LOG_INFO("Crashpad initialized: handler={} database={}", handlerPath, dbDir.toStdString());
+        LOG_INFO("Crashpad initialized: handler={} database={}", handlerPath.toStdString(), dbDir.toStdString());
     else
         LOG_WARN("Crashpad StartHandler failed");
     return ok;

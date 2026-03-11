@@ -177,7 +177,11 @@ endif()
 # ClientForFrame 在 src/ClientForFrame，项目根为 src，ext 在 src/../ext
 set(CRASHPAD_ROOT "${CMAKE_SOURCE_DIR}/../ext")
 set(CRASHPAD_INCLUDE "${CRASHPAD_ROOT}/include/crashpad")
+# mini_chromium 头文件优先从 ext/include 读取；若未同步则回退到本地 crashpad 源码目录
 set(CRASHPAD_MINI_CHROMIUM "${CRASHPAD_INCLUDE}/third_party/mini_chromium/mini_chromium")
+if(NOT EXISTS "${CRASHPAD_MINI_CHROMIUM}/base/files/file_path.h")
+    set(CRASHPAD_MINI_CHROMIUM "${CRASHPAD_ROOT}/OrginPackage/crashpad_main_/crashpad/third_party/mini_chromium/mini_chromium")
+endif()
 set(CRASHPAD_MAC "${CRASHPAD_ROOT}/lib/crashpad/Mac")
 set(CRASHPAD_WIN "${CRASHPAD_ROOT}/lib/crashpad/Win64")
 if(APPLE)
