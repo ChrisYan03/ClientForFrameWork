@@ -1,0 +1,34 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/googletest/googletest/googletest/include -I../../third_party/googletest/googletest/googlemock/include -I../../third_party/zlib/zlib
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = test_test
+target_out_dir = obj/test
+target_output_name = test_test
+
+build obj/test/test_test.hex_string_test.obj: cxx ../../test/hex_string_test.cc
+  source_file_part = hex_string_test.cc
+  source_name_part = hex_string_test
+build obj/test/test_test.main_arguments_test.obj: cxx ../../test/main_arguments_test.cc
+  source_file_part = main_arguments_test.cc
+  source_name_part = main_arguments_test
+build obj/test/test_test.multiprocess_exec_test.obj: cxx ../../test/multiprocess_exec_test.cc
+  source_file_part = multiprocess_exec_test.cc
+  source_name_part = multiprocess_exec_test
+build obj/test/test_test.scoped_guarded_page_test.obj: cxx ../../test/scoped_guarded_page_test.cc
+  source_file_part = scoped_guarded_page_test.cc
+  source_name_part = scoped_guarded_page_test
+build obj/test/test_test.scoped_temp_dir_test.obj: cxx ../../test/scoped_temp_dir_test.cc
+  source_file_part = scoped_temp_dir_test.cc
+  source_name_part = scoped_temp_dir_test
+build obj/test/test_test.test_paths_test.obj: cxx ../../test/test_paths_test.cc
+  source_file_part = test_paths_test.cc
+  source_name_part = test_paths_test
+build obj/test/win/test_test.win_child_process_test.obj: cxx ../../test/win/win_child_process_test.cc
+  source_file_part = win_child_process_test.cc
+  source_name_part = win_child_process_test
+build obj/test/win/test_test.win_multiprocess_test.obj: cxx ../../test/win/win_multiprocess_test.cc
+  source_file_part = win_multiprocess_test.cc
+  source_name_part = win_multiprocess_test
+
+build obj/test/test_test.stamp: stamp obj/test/test_test.hex_string_test.obj obj/test/test_test.main_arguments_test.obj obj/test/test_test.multiprocess_exec_test.obj obj/test/test_test.scoped_guarded_page_test.obj obj/test/test_test.scoped_temp_dir_test.obj obj/test/test_test.test_paths_test.obj obj/test/win/test_test.win_child_process_test.obj obj/test/win/test_test.win_multiprocess_test.obj || obj/test/test.lib obj/third_party/mini_chromium/base.stamp obj/compat/compat.lib obj/third_party/googletest/googletest.lib obj/third_party/googletest/googlemock.lib obj/util/util.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib ./crashpad_test_test_multiprocess_exec_test_child.exe

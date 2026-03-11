@@ -1,0 +1,8 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../../third_party/cpp-httplib/cpp-httplib -I../../third_party/zlib/zlib
+label_name = cpp-httplib
+target_out_dir = obj/third_party/cpp-httplib
+target_output_name = cpp-httplib
+
+
+build obj/third_party/cpp-httplib/cpp-httplib.stamp: stamp || obj/third_party/zlib/zlib.lib

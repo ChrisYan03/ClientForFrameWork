@@ -1,0 +1,19 @@
+defines = -DNDEBUG
+include_dirs = -I../../third_party/googletest/googletest/googletest/include
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = gtest_no_test
+target_out_dir = obj/third_party/googletest
+target_output_name = gtest_no_test
+
+build obj/third_party/googletest/googletest/googletest/test/gtest_no_test.gtest_no_test_unittest.obj: cxx ../../third_party/googletest/googletest/googletest/test/gtest_no_test_unittest.cc
+  source_file_part = gtest_no_test_unittest.cc
+  source_name_part = gtest_no_test_unittest
+
+build ./gtest_no_test.exe: link obj/third_party/googletest/googletest/googletest/test/gtest_no_test.gtest_no_test_unittest.obj obj/third_party/googletest/googletest.lib
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

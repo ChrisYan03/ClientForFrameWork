@@ -1,0 +1,19 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../../third_party/mini_chromium/mini_chromium -Igen -I../.. -I../../compat/win -I../../third_party/zlib/zlib
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = crashpad_snapshot_test_module
+target_out_dir = obj/snapshot
+target_output_name = crashpad_snapshot_test_module
+
+build obj/snapshot/crashpad_snapshot_test_module.crashpad_info_client_options_test_module.obj: cxx ../../snapshot/crashpad_info_client_options_test_module.cc
+  source_file_part = crashpad_info_client_options_test_module.cc
+  source_name_part = crashpad_info_client_options_test_module
+
+build ./crashpad_snapshot_test_module.dll: solink_module obj/snapshot/crashpad_snapshot_test_module.crashpad_info_client_options_test_module.obj obj/client/client.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/client/common.lib obj/util/util.lib obj/compat/compat.lib obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib || obj/third_party/mini_chromium/base.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF
+  libs = kernel32.lib advapi32.lib rpcrt4.lib user32.lib version.lib winhttp.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .dll
+  output_dir = .

@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+include_dirs =
+label_name = crashpad_handler_test
+target_out_dir = obj
+target_output_name = crashpad_handler_test
+
+
+build ./crashpad_handler_test.exe: link obj/handler/handler_test.crash_report_upload_rate_limit_test.obj obj/handler/handler_test.minidump_to_upload_parameters_test.obj obj/handler/handler_test.crashpad_handler_test.obj obj/tools/tool_support.tool_support.obj obj/handler/win/wer/crashpad_wer_test.crashpad_wer_module_unittest.obj obj/handler/win/wer/crashpad_wer_handler.crashpad_wer.obj obj/test/googletest_main.lib obj/handler/handler.lib obj/handler/common.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/util/util.lib obj/compat/compat.lib obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib obj/client/common.lib obj/minidump/minidump.lib obj/minidump/format.lib obj/snapshot/context.lib obj/snapshot/snapshot.lib obj/util/net.lib obj/client/client.lib obj/snapshot/test_support.lib obj/test/test.lib obj/third_party/googletest/googletest.lib obj/minidump/test_support.lib || obj/handler/handler_test.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/tools/tool_support.stamp obj/handler/win/wer/crashpad_wer_test.stamp obj/handler/win/wer/crashpad_wer_handler.stamp obj/util/util_registration_protocol.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib advapi32.lib user32.lib version.lib winhttp.lib powrprof.lib rpcrt4.lib shell32.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

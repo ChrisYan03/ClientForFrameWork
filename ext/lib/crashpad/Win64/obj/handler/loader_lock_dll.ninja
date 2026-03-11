@@ -1,0 +1,19 @@
+defines = -DNDEBUG
+include_dirs =
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = loader_lock_dll
+target_out_dir = obj/handler
+target_output_name = loader_lock_dll
+
+build obj/handler/win/loader_lock_dll.loader_lock_dll.obj: cxx ../../handler/win/loader_lock_dll.cc
+  source_file_part = loader_lock_dll.cc
+  source_name_part = loader_lock_dll
+
+build ./loader_lock_dll.dll: solink_module obj/handler/win/loader_lock_dll.loader_lock_dll.obj
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF
+  libs = kernel32.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .dll
+  output_dir = .

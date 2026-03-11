@@ -1,0 +1,19 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/zlib/zlib
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = crashpad_database_util
+target_out_dir = obj/tools
+target_output_name = crashpad_database_util
+
+build obj/tools/crashpad_database_util.crashpad_database_util.obj: cxx ../../tools/crashpad_database_util.cc
+  source_file_part = crashpad_database_util.cc
+  source_name_part = crashpad_database_util
+
+build ./crashpad_database_util.exe: link obj/tools/crashpad_database_util.crashpad_database_util.obj obj/tools/tool_support.tool_support.obj obj/client/client.lib obj/compat/compat.lib obj/util/util.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/client/common.lib obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib || obj/tools/tool_support.stamp obj/third_party/mini_chromium/base.stamp obj/build/default_exe_manifest_win.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib advapi32.lib rpcrt4.lib user32.lib version.lib winhttp.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

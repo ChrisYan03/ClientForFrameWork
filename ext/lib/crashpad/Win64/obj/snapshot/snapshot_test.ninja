@@ -1,0 +1,49 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/zlib/zlib -I../../third_party/googletest/googletest/googletest/include -I../../third_party/googletest/googletest/googlemock/include
+cflags = /wd4201 /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = snapshot_test
+target_out_dir = obj/snapshot
+target_output_name = snapshot_test
+
+build obj/snapshot/snapshot_test.cpu_context_test.obj: cxx ../../snapshot/cpu_context_test.cc
+  source_file_part = cpu_context_test.cc
+  source_name_part = cpu_context_test
+build obj/snapshot/snapshot_test.memory_snapshot_test.obj: cxx ../../snapshot/memory_snapshot_test.cc
+  source_file_part = memory_snapshot_test.cc
+  source_name_part = memory_snapshot_test
+build obj/snapshot/minidump/snapshot_test.process_snapshot_minidump_test.obj: cxx ../../snapshot/minidump/process_snapshot_minidump_test.cc
+  source_file_part = process_snapshot_minidump_test.cc
+  source_name_part = process_snapshot_minidump_test
+build obj/snapshot/snapshot_test.crashpad_info_client_options_test.obj: cxx ../../snapshot/crashpad_info_client_options_test.cc
+  source_file_part = crashpad_info_client_options_test.cc
+  source_name_part = crashpad_info_client_options_test
+build obj/snapshot/crashpad_types/snapshot_test.crashpad_info_reader_test.obj: cxx ../../snapshot/crashpad_types/crashpad_info_reader_test.cc
+  source_file_part = crashpad_info_reader_test.cc
+  source_name_part = crashpad_info_reader_test
+build obj/snapshot/win/snapshot_test.cpu_context_win_test.obj: cxx ../../snapshot/win/cpu_context_win_test.cc
+  source_file_part = cpu_context_win_test.cc
+  source_name_part = cpu_context_win_test
+build obj/snapshot/win/snapshot_test.exception_snapshot_win_test.obj: cxx ../../snapshot/win/exception_snapshot_win_test.cc
+  source_file_part = exception_snapshot_win_test.cc
+  source_name_part = exception_snapshot_win_test
+build obj/snapshot/win/snapshot_test.extra_memory_ranges_test.obj: cxx ../../snapshot/win/extra_memory_ranges_test.cc
+  source_file_part = extra_memory_ranges_test.cc
+  source_name_part = extra_memory_ranges_test
+build obj/snapshot/win/snapshot_test.module_snapshot_win_test.obj: cxx ../../snapshot/win/module_snapshot_win_test.cc
+  source_file_part = module_snapshot_win_test.cc
+  source_name_part = module_snapshot_win_test
+build obj/snapshot/win/snapshot_test.pe_image_reader_test.obj: cxx ../../snapshot/win/pe_image_reader_test.cc
+  source_file_part = pe_image_reader_test.cc
+  source_name_part = pe_image_reader_test
+build obj/snapshot/win/snapshot_test.process_reader_win_test.obj: cxx ../../snapshot/win/process_reader_win_test.cc
+  source_file_part = process_reader_win_test.cc
+  source_name_part = process_reader_win_test
+build obj/snapshot/win/snapshot_test.process_snapshot_win_test.obj: cxx ../../snapshot/win/process_snapshot_win_test.cc
+  source_file_part = process_snapshot_win_test.cc
+  source_name_part = process_snapshot_win_test
+build obj/snapshot/win/snapshot_test.system_snapshot_win_test.obj: cxx ../../snapshot/win/system_snapshot_win_test.cc
+  source_file_part = system_snapshot_win_test.cc
+  source_name_part = system_snapshot_win_test
+
+build obj/snapshot/snapshot_test.stamp: stamp obj/snapshot/snapshot_test.cpu_context_test.obj obj/snapshot/snapshot_test.memory_snapshot_test.obj obj/snapshot/minidump/snapshot_test.process_snapshot_minidump_test.obj obj/snapshot/snapshot_test.crashpad_info_client_options_test.obj obj/snapshot/crashpad_types/snapshot_test.crashpad_info_reader_test.obj obj/snapshot/win/snapshot_test.cpu_context_win_test.obj obj/snapshot/win/snapshot_test.exception_snapshot_win_test.obj obj/snapshot/win/snapshot_test.extra_memory_ranges_test.obj obj/snapshot/win/snapshot_test.module_snapshot_win_test.obj obj/snapshot/win/snapshot_test.pe_image_reader_test.obj obj/snapshot/win/snapshot_test.process_reader_win_test.obj obj/snapshot/win/snapshot_test.process_snapshot_win_test.obj obj/snapshot/win/snapshot_test.system_snapshot_win_test.obj || obj/snapshot/test_support.lib obj/third_party/mini_chromium/base.stamp obj/client/common.lib obj/compat/compat.lib obj/minidump/format.lib obj/test/test.lib obj/third_party/googletest/googletest.lib obj/third_party/googletest/googlemock.lib obj/util/util.lib obj/snapshot/snapshot.lib obj/snapshot/context.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib ./crashpad_snapshot_test_module.dll ./crashpad_snapshot_test_module_large.dll ./crashpad_snapshot_test_module_small.dll ./crashpad_snapshot_test_annotations.exe ./crashpad_snapshot_test_crashing_child.exe ./crashpad_snapshot_test_dump_without_crashing.exe ./crashpad_snapshot_test_extra_memory_ranges.exe ./crashpad_snapshot_test_image_reader.exe ./crashpad_snapshot_test_image_reader_module.dll

@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+include_dirs =
+label_name = crashpad_test_test
+target_out_dir = obj
+target_output_name = crashpad_test_test
+
+
+build ./crashpad_test_test.exe: link obj/test/test_test.hex_string_test.obj obj/test/test_test.main_arguments_test.obj obj/test/test_test.multiprocess_exec_test.obj obj/test/test_test.scoped_guarded_page_test.obj obj/test/test_test.scoped_temp_dir_test.obj obj/test/test_test.test_paths_test.obj obj/test/win/test_test.win_child_process_test.obj obj/test/win/test_test.win_multiprocess_test.obj obj/test/googlemock_main.lib obj/test/test.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/compat/compat.lib obj/third_party/getopt/getopt.lib obj/third_party/googletest/googletest.lib obj/util/util.lib obj/third_party/zlib/zlib.lib obj/third_party/googletest/googlemock.lib || obj/test/test_test.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib shell32.lib advapi32.lib user32.lib version.lib winhttp.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

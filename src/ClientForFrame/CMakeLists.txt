@@ -173,14 +173,21 @@ if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE dwmapi)
 endif()
 
-# Crashpad（macOS）：minidump 崩溃捕获，需在 target 创建后配置（产物在 ext/lib/crashpad/Mac）
+# Crashpad：minidump 崩溃捕获，需在 target 创建后配置（产物在 ext/lib/crashpad/Mac 或 ext/lib/crashpad/Win64）
 # ClientForFrame 在 src/ClientForFrame，项目根为 src，ext 在 src/../ext
 set(CRASHPAD_ROOT "${CMAKE_SOURCE_DIR}/../ext")
 set(CRASHPAD_INCLUDE "${CRASHPAD_ROOT}/include/crashpad")
 set(CRASHPAD_MINI_CHROMIUM "${CRASHPAD_INCLUDE}/third_party/mini_chromium/mini_chromium")
 set(CRASHPAD_MAC "${CRASHPAD_ROOT}/lib/crashpad/Mac")
+set(CRASHPAD_WIN "${CRASHPAD_ROOT}/lib/crashpad/Win64")
+if(APPLE)
 set(CRASHPAD_OBJ "${CRASHPAD_MAC}/obj")
 set(CRASHPAD_HANDLER "${CRASHPAD_MAC}/crashpad_handler")
+endif()
+if(WIN32)
+set(CRASHPAD_OBJ "${CRASHPAD_WIN}/obj")
+set(CRASHPAD_HANDLER "${CRASHPAD_WIN}/crashpad_handler.exe")
+endif()
 if(APPLE AND EXISTS "${CRASHPAD_OBJ}/client/libclient.a")
     target_compile_definitions(ClientForFrame PRIVATE HAVE_CRASHPAD=1)
     target_include_directories(ClientForFrame PRIVATE "${CRASHPAD_INCLUDE}" "${CRASHPAD_MINI_CHROMIUM}")
@@ -205,6 +212,26 @@ if(APPLE AND EXISTS "${CRASHPAD_OBJ}/client/libclient.a")
         COMMENT "Copy crashpad_handler to target/Mac/bin and into app bundle"
     )
     message(STATUS "Crashpad: enabled (handler in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} and app bundle)")
+endif()
+if(WIN32 AND EXISTS "${CRASHPAD_OBJ}/client/client.lib")
+    target_compile_definitions(ClientForFrame PRIVATE HAVE_CRASHPAD=1)
+    target_include_directories(ClientForFrame PRIVATE "${CRASHPAD_INCLUDE}" "${CRASHPAD_MINI_CHROMIUM}")
+    target_link_libraries(ClientForFrame PRIVATE
+        "${CRASHPAD_OBJ}/client/client.lib"
+        "${CRASHPAD_OBJ}/client/common.lib"
+        "${CRASHPAD_OBJ}/util/util.lib"
+        "${CRASHPAD_OBJ}/minidump/minidump.lib"
+        "${CRASHPAD_OBJ}/minidump/format.lib"
+        "${CRASHPAD_OBJ}/snapshot/snapshot.lib"
+        "${CRASHPAD_OBJ}/snapshot/context.lib"
+        "${CRASHPAD_OBJ}/third_party/mini_chromium/mini_chromium/base/base.lib"
+        rpcrt4
+    )
+    add_custom_command(TARGET ClientForFrame POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CRASHPAD_HANDLER}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/crashpad_handler.exe"
+        COMMENT "Copy crashpad_handler.exe to runtime output directory"
+    )
+    message(STATUS "Crashpad: enabled (Windows, handler in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})")
 endif()
 
 # 设置目标属性

@@ -1,0 +1,73 @@
+defines = -DNDEBUG
+include_dirs = -I../../third_party/mini_chromium/mini_chromium -Igen
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = base
+target_out_dir = obj/third_party/mini_chromium/mini_chromium/base
+target_output_name = base
+
+build obj/third_party/mini_chromium/mini_chromium/base/debug/base.alias.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/debug/alias.cc
+  source_file_part = alias.cc
+  source_name_part = alias
+build obj/third_party/mini_chromium/mini_chromium/base/files/base.file_path.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/files/file_path.cc
+  source_file_part = file_path.cc
+  source_name_part = file_path
+build obj/third_party/mini_chromium/mini_chromium/base/files/base.scoped_file.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/files/scoped_file.cc
+  source_file_part = scoped_file.cc
+  source_name_part = scoped_file
+build obj/third_party/mini_chromium/mini_chromium/base/base.logging.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/logging.cc
+  source_file_part = logging.cc
+  source_name_part = logging
+build obj/third_party/mini_chromium/mini_chromium/base/process/base.memory.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/process/memory.cc
+  source_file_part = memory.cc
+  source_name_part = memory
+build obj/third_party/mini_chromium/mini_chromium/base/base.rand_util.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/rand_util.cc
+  source_file_part = rand_util.cc
+  source_name_part = rand_util
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.pattern.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/pattern.cc
+  source_file_part = pattern.cc
+  source_name_part = pattern
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.strcat.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/strcat.cc
+  source_file_part = strcat.cc
+  source_name_part = strcat
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.string_number_conversions.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/string_number_conversions.cc
+  source_file_part = string_number_conversions.cc
+  source_name_part = string_number_conversions
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.stringprintf.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/stringprintf.cc
+  source_file_part = stringprintf.cc
+  source_name_part = stringprintf
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.utf_string_conversion_utils.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/utf_string_conversion_utils.cc
+  source_file_part = utf_string_conversion_utils.cc
+  source_name_part = utf_string_conversion_utils
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.utf_string_conversions.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/utf_string_conversions.cc
+  source_file_part = utf_string_conversions.cc
+  source_name_part = utf_string_conversions
+build obj/third_party/mini_chromium/mini_chromium/base/synchronization/base.lock.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/synchronization/lock.cc
+  source_file_part = lock.cc
+  source_name_part = lock
+build obj/third_party/mini_chromium/mini_chromium/base/third_party/icu/base.icu_utf.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/third_party/icu/icu_utf.cc
+  source_file_part = icu_utf.cc
+  source_name_part = icu_utf
+build obj/third_party/mini_chromium/mini_chromium/base/threading/base.thread_local_storage.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/threading/thread_local_storage.cc
+  source_file_part = thread_local_storage.cc
+  source_name_part = thread_local_storage
+build obj/third_party/mini_chromium/mini_chromium/base/memory/base.page_size_win.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/memory/page_size_win.cc
+  source_file_part = page_size_win.cc
+  source_name_part = page_size_win
+build obj/third_party/mini_chromium/mini_chromium/base/base.scoped_clear_last_error_win.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/scoped_clear_last_error_win.cc
+  source_file_part = scoped_clear_last_error_win.cc
+  source_name_part = scoped_clear_last_error_win
+build obj/third_party/mini_chromium/mini_chromium/base/strings/base.string_util_win.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/strings/string_util_win.cc
+  source_file_part = string_util_win.cc
+  source_name_part = string_util_win
+build obj/third_party/mini_chromium/mini_chromium/base/synchronization/base.lock_impl_win.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/synchronization/lock_impl_win.cc
+  source_file_part = lock_impl_win.cc
+  source_name_part = lock_impl_win
+build obj/third_party/mini_chromium/mini_chromium/base/threading/base.thread_local_storage_win.obj: cxx ../../third_party/mini_chromium/mini_chromium/base/threading/thread_local_storage_win.cc
+  source_file_part = thread_local_storage_win.cc
+  source_name_part = thread_local_storage_win
+
+build obj/third_party/mini_chromium/mini_chromium/base/base.lib: alink obj/third_party/mini_chromium/mini_chromium/base/debug/base.alias.obj obj/third_party/mini_chromium/mini_chromium/base/files/base.file_path.obj obj/third_party/mini_chromium/mini_chromium/base/files/base.scoped_file.obj obj/third_party/mini_chromium/mini_chromium/base/base.logging.obj obj/third_party/mini_chromium/mini_chromium/base/process/base.memory.obj obj/third_party/mini_chromium/mini_chromium/base/base.rand_util.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.pattern.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.strcat.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.string_number_conversions.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.stringprintf.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.utf_string_conversion_utils.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.utf_string_conversions.obj obj/third_party/mini_chromium/mini_chromium/base/synchronization/base.lock.obj obj/third_party/mini_chromium/mini_chromium/base/third_party/icu/base.icu_utf.obj obj/third_party/mini_chromium/mini_chromium/base/threading/base.thread_local_storage.obj obj/third_party/mini_chromium/mini_chromium/base/memory/base.page_size_win.obj obj/third_party/mini_chromium/mini_chromium/base/base.scoped_clear_last_error_win.obj obj/third_party/mini_chromium/mini_chromium/base/strings/base.string_util_win.obj obj/third_party/mini_chromium/mini_chromium/base/synchronization/base.lock_impl_win.obj obj/third_party/mini_chromium/mini_chromium/base/threading/base.thread_local_storage_win.obj || obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp
+  arflags =
+  output_extension = .lib
+  output_dir = obj/third_party/mini_chromium/mini_chromium/base

@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+include_dirs =
+label_name = crashpad_minidump_test
+target_out_dir = obj
+target_output_name = crashpad_minidump_test
+
+
+build ./crashpad_minidump_test.exe: link obj/minidump/minidump_test.minidump_annotation_writer_test.obj obj/minidump/minidump_test.minidump_byte_array_writer_test.obj obj/minidump/minidump_test.minidump_context_writer_test.obj obj/minidump/minidump_test.minidump_crashpad_info_writer_test.obj obj/minidump/minidump_test.minidump_exception_writer_test.obj obj/minidump/minidump_test.minidump_file_writer_test.obj obj/minidump/minidump_test.minidump_handle_writer_test.obj obj/minidump/minidump_test.minidump_memory_info_writer_test.obj obj/minidump/minidump_test.minidump_memory_writer_test.obj obj/minidump/minidump_test.minidump_misc_info_writer_test.obj obj/minidump/minidump_test.minidump_module_crashpad_info_writer_test.obj obj/minidump/minidump_test.minidump_module_writer_test.obj obj/minidump/minidump_test.minidump_rva_list_writer_test.obj obj/minidump/minidump_test.minidump_simple_string_dictionary_writer_test.obj obj/minidump/minidump_test.minidump_string_writer_test.obj obj/minidump/minidump_test.minidump_system_info_writer_test.obj obj/minidump/minidump_test.minidump_thread_id_map_test.obj obj/minidump/minidump_test.minidump_thread_name_list_writer_test.obj obj/minidump/minidump_test.minidump_thread_writer_test.obj obj/minidump/minidump_test.minidump_unloaded_module_writer_test.obj obj/minidump/minidump_test.minidump_user_stream_writer_test.obj obj/minidump/minidump_test.minidump_writable_test.obj obj/test/googletest_main.lib obj/minidump/test_support.lib obj/minidump/minidump.lib obj/minidump/format.lib obj/compat/compat.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/getopt/getopt.lib obj/snapshot/context.lib obj/util/util.lib obj/third_party/zlib/zlib.lib obj/snapshot/snapshot.lib obj/client/common.lib obj/snapshot/test_support.lib obj/test/test.lib obj/third_party/googletest/googletest.lib || obj/minidump/minidump_test.stamp obj/util/no_cfi_icall.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib advapi32.lib user32.lib version.lib winhttp.lib powrprof.lib shell32.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

@@ -1,0 +1,67 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/googletest/googletest/googletest/include -I../../third_party/zlib/zlib
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = test
+target_out_dir = obj/test
+target_output_name = test
+
+build obj/test/test.errors.obj: cxx ../../test/errors.cc
+  source_file_part = errors.cc
+  source_name_part = errors
+build obj/test/test.file.obj: cxx ../../test/file.cc
+  source_file_part = file.cc
+  source_name_part = file
+build obj/test/test.filesystem.obj: cxx ../../test/filesystem.cc
+  source_file_part = filesystem.cc
+  source_name_part = filesystem
+build obj/test/test.hex_string.obj: cxx ../../test/hex_string.cc
+  source_file_part = hex_string.cc
+  source_name_part = hex_string
+build obj/test/test.main_arguments.obj: cxx ../../test/main_arguments.cc
+  source_file_part = main_arguments.cc
+  source_name_part = main_arguments
+build obj/test/test.multiprocess_exec.obj: cxx ../../test/multiprocess_exec.cc
+  source_file_part = multiprocess_exec.cc
+  source_name_part = multiprocess_exec
+build obj/test/test.process_type.obj: cxx ../../test/process_type.cc
+  source_file_part = process_type.cc
+  source_name_part = process_type
+build obj/test/test.scoped_module_handle.obj: cxx ../../test/scoped_module_handle.cc
+  source_file_part = scoped_module_handle.cc
+  source_name_part = scoped_module_handle
+build obj/test/test.scoped_temp_dir.obj: cxx ../../test/scoped_temp_dir.cc
+  source_file_part = scoped_temp_dir.cc
+  source_name_part = scoped_temp_dir
+build obj/test/test.test_paths.obj: cxx ../../test/test_paths.cc
+  source_file_part = test_paths.cc
+  source_name_part = test_paths
+build obj/test/test.multiprocess_exec_win.obj: cxx ../../test/multiprocess_exec_win.cc
+  source_file_part = multiprocess_exec_win.cc
+  source_name_part = multiprocess_exec_win
+build obj/test/test.scoped_guarded_page_win.obj: cxx ../../test/scoped_guarded_page_win.cc
+  source_file_part = scoped_guarded_page_win.cc
+  source_name_part = scoped_guarded_page_win
+build obj/test/test.scoped_set_thread_name_win.obj: cxx ../../test/scoped_set_thread_name_win.cc
+  source_file_part = scoped_set_thread_name_win.cc
+  source_name_part = scoped_set_thread_name_win
+build obj/test/test.scoped_temp_dir_win.obj: cxx ../../test/scoped_temp_dir_win.cc
+  source_file_part = scoped_temp_dir_win.cc
+  source_name_part = scoped_temp_dir_win
+build obj/test/win/test.child_launcher.obj: cxx ../../test/win/child_launcher.cc
+  source_file_part = child_launcher.cc
+  source_name_part = child_launcher
+build obj/test/win/test.win_child_process.obj: cxx ../../test/win/win_child_process.cc
+  source_file_part = win_child_process.cc
+  source_name_part = win_child_process
+build obj/test/win/test.win_multiprocess.obj: cxx ../../test/win/win_multiprocess.cc
+  source_file_part = win_multiprocess.cc
+  source_name_part = win_multiprocess
+build obj/test/win/test.win_multiprocess_with_temp_dir.obj: cxx ../../test/win/win_multiprocess_with_temp_dir.cc
+  source_file_part = win_multiprocess_with_temp_dir.cc
+  source_name_part = win_multiprocess_with_temp_dir
+
+build obj/test/test.lib: alink obj/test/test.errors.obj obj/test/test.file.obj obj/test/test.filesystem.obj obj/test/test.hex_string.obj obj/test/test.main_arguments.obj obj/test/test.multiprocess_exec.obj obj/test/test.process_type.obj obj/test/test.scoped_module_handle.obj obj/test/test.scoped_temp_dir.obj obj/test/test.test_paths.obj obj/test/test.multiprocess_exec_win.obj obj/test/test.scoped_guarded_page_win.obj obj/test/test.scoped_set_thread_name_win.obj obj/test/test.scoped_temp_dir_win.obj obj/test/win/test.child_launcher.obj obj/test/win/test.win_child_process.obj obj/test/win/test.win_multiprocess.obj obj/test/win/test.win_multiprocess_with_temp_dir.obj || obj/third_party/mini_chromium/base.stamp obj/compat/compat.lib obj/third_party/googletest/googletest.lib obj/util/util.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib
+  arflags =
+  output_extension = .lib
+  output_dir = obj/test

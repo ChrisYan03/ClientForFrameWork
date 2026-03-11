@@ -1,0 +1,8 @@
+defines = -DNDEBUG
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium
+label_name = util_registration_protocol
+target_out_dir = obj/util
+target_output_name = util_registration_protocol
+
+
+build obj/util/util_registration_protocol.stamp: stamp || obj/third_party/mini_chromium/build.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp

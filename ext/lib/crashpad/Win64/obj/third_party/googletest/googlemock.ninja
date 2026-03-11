@@ -1,0 +1,28 @@
+defines = -DNDEBUG
+include_dirs = -I../../third_party/googletest/googletest/googlemock -I../../third_party/googletest/googletest/googlemock/include -I../../third_party/googletest/googletest/googletest/include
+cflags = /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = googlemock
+target_out_dir = obj/third_party/googletest
+target_output_name = googlemock
+
+build obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-cardinalities.obj: cxx ../../third_party/googletest/googletest/googlemock/src/gmock-cardinalities.cc
+  source_file_part = gmock-cardinalities.cc
+  source_name_part = gmock-cardinalities
+build obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-internal-utils.obj: cxx ../../third_party/googletest/googletest/googlemock/src/gmock-internal-utils.cc
+  source_file_part = gmock-internal-utils.cc
+  source_name_part = gmock-internal-utils
+build obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-matchers.obj: cxx ../../third_party/googletest/googletest/googlemock/src/gmock-matchers.cc
+  source_file_part = gmock-matchers.cc
+  source_name_part = gmock-matchers
+build obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-spec-builders.obj: cxx ../../third_party/googletest/googletest/googlemock/src/gmock-spec-builders.cc
+  source_file_part = gmock-spec-builders.cc
+  source_name_part = gmock-spec-builders
+build obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock.obj: cxx ../../third_party/googletest/googletest/googlemock/src/gmock.cc
+  source_file_part = gmock.cc
+  source_name_part = gmock
+
+build obj/third_party/googletest/googlemock.lib: alink obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-cardinalities.obj obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-internal-utils.obj obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-matchers.obj obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock-spec-builders.obj obj/third_party/googletest/googletest/googlemock/src/googlemock.gmock.obj || obj/third_party/googletest/googletest.lib
+  arflags =
+  output_extension = .lib
+  output_dir = obj/third_party/googletest

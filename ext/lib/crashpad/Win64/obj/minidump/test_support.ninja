@@ -1,0 +1,37 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../compat/win -I../../third_party/mini_chromium/mini_chromium -I../../third_party/googletest/googletest/googletest/include -I../../third_party/zlib/zlib
+cflags = /wd4201 /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = test_support
+target_out_dir = obj/minidump
+target_output_name = test_support
+
+build obj/minidump/test/test_support.minidump_byte_array_writer_test_util.obj: cxx ../../minidump/test/minidump_byte_array_writer_test_util.cc
+  source_file_part = minidump_byte_array_writer_test_util.cc
+  source_name_part = minidump_byte_array_writer_test_util
+build obj/minidump/test/test_support.minidump_context_test_util.obj: cxx ../../minidump/test/minidump_context_test_util.cc
+  source_file_part = minidump_context_test_util.cc
+  source_name_part = minidump_context_test_util
+build obj/minidump/test/test_support.minidump_file_writer_test_util.obj: cxx ../../minidump/test/minidump_file_writer_test_util.cc
+  source_file_part = minidump_file_writer_test_util.cc
+  source_name_part = minidump_file_writer_test_util
+build obj/minidump/test/test_support.minidump_memory_writer_test_util.obj: cxx ../../minidump/test/minidump_memory_writer_test_util.cc
+  source_file_part = minidump_memory_writer_test_util.cc
+  source_name_part = minidump_memory_writer_test_util
+build obj/minidump/test/test_support.minidump_rva_list_test_util.obj: cxx ../../minidump/test/minidump_rva_list_test_util.cc
+  source_file_part = minidump_rva_list_test_util.cc
+  source_name_part = minidump_rva_list_test_util
+build obj/minidump/test/test_support.minidump_string_writer_test_util.obj: cxx ../../minidump/test/minidump_string_writer_test_util.cc
+  source_file_part = minidump_string_writer_test_util.cc
+  source_name_part = minidump_string_writer_test_util
+build obj/minidump/test/test_support.minidump_user_extension_stream_util.obj: cxx ../../minidump/test/minidump_user_extension_stream_util.cc
+  source_file_part = minidump_user_extension_stream_util.cc
+  source_name_part = minidump_user_extension_stream_util
+build obj/minidump/test/test_support.minidump_writable_test_util.obj: cxx ../../minidump/test/minidump_writable_test_util.cc
+  source_file_part = minidump_writable_test_util.cc
+  source_name_part = minidump_writable_test_util
+
+build obj/minidump/test_support.lib: alink obj/minidump/test/test_support.minidump_byte_array_writer_test_util.obj obj/minidump/test/test_support.minidump_context_test_util.obj obj/minidump/test/test_support.minidump_file_writer_test_util.obj obj/minidump/test/test_support.minidump_memory_writer_test_util.obj obj/minidump/test/test_support.minidump_rva_list_test_util.obj obj/minidump/test/test_support.minidump_string_writer_test_util.obj obj/minidump/test/test_support.minidump_user_extension_stream_util.obj obj/minidump/test/test_support.minidump_writable_test_util.obj || obj/minidump/minidump.lib obj/third_party/mini_chromium/base.stamp obj/snapshot/test_support.lib obj/test/test.lib obj/third_party/googletest/googletest.lib obj/util/util.lib obj/minidump/format.lib obj/compat/compat.lib obj/util/no_cfi_icall.stamp obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/third_party/getopt/getopt.lib obj/snapshot/context.lib obj/third_party/zlib/zlib.lib obj/snapshot/snapshot.lib obj/client/common.lib
+  arflags =
+  output_extension = .lib
+  output_dir = obj/minidump

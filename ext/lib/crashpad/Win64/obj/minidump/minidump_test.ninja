@@ -1,0 +1,76 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../compat/win -I../../third_party/mini_chromium/mini_chromium -I../../third_party/googletest/googletest/googletest/include -I../../third_party/zlib/zlib
+cflags = /wd4201 /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = minidump_test
+target_out_dir = obj/minidump
+target_output_name = minidump_test
+
+build obj/minidump/minidump_test.minidump_annotation_writer_test.obj: cxx ../../minidump/minidump_annotation_writer_test.cc
+  source_file_part = minidump_annotation_writer_test.cc
+  source_name_part = minidump_annotation_writer_test
+build obj/minidump/minidump_test.minidump_byte_array_writer_test.obj: cxx ../../minidump/minidump_byte_array_writer_test.cc
+  source_file_part = minidump_byte_array_writer_test.cc
+  source_name_part = minidump_byte_array_writer_test
+build obj/minidump/minidump_test.minidump_context_writer_test.obj: cxx ../../minidump/minidump_context_writer_test.cc
+  source_file_part = minidump_context_writer_test.cc
+  source_name_part = minidump_context_writer_test
+build obj/minidump/minidump_test.minidump_crashpad_info_writer_test.obj: cxx ../../minidump/minidump_crashpad_info_writer_test.cc
+  source_file_part = minidump_crashpad_info_writer_test.cc
+  source_name_part = minidump_crashpad_info_writer_test
+build obj/minidump/minidump_test.minidump_exception_writer_test.obj: cxx ../../minidump/minidump_exception_writer_test.cc
+  source_file_part = minidump_exception_writer_test.cc
+  source_name_part = minidump_exception_writer_test
+build obj/minidump/minidump_test.minidump_file_writer_test.obj: cxx ../../minidump/minidump_file_writer_test.cc
+  source_file_part = minidump_file_writer_test.cc
+  source_name_part = minidump_file_writer_test
+build obj/minidump/minidump_test.minidump_handle_writer_test.obj: cxx ../../minidump/minidump_handle_writer_test.cc
+  source_file_part = minidump_handle_writer_test.cc
+  source_name_part = minidump_handle_writer_test
+build obj/minidump/minidump_test.minidump_memory_info_writer_test.obj: cxx ../../minidump/minidump_memory_info_writer_test.cc
+  source_file_part = minidump_memory_info_writer_test.cc
+  source_name_part = minidump_memory_info_writer_test
+build obj/minidump/minidump_test.minidump_memory_writer_test.obj: cxx ../../minidump/minidump_memory_writer_test.cc
+  source_file_part = minidump_memory_writer_test.cc
+  source_name_part = minidump_memory_writer_test
+build obj/minidump/minidump_test.minidump_misc_info_writer_test.obj: cxx ../../minidump/minidump_misc_info_writer_test.cc
+  source_file_part = minidump_misc_info_writer_test.cc
+  source_name_part = minidump_misc_info_writer_test
+build obj/minidump/minidump_test.minidump_module_crashpad_info_writer_test.obj: cxx ../../minidump/minidump_module_crashpad_info_writer_test.cc
+  source_file_part = minidump_module_crashpad_info_writer_test.cc
+  source_name_part = minidump_module_crashpad_info_writer_test
+build obj/minidump/minidump_test.minidump_module_writer_test.obj: cxx ../../minidump/minidump_module_writer_test.cc
+  source_file_part = minidump_module_writer_test.cc
+  source_name_part = minidump_module_writer_test
+build obj/minidump/minidump_test.minidump_rva_list_writer_test.obj: cxx ../../minidump/minidump_rva_list_writer_test.cc
+  source_file_part = minidump_rva_list_writer_test.cc
+  source_name_part = minidump_rva_list_writer_test
+build obj/minidump/minidump_test.minidump_simple_string_dictionary_writer_test.obj: cxx ../../minidump/minidump_simple_string_dictionary_writer_test.cc
+  source_file_part = minidump_simple_string_dictionary_writer_test.cc
+  source_name_part = minidump_simple_string_dictionary_writer_test
+build obj/minidump/minidump_test.minidump_string_writer_test.obj: cxx ../../minidump/minidump_string_writer_test.cc
+  source_file_part = minidump_string_writer_test.cc
+  source_name_part = minidump_string_writer_test
+build obj/minidump/minidump_test.minidump_system_info_writer_test.obj: cxx ../../minidump/minidump_system_info_writer_test.cc
+  source_file_part = minidump_system_info_writer_test.cc
+  source_name_part = minidump_system_info_writer_test
+build obj/minidump/minidump_test.minidump_thread_id_map_test.obj: cxx ../../minidump/minidump_thread_id_map_test.cc
+  source_file_part = minidump_thread_id_map_test.cc
+  source_name_part = minidump_thread_id_map_test
+build obj/minidump/minidump_test.minidump_thread_name_list_writer_test.obj: cxx ../../minidump/minidump_thread_name_list_writer_test.cc
+  source_file_part = minidump_thread_name_list_writer_test.cc
+  source_name_part = minidump_thread_name_list_writer_test
+build obj/minidump/minidump_test.minidump_thread_writer_test.obj: cxx ../../minidump/minidump_thread_writer_test.cc
+  source_file_part = minidump_thread_writer_test.cc
+  source_name_part = minidump_thread_writer_test
+build obj/minidump/minidump_test.minidump_unloaded_module_writer_test.obj: cxx ../../minidump/minidump_unloaded_module_writer_test.cc
+  source_file_part = minidump_unloaded_module_writer_test.cc
+  source_name_part = minidump_unloaded_module_writer_test
+build obj/minidump/minidump_test.minidump_user_stream_writer_test.obj: cxx ../../minidump/minidump_user_stream_writer_test.cc
+  source_file_part = minidump_user_stream_writer_test.cc
+  source_name_part = minidump_user_stream_writer_test
+build obj/minidump/minidump_test.minidump_writable_test.obj: cxx ../../minidump/minidump_writable_test.cc
+  source_file_part = minidump_writable_test.cc
+  source_name_part = minidump_writable_test
+
+build obj/minidump/minidump_test.stamp: stamp obj/minidump/minidump_test.minidump_annotation_writer_test.obj obj/minidump/minidump_test.minidump_byte_array_writer_test.obj obj/minidump/minidump_test.minidump_context_writer_test.obj obj/minidump/minidump_test.minidump_crashpad_info_writer_test.obj obj/minidump/minidump_test.minidump_exception_writer_test.obj obj/minidump/minidump_test.minidump_file_writer_test.obj obj/minidump/minidump_test.minidump_handle_writer_test.obj obj/minidump/minidump_test.minidump_memory_info_writer_test.obj obj/minidump/minidump_test.minidump_memory_writer_test.obj obj/minidump/minidump_test.minidump_misc_info_writer_test.obj obj/minidump/minidump_test.minidump_module_crashpad_info_writer_test.obj obj/minidump/minidump_test.minidump_module_writer_test.obj obj/minidump/minidump_test.minidump_rva_list_writer_test.obj obj/minidump/minidump_test.minidump_simple_string_dictionary_writer_test.obj obj/minidump/minidump_test.minidump_string_writer_test.obj obj/minidump/minidump_test.minidump_system_info_writer_test.obj obj/minidump/minidump_test.minidump_thread_id_map_test.obj obj/minidump/minidump_test.minidump_thread_name_list_writer_test.obj obj/minidump/minidump_test.minidump_thread_writer_test.obj obj/minidump/minidump_test.minidump_unloaded_module_writer_test.obj obj/minidump/minidump_test.minidump_user_stream_writer_test.obj obj/minidump/minidump_test.minidump_writable_test.obj || obj/minidump/test_support.lib obj/third_party/mini_chromium/base.stamp obj/snapshot/test_support.lib obj/test/test.lib obj/third_party/googletest/googletest.lib obj/util/util.lib obj/minidump/minidump.lib obj/minidump/format.lib obj/compat/compat.lib obj/util/no_cfi_icall.stamp obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/third_party/getopt/getopt.lib obj/snapshot/context.lib obj/third_party/zlib/zlib.lib obj/snapshot/snapshot.lib obj/client/common.lib

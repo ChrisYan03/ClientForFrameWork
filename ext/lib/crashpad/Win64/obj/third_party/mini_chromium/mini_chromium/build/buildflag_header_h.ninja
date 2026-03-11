@@ -1,0 +1,8 @@
+defines = -DNDEBUG
+include_dirs =
+label_name = buildflag_header_h
+target_out_dir = obj/third_party/mini_chromium/mini_chromium/build
+target_output_name = buildflag_header_h
+
+
+build obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp: stamp

@@ -1,0 +1,22 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/zlib/zlib
+cflags = /wd4201 /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = handler
+target_out_dir = obj/handler
+target_output_name = handler
+
+build obj/handler/handler.handler_main.obj: cxx ../../handler/handler_main.cc
+  source_file_part = handler_main.cc
+  source_name_part = handler_main
+build obj/handler/handler.prune_crash_reports_thread.obj: cxx ../../handler/prune_crash_reports_thread.cc
+  source_file_part = prune_crash_reports_thread.cc
+  source_name_part = prune_crash_reports_thread
+build obj/handler/win/handler.crash_report_exception_handler.obj: cxx ../../handler/win/crash_report_exception_handler.cc
+  source_file_part = crash_report_exception_handler.cc
+  source_name_part = crash_report_exception_handler
+
+build obj/handler/handler.lib: alink obj/handler/handler.handler_main.obj obj/handler/handler.prune_crash_reports_thread.obj obj/handler/win/handler.crash_report_exception_handler.obj || obj/handler/common.lib obj/client/client.lib obj/third_party/mini_chromium/base.stamp obj/util/util.lib obj/minidump/minidump.lib obj/snapshot/snapshot.lib obj/tools/tool_support.stamp obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/compat/compat.lib obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib obj/client/common.lib obj/minidump/format.lib obj/snapshot/context.lib obj/util/net.lib
+  arflags =
+  output_extension = .lib
+  output_dir = obj/handler

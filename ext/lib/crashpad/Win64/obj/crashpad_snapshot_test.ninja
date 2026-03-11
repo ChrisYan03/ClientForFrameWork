@@ -1,0 +1,14 @@
+defines = -DNDEBUG
+include_dirs =
+label_name = crashpad_snapshot_test
+target_out_dir = obj
+target_output_name = crashpad_snapshot_test
+
+
+build ./crashpad_snapshot_test.exe: link obj/snapshot/snapshot_test.cpu_context_test.obj obj/snapshot/snapshot_test.memory_snapshot_test.obj obj/snapshot/minidump/snapshot_test.process_snapshot_minidump_test.obj obj/snapshot/snapshot_test.crashpad_info_client_options_test.obj obj/snapshot/crashpad_types/snapshot_test.crashpad_info_reader_test.obj obj/snapshot/win/snapshot_test.cpu_context_win_test.obj obj/snapshot/win/snapshot_test.exception_snapshot_win_test.obj obj/snapshot/win/snapshot_test.extra_memory_ranges_test.obj obj/snapshot/win/snapshot_test.module_snapshot_win_test.obj obj/snapshot/win/snapshot_test.pe_image_reader_test.obj obj/snapshot/win/snapshot_test.process_reader_win_test.obj obj/snapshot/win/snapshot_test.process_snapshot_win_test.obj obj/snapshot/win/snapshot_test.system_snapshot_win_test.obj obj/test/googlemock_main.lib obj/snapshot/test_support.lib obj/snapshot/snapshot.lib obj/snapshot/context.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/util/util.lib obj/compat/compat.lib obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib obj/client/common.lib obj/minidump/format.lib obj/test/test.lib obj/third_party/googletest/googletest.lib obj/third_party/googletest/googlemock.lib || obj/snapshot/snapshot_test.stamp obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp
+  ldflags = /DEBUG /OPT$:ICF /OPT$:REF /SUBSYSTEM$:CONSOLE
+  libs = kernel32.lib powrprof.lib advapi32.lib user32.lib version.lib winhttp.lib shell32.lib
+  frameworks =
+  swiftmodules =
+  output_extension = .exe
+  output_dir = .

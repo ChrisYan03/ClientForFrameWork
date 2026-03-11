@@ -1,0 +1,37 @@
+defines = -DNDEBUG -DCRASHPAD_ZLIB_SOURCE_EMBEDDED
+include_dirs = -I../.. -Igen -I../../third_party/mini_chromium/mini_chromium -I../../compat/win -I../../third_party/zlib/zlib
+cflags = /wd4201 /DNOMINMAX /DUNICODE /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_HAS_EXCEPTIONS=0 /D_UNICODE /FS /W4 /WX /Zi /bigobj /wd4996 --target=x86_64-pc-windows -Wendif-labels -Wextra-semi -Wheader-hygiene -Wnewline-eof -Wno-missing-field-initializers -Wno-unused-parameter -Wsign-compare -Wstring-conversion -Wvla -Wno-cast-function-type-mismatch -Wno-format -Wno-microsoft-cast -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function /O2 /Ob2 /Oy- /Zc$:inline -Wexit-time-destructors -Wimplicit-fallthrough
+cflags_cc = /std$:c++23preview
+label_name = test_support
+target_out_dir = obj/snapshot
+target_output_name = test_support
+
+build obj/snapshot/test/test_support.test_cpu_context.obj: cxx ../../snapshot/test/test_cpu_context.cc
+  source_file_part = test_cpu_context.cc
+  source_name_part = test_cpu_context
+build obj/snapshot/test/test_support.test_exception_snapshot.obj: cxx ../../snapshot/test/test_exception_snapshot.cc
+  source_file_part = test_exception_snapshot.cc
+  source_name_part = test_exception_snapshot
+build obj/snapshot/test/test_support.test_memory_map_region_snapshot.obj: cxx ../../snapshot/test/test_memory_map_region_snapshot.cc
+  source_file_part = test_memory_map_region_snapshot.cc
+  source_name_part = test_memory_map_region_snapshot
+build obj/snapshot/test/test_support.test_memory_snapshot.obj: cxx ../../snapshot/test/test_memory_snapshot.cc
+  source_file_part = test_memory_snapshot.cc
+  source_name_part = test_memory_snapshot
+build obj/snapshot/test/test_support.test_module_snapshot.obj: cxx ../../snapshot/test/test_module_snapshot.cc
+  source_file_part = test_module_snapshot.cc
+  source_name_part = test_module_snapshot
+build obj/snapshot/test/test_support.test_process_snapshot.obj: cxx ../../snapshot/test/test_process_snapshot.cc
+  source_file_part = test_process_snapshot.cc
+  source_name_part = test_process_snapshot
+build obj/snapshot/test/test_support.test_system_snapshot.obj: cxx ../../snapshot/test/test_system_snapshot.cc
+  source_file_part = test_system_snapshot.cc
+  source_name_part = test_system_snapshot
+build obj/snapshot/test/test_support.test_thread_snapshot.obj: cxx ../../snapshot/test/test_thread_snapshot.cc
+  source_file_part = test_thread_snapshot.cc
+  source_name_part = test_thread_snapshot
+
+build obj/snapshot/test_support.lib: alink obj/snapshot/test/test_support.test_cpu_context.obj obj/snapshot/test/test_support.test_exception_snapshot.obj obj/snapshot/test/test_support.test_memory_map_region_snapshot.obj obj/snapshot/test/test_support.test_memory_snapshot.obj obj/snapshot/test/test_support.test_module_snapshot.obj obj/snapshot/test/test_support.test_process_snapshot.obj obj/snapshot/test/test_support.test_system_snapshot.obj obj/snapshot/test/test_support.test_thread_snapshot.obj || obj/snapshot/snapshot.lib obj/third_party/mini_chromium/base.stamp obj/compat/compat.lib obj/util/util.lib obj/snapshot/context.lib obj/third_party/mini_chromium/mini_chromium/base/base.lib obj/third_party/mini_chromium/mini_chromium/build/build.stamp obj/third_party/mini_chromium/mini_chromium/build/buildflag_header_h.stamp obj/util/no_cfi_icall.stamp obj/third_party/getopt/getopt.lib obj/third_party/zlib/zlib.lib obj/client/common.lib obj/minidump/format.lib
+  arflags =
+  output_extension = .lib
+  output_dir = obj/snapshot
