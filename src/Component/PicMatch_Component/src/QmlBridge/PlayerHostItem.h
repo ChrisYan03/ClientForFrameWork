@@ -3,6 +3,7 @@
 
 #include <QQuickItem>
 #include <QObject>
+#include <QMetaObject>
 
 class QWindow;
 class QTimer;
@@ -28,7 +29,7 @@ public:
     Q_INVOKABLE void applyTheme(QVariantMap themeColors);
 
     QObject* viewModel() const { return m_viewModel; }
-    void setViewModel(QObject* vm) { if (m_viewModel != vm) { m_viewModel = vm; emit viewModelChanged(); } }
+    void setViewModel(QObject* vm);
 
 signals:
     void widgetReady();
@@ -42,9 +43,11 @@ private:
     void ensureHostWindowCreated();
     void updateHostWindowGeometry();
     void notifyPlayerWindowSize();
+    void onViewModelRunningChanged(bool running);
 
     QWindow* m_hostWindow = nullptr;
     QObject* m_viewModel = nullptr;
+    QMetaObject::Connection m_debugRunningConn;
 #if defined(Q_OS_WIN)
     QTimer* m_geometryDeferTimer = nullptr;
 #endif

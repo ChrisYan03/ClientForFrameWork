@@ -1,12 +1,23 @@
 #include "PlayerHostItem.h"
 #include "PicPlayerApi.h"
+#include "PicMatchViewModel.h"
 #include <QQuickWindow>
 #include <QWindow>
 #include <QVariantMap>
 #include <QTimer>
 #include <QMetaObject>
 #include <QtGlobal>
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#endif
 #include "LogUtil.h"
+
+namespace {
+bool IsViewModelRunning(QObject* vm)
+{
+    return vm ? vm->property("running").toBool() : false;
+}
+}
 
 PlayerHostItem::PlayerHostItem(QQuickItem *parent)
     : QQuickItem(parent)
@@ -17,12 +28,39 @@ PlayerHostItem::PlayerHostItem(QQuickItem *parent)
 
 PlayerHostItem::~PlayerHostItem()
 {
+    if (m_debugRunningConn) {
+        QObject::disconnect(m_debugRunningConn);
+    }
     if (m_hostWindow) {
         m_hostWindow->destroy();
         m_hostWindow->deleteLater();
         m_hostWindow = nullptr;
     }
     m_viewModel = nullptr;
+}
+
+void PlayerHostItem::setViewModel(QObject* vm)
+{
+    if (m_viewModel == vm)
+        return;
+
+    if (m_debugRunningConn) {
+        QObject::disconnect(m_debugRunningConn);
+        m_debugRunningConn = QMetaObject::Connection();
+    }
+
+    m_viewModel = vm;
+    if (m_viewModel) {
+        if (auto* typedVm = qobject_cast<PicMatchViewModel*>(m_viewModel)) {
+            m_debugRunningConn = QObject::connect(
+                typedVm, &PicMatchViewModel::runningChanged, this,
+                [this](bool running) {
+                    onViewModelRunningChanged(running);
+                },
+                Qt::QueuedConnection);
+        }
+    }
+    emit viewModelChanged();
 }
 
 QObject* PlayerHostItem::hostWindow() const
@@ -74,7 +112,10 @@ void PlayerHostItem::geometryChange(const QRectF &newGeometry, const QRectF &old
         if (!m_geometryDeferTimer) {
             m_geometryDeferTimer = new QTimer(this);
             m_geometryDeferTimer->setSingleShot(true);
-            connect(m_geometryDeferTimer, &QTimer::timeout, this, &PlayerHostItem::updateHostWindowGeometry);
+            connect(m_geometryDeferTimer, &QTimer::timeout, this, [this](){
+                updateHostWindowGeometry();
+                notifyPlayerWindowSize();
+            });
         }
         m_geometryDeferTimer->start(0);
         return;
@@ -112,9 +153,25 @@ void PlayerHostItem::ensureHostWindowCreated()
         m_hostWindow->setGeometry(0, 0, w, h);
 
     m_hostWindow->setParent(quickWin);
-    m_hostWindow->show();
+    const bool vmRunning = IsViewModelRunning(m_viewModel);
+    if (vmRunning) {
+        m_hostWindow->show();
+    } else {
+        m_hostWindow->hide();
+    }
+
+    LOG_DEBUG("PlayerHostItem: host window created, running={}, visible={}",
+              vmRunning, m_hostWindow->isVisible());
 
     updateHostWindowGeometry();
+#if defined(Q_OS_WIN)
+    HWND hwnd = reinterpret_cast<HWND>(m_hostWindow->winId());
+    if (hwnd) {
+        RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+    }
+#endif
+    quickWin->update();
+    quickWin->requestUpdate();
 #if defined(Q_OS_WIN)
     QTimer::singleShot(0, this, [this]() { updateHostWindowGeometry(); notifyPlayerWindowSize(); });
 #endif
@@ -142,8 +199,11 @@ void PlayerHostItem::updateHostWindowGeometry()
         y = titleBarHeight;
 #endif
     m_hostWindow->setGeometry(x, y, qRound(w), qRound(h));
-    if (!m_hostWindow->isVisible())
+    const bool vmRunning = IsViewModelRunning(m_viewModel);
+    if (vmRunning && !m_hostWindow->isVisible())
         m_hostWindow->show();
+    if (!vmRunning && m_hostWindow->isVisible())
+        m_hostWindow->hide();
 
     notifyPlayerWindowSize();
 }
@@ -157,5 +217,36 @@ void PlayerHostItem::notifyPlayerWindowSize()
     if (w > 0 && h > 0) {
         QMetaObject::invokeMethod(m_viewModel, "setPlayerWindowSize", Qt::QueuedConnection,
             Q_ARG(int, w), Q_ARG(int, h));
+    }
+}
+
+void PlayerHostItem::onViewModelRunningChanged(bool running)
+{
+    ensureHostWindowCreated();
+    if (!m_hostWindow)
+        return;
+
+    if (running) {
+        if (!m_hostWindow->isVisible()) {
+            m_hostWindow->show();
+        }
+        updateHostWindowGeometry();
+        notifyPlayerWindowSize();
+        if (QQuickWindow* quickWin = window()) {
+            quickWin->update();
+            quickWin->requestUpdate();
+        }
+    } else {
+        m_hostWindow->hide();
+        if (QQuickWindow* quickWin = window()) {
+            quickWin->update();
+            quickWin->requestUpdate();
+        }
+#if defined(Q_OS_WIN)
+        HWND hwnd = reinterpret_cast<HWND>(m_hostWindow->winId());
+        if (hwnd) {
+            RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+        }
+#endif
     }
 }
