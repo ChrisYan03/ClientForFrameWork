@@ -83,18 +83,8 @@ Item {
                     running: picMatchViewModel.running
                     themeColors: appController ? appController.themeColors : {}
 
-                    onRunClicked: {
-                        if (typeof appController !== "undefined" && appController)
-                            appController.start()
-                        else
-                            picMatchViewModel.run()
-                    }
-                    onStopClicked: {
-                        if (typeof appController !== "undefined" && appController)
-                            appController.stop()
-                        else
-                            picMatchViewModel.stop()
-                    }
+                    onRunClicked: picMatchViewModel.run()
+                    onStopClicked: picMatchViewModel.stop()
                     onConfigClicked: rightStack.currentIndex = 1
                 }
 

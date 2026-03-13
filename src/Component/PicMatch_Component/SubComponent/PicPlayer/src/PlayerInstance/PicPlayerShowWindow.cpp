@@ -146,20 +146,11 @@ int PicPlayerShowWindow::RunRendLoop()
 void PicPlayerShowWindow::Quit()
 {
 #ifdef __APPLE__
-    // 不使用 dispatch_async，而是直接在当前线程处理
     LOG_DEBUG("Quit called on window: {}", (void*)m_window);
-    
     if (m_window) {
-        // 直接设置关闭标志
         glfwSetWindowShouldClose(m_window, 1);
-        
-        // 强制唤醒事件循环
         glfwPostEmptyEvent();
-        
-        // 给一点时间让事件循环处理
-        usleep(10000); // 10ms
-        
-        // 如果窗口仍未关闭，强制销毁
+        usleep(10000);
         if (m_window) {
             LOG_DEBUG("Force destroying window");
             glfwDestroyWindow(m_window);
@@ -397,7 +388,6 @@ void PicPlayerShowWindow::DestroyRenderWindow()
     // 释放GLFW资源
     if (m_window) {
 #ifdef __APPLE__
-        // 先从父窗口移除子窗口（须在主线程），再销毁，避免 view 层级错乱
         void* parent = reinterpret_cast<void*>(m_hParent);
         GLFWwindow* win = m_window;
         if (parent && win) {

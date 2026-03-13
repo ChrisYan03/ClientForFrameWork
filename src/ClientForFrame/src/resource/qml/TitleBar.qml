@@ -28,6 +28,8 @@ Rectangle {
     property bool isMaximized: false
     /** 是否显示“返回桌面”按钮（当前已加载独立组件时为 true） */
     property bool showBackButton: false
+    /** 是否显示“设置”按钮（在桌面时 true，进入组件界面时 false） */
+    property bool showSettingsButton: true
 
     // 独立小窗口显示 ToolTip，浅色系
     Window {
@@ -134,10 +136,10 @@ Rectangle {
             spacing: 0
             Layout.alignment: Qt.AlignVCenter
 
-            // 设置：主框架按钮，始终显示
+            // 设置：主框架按钮，仅在桌面显示，进入组件后隐藏
             Button {
                 id: settingsBtn
-                visible: true
+                visible: titleBarRoot.showSettingsButton
                 implicitWidth: 46
                 implicitHeight: 38
                 topPadding: 0

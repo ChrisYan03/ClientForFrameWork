@@ -55,6 +55,15 @@ QHash<int, QByteArray> FaceListModel::roleNames() const
 
 void FaceListModel::setList(const QVariantList& list)
 {
+    // 检查是否真的需要更新，避免不必要的重置
+    if (m_list.size() == list.size()) {
+        bool same = true;
+        for (int i = 0; i < list.size() && same; ++i) {
+            same = (m_list.at(i) == list.at(i));
+        }
+        if (same) return;  // 数据相同，不触发更新
+    }
+
     beginResetModel();
     m_list = list;
     endResetModel();

@@ -266,11 +266,9 @@ void PicMatchViewModel::updateUIState()
 
 void PicMatchViewModel::publishFaceList(const QVariantList& list)
 {
-    // 统一异步发布，给 QML 一次完整事件循环以触发布局/重绘。
-    QMetaObject::invokeMethod(this, [this, list]() {
-        m_faceListModel->setList(list);
-        emit faceListChanged();
-    }, Qt::QueuedConnection);
+    // 同步更新，让 QML 视图在同一事件循环中处理
+    m_faceListModel->setList(list);
+    emit faceListChanged();
 }
 
 // ==================== PicPlayer/PicRecognition 初始化 ====================

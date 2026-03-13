@@ -2,12 +2,14 @@
 
 #include <QMutexLocker>
 #include <QUrl>
+#include <QQuickTextureFactory>
 #include "LogUtil.h"
 
 FaceImageProvider* FaceImageProvider::s_instance = nullptr;
 
 FaceImageProvider::FaceImageProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
+    , m_imageVersion(0)
 {
     s_instance = this;
 }
@@ -28,10 +30,12 @@ void FaceImageProvider::setImage(const QString& faceId, const QImage& image)
 {
     QMutexLocker locker(&m_mutex);
     m_images.insert(faceId, image);
-    LOG_DEBUG("FaceImageProvider::setImage id={} size={}x{} cacheCount={}",
+    ++m_imageVersion;
+    LOG_DEBUG("FaceImageProvider::setImage id={} size={}x{} version={} cacheCount={}",
               faceId.toStdString(),
               image.width(),
               image.height(),
+              m_imageVersion,
               m_images.size());
 }
 
@@ -40,7 +44,8 @@ void FaceImageProvider::clear()
     QMutexLocker locker(&m_mutex);
     const int before = m_images.size();
     m_images.clear();
-    LOG_DEBUG("FaceImageProvider::clear removed={} cacheCount={}", before, m_images.size());
+    ++m_imageVersion;
+    LOG_DEBUG("FaceImageProvider::clear removed={} version={}", before, m_imageVersion);
 }
 
 QImage FaceImageProvider::requestImage(const QString& id, QSize* size, const QSize& requestedSize)
@@ -74,4 +79,12 @@ QImage FaceImageProvider::requestImage(const QString& id, QSize* size, const QSi
         return image;
 
     return image.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
+QQuickTextureFactory* FaceImageProvider::requestTexture(const QString& id, QSize* size, const QSize& requestedSize)
+{
+    QImage image = requestImage(id, size, requestedSize);
+    if (image.isNull())
+        return nullptr;
+    return QQuickTextureFactory::textureFactoryForImage(image);
 }

@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QStandardPaths>
 
-#if (defined(Q_OS_MAC) || defined(Q_OS_WIN)) && defined(HAVE_CRASHPAD)
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 #include "client/crashpad_client.h"
 #include "base/files/file_path.h"
 #include <string>
@@ -17,11 +17,11 @@ namespace Common {
 
 bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
 {
-#if !defined(HAVE_CRASHPAD)
+#if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
     Q_UNUSED(handlerDir);
     Q_UNUSED(databaseDir);
     return false;
-#elif (defined(Q_OS_MAC) || defined(Q_OS_WIN)) && defined(HAVE_CRASHPAD)
+#else
 
     QString handlerPath;
 #if defined(Q_OS_MAC)
@@ -81,11 +81,6 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
     else
         LOG_WARN("Crashpad StartHandler failed");
     return ok;
-
-#else
-    Q_UNUSED(handlerDir);
-    Q_UNUSED(databaseDir);
-    return false;
 #endif
 }
 

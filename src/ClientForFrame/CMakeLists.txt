@@ -193,7 +193,6 @@ set(CRASHPAD_OBJ "${CRASHPAD_WIN}/obj")
 set(CRASHPAD_HANDLER "${CRASHPAD_WIN}/crashpad_handler.exe")
 endif()
 if(APPLE AND EXISTS "${CRASHPAD_OBJ}/client/libclient.a")
-    target_compile_definitions(ClientForFrame PRIVATE HAVE_CRASHPAD=1)
     target_include_directories(ClientForFrame PRIVATE "${CRASHPAD_INCLUDE}" "${CRASHPAD_MINI_CHROMIUM}")
     target_link_libraries(ClientForFrame PRIVATE
         "${CRASHPAD_OBJ}/client/libclient.a"
@@ -218,7 +217,6 @@ if(APPLE AND EXISTS "${CRASHPAD_OBJ}/client/libclient.a")
     message(STATUS "Crashpad: enabled (handler in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} and app bundle)")
 endif()
 if(WIN32 AND EXISTS "${CRASHPAD_OBJ}/client/client.lib")
-    target_compile_definitions(ClientForFrame PRIVATE HAVE_CRASHPAD=1)
     target_include_directories(ClientForFrame PRIVATE "${CRASHPAD_INCLUDE}" "${CRASHPAD_MINI_CHROMIUM}")
     target_link_libraries(ClientForFrame PRIVATE
         "${CRASHPAD_OBJ}/client/client.lib"

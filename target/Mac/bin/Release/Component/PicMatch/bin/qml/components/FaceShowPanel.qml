@@ -64,14 +64,7 @@ Rectangle {
                     property real confidenceValue: root.faceModel
                         ? (confidence !== undefined ? confidence : 0)
                         : ((modelData && modelData.attributes && modelData.attributes.confidence !== undefined) ? modelData.attributes.confidence : 0)
-                    property string resolvedSource: {
-                        var base = providerUrlValue
-                        if (!base || base.length === 0)
-                            return ""
-                        if (base.indexOf("image://") === 0 || base.indexOf("file://") === 0)
-                            return base + (base.indexOf("?") >= 0 ? "&" : "?") + "r=" + root.refreshNonce + "_" + index
-                        return base
-                    }
+                    property string resolvedSource: providerUrlValue
 
                     onResolvedSourceChanged: {
                         console.log("FaceShowPanel resolvedSource changed:",
@@ -98,7 +91,8 @@ Rectangle {
                                 fillMode: Image.PreserveAspectFit
                                 source: faceCard.resolvedSource
                                 cache: false
-                                asynchronous: false
+                                asynchronous: true
+                                mipmap: true
 
                                 onStatusChanged: {
                                     console.log("FaceShowPanel image status:",

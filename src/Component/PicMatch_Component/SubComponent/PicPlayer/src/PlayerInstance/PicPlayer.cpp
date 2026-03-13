@@ -2,10 +2,10 @@
 #include "PicPlayerVideoRender.h"
 #include "PicPlayerCtrlDelegate.h"
 #include <iostream>
+#include "PicPlayerLog.h"
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
 #endif
-#include "PicPlayerLog.h"
 
 PicPlayer::PicPlayer(int cacheNum)
     : m_cacheNum(cacheNum)
@@ -133,7 +133,7 @@ void PicPlayer::StopControllerThread()
 void PicPlayer::RenderThreadProc()
 {
 #ifdef __APPLE__
-    // 鍒嗘淳浠诲姟鍒颁富绾跨▼鍒涘缓 NSWindow
+    // 分派任务到主线程以创建 NSWindow
     dispatch_async(dispatch_get_main_queue(), ^{
         if (nullptr == m_guiPtr) {
             m_guiPtr = PicPlayerGui::Create(GetWid());

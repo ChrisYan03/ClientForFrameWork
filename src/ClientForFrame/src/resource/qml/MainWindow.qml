@@ -44,6 +44,7 @@ Window {
             statusText: root.mainStatusText
             isMaximized: root.isMaximized
             showBackButton: contentStack.depth > 1
+            showSettingsButton: contentStack.depth <= 1
             onRequestMove: (dx, dy) => {
                 if (!root.isMaximized)
                     root.x += dx; root.y += dy
