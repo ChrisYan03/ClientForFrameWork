@@ -4,6 +4,7 @@
 #include <QQuickItem>
 #include <QObject>
 #include <QMetaObject>
+#include <QtGlobal>
 
 class QWindow;
 class QTimer;
@@ -48,6 +49,7 @@ private:
     QWindow* m_hostWindow = nullptr;
     QObject* m_viewModel = nullptr;
     QMetaObject::Connection m_debugRunningConn;
+    QMetaObject::Connection m_imageUpdatedConn;
 #if defined(Q_OS_WIN)
     QTimer* m_geometryDeferTimer = nullptr;
 #endif

@@ -20,7 +20,9 @@ Rectangle {
 
     property int faceCount: root.faceModel ? (root.faceModel.count || 0) : (root.faceList ? root.faceList.length : 0)
 
-    onFaceCountChanged: refreshNonce++
+    onFaceCountChanged: {
+        refreshNonce++
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -35,20 +37,23 @@ Rectangle {
             font.family: "'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei UI', sans-serif"
         }
 
-        ScrollView {
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
 
-            ListView {
-                id: faceListView
+            ScrollView {
+                id: faceScroll
                 anchors.fill: parent
                 clip: true
-                spacing: 8
-                model: root.faceModel || root.faceList
-                interactive: true
 
-                delegate: Rectangle {
+                ListView {
+                    id: faceListView
+                    anchors.fill: parent
+                    clip: true
+                    spacing: 8
+                    model: root.faceModel || root.faceList
+                    interactive: true
+                    delegate: Rectangle {
                     id: faceCard
                     width: faceListView.width
                     height: 80
@@ -65,13 +70,6 @@ Rectangle {
                         ? (confidence !== undefined ? confidence : 0)
                         : ((modelData && modelData.attributes && modelData.attributes.confidence !== undefined) ? modelData.attributes.confidence : 0)
                     property string resolvedSource: providerUrlValue
-
-                    onResolvedSourceChanged: {
-                        console.log("FaceShowPanel resolvedSource changed:",
-                                    "faceId=", faceIdValue,
-                                    "index=", index,
-                                    "source=", resolvedSource)
-                    }
 
                     RowLayout {
                         anchors.fill: parent
@@ -94,13 +92,6 @@ Rectangle {
                                 asynchronous: true
                                 mipmap: true
 
-                                onStatusChanged: {
-                                    console.log("FaceShowPanel image status:",
-                                                "faceId=", faceCard.faceIdValue,
-                                                "index=", index,
-                                                "status=", status,
-                                                "source=", source)
-                                }
                             }
                         }
 
@@ -132,21 +123,22 @@ Rectangle {
                                 root.faceClicked(faceIdValue)
                         }
                     }
+                    }
                 }
             }
-        }
 
-        // 空状态
-        Label {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            visible: root.faceCount === 0
-            text: qsTr("未检测到人脸")
-            color: themeColors.textPrimary || "#cccccc"
-            opacity: 0.5
-            font.pixelSize: 12
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+            // 空状态覆盖层（不参与 ColumnLayout 分配，避免挤压 ListView 高度）
+            Label {
+                anchors.fill: parent
+                visible: root.faceCount === 0
+                text: qsTr("未检测到人脸")
+                color: themeColors.textPrimary || "#cccccc"
+                opacity: 0.5
+                font.pixelSize: 12
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
         }
     }
+
 }

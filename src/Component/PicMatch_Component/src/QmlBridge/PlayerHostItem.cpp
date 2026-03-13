@@ -7,6 +7,8 @@
 #include <QTimer>
 #include <QMetaObject>
 #include <QtGlobal>
+#include <QCoreApplication>
+#include <QEventLoop>
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #endif
@@ -31,6 +33,9 @@ PlayerHostItem::~PlayerHostItem()
     if (m_debugRunningConn) {
         QObject::disconnect(m_debugRunningConn);
     }
+    if (m_imageUpdatedConn) {
+        QObject::disconnect(m_imageUpdatedConn);
+    }
     if (m_hostWindow) {
         m_hostWindow->destroy();
         m_hostWindow->deleteLater();
@@ -48,6 +53,10 @@ void PlayerHostItem::setViewModel(QObject* vm)
         QObject::disconnect(m_debugRunningConn);
         m_debugRunningConn = QMetaObject::Connection();
     }
+    if (m_imageUpdatedConn) {
+        QObject::disconnect(m_imageUpdatedConn);
+        m_imageUpdatedConn = QMetaObject::Connection();
+    }
 
     m_viewModel = vm;
     if (m_viewModel) {
@@ -56,6 +65,34 @@ void PlayerHostItem::setViewModel(QObject* vm)
                 typedVm, &PicMatchViewModel::runningChanged, this,
                 [this](bool running) {
                     onViewModelRunningChanged(running);
+                },
+                Qt::QueuedConnection);
+            m_imageUpdatedConn = QObject::connect(
+                typedVm, &PicMatchViewModel::imageUpdated, this,
+                [this](const QString& showId, const QString&) {
+                    Q_UNUSED(showId);
+                    if (QQuickWindow* quickWin = window()) {
+#if defined(Q_OS_MAC)
+                        // On macOS, defer update to next event loop, processEvents, then minimal resize to force Expose so the face panel repaints.
+                        QTimer::singleShot(0, this, [this]() {
+                            if (QQuickWindow* w = window()) {
+                                w->update();
+                                w->requestUpdate();
+                                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+                                const int ww = w->width(), wh = w->height();
+                                if (ww > 0 && wh > 0) {
+                                    w->resize(ww + 1, wh);
+                                    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+                                    w->resize(ww, wh);
+                                    w->requestUpdate();
+                                }
+                            }
+                        });
+#else
+                        quickWin->update();
+                        quickWin->requestUpdate();
+#endif
+                    }
                 },
                 Qt::QueuedConnection);
         }
@@ -162,7 +199,6 @@ void PlayerHostItem::ensureHostWindowCreated()
 
     LOG_DEBUG("PlayerHostItem: host window created, running={}, visible={}",
               vmRunning, m_hostWindow->isVisible());
-
     updateHostWindowGeometry();
 #if defined(Q_OS_WIN)
     HWND hwnd = reinterpret_cast<HWND>(m_hostWindow->winId());
@@ -204,7 +240,6 @@ void PlayerHostItem::updateHostWindowGeometry()
         m_hostWindow->show();
     if (!vmRunning && m_hostWindow->isVisible())
         m_hostWindow->hide();
-
     notifyPlayerWindowSize();
 }
 
@@ -250,3 +285,4 @@ void PlayerHostItem::onViewModelRunningChanged(bool running)
 #endif
     }
 }
+

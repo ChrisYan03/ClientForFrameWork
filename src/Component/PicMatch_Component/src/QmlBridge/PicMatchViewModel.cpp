@@ -10,6 +10,7 @@
 #include <QWindow>
 #include <QTimer>
 #include <QSettings>
+#include <QThread>
 #include <cstring>
 #include <cstdlib>
 #include <memory>
@@ -266,7 +267,6 @@ void PicMatchViewModel::updateUIState()
 
 void PicMatchViewModel::publishFaceList(const QVariantList& list)
 {
-    // 同步更新，让 QML 视图在同一事件循环中处理
     m_faceListModel->setList(list);
     emit faceListChanged();
 }
@@ -326,9 +326,10 @@ void PicMatchViewModel::onPlayerCallback(int handle, int msg, void* data)
             std::string showid(reinterpret_cast<const char*>(data));
             LOG_DEBUG("onPlayerCallback showid: {}", showid);
             const QString showIdQ = QString::fromStdString(showid);
+            const bool cacheHit = m_faceCacheByShowId.contains(showIdQ);
 
             // 仅在此处根据「刚完全展示」的 showId 恢复人脸并刷脸区
-            if (m_faceCacheByShowId.contains(showIdQ)) {
+            if (cacheHit) {
                 const QList<FaceData> list = m_faceCacheByShowId.value(showIdQ);
                 m_model->clearFaces();
                 for (const FaceData& f : list)
@@ -463,8 +464,8 @@ void PicMatchViewModel::onImageUpdated(const QString& showId, const QString& ima
     m_faceCacheByShowId[showId] = m_model->faces();
     while (m_faceCacheByShowId.size() > 10)
         m_faceCacheByShowId.remove(m_faceCacheByShowId.firstKey());
-    publishFaceList(m_model->facesToVariantList());
-
+    QVariantList variantList = m_model->facesToVariantList();
+    publishFaceList(variantList);
     emit imageUpdated(showId, imagePath);
 }
 

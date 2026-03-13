@@ -61,7 +61,9 @@ void FaceListModel::setList(const QVariantList& list)
         for (int i = 0; i < list.size() && same; ++i) {
             same = (m_list.at(i) == list.at(i));
         }
-        if (same) return;  // 数据相同，不触发更新
+        if (same) {
+            return;  // 数据相同，不触发更新
+        }
     }
 
     beginResetModel();

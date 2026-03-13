@@ -66,6 +66,7 @@ Item {
 
         // 右侧：控制面板
         Rectangle {
+            id: rightPanel
             Layout.preferredWidth: 280
             Layout.fillHeight: true
             color: appController && appController.themeColors ?
