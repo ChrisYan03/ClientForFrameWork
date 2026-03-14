@@ -162,3 +162,9 @@ QUrl AppController::getComponentPageUrl(const QString &appId) const
 {
     return m_componentPageUrls.value(appId, QUrl());
 }
+
+void AppController::requestShowBubbleMessage(const QString &message)
+{
+    if (!message.isEmpty())
+        emit showBubbleMessageRequested(message);
+}

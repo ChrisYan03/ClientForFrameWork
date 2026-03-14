@@ -54,6 +54,9 @@ public:
     /** 获取已注册的组件页 URL，空则表示该组件无独立页 */
     Q_INVOKABLE QUrl getComponentPageUrl(const QString &appId) const;
 
+    /** 请求主框架在标题栏下显示气泡提示（如「停止运行后可配置」），由主窗口监听 showBubbleMessageRequested 并展示 */
+    Q_INVOKABLE void requestShowBubbleMessage(const QString &message);
+
 signals:
     void statusTextChanged();
     void pageTitleChanged();
@@ -63,6 +66,7 @@ signals:
     void themeColorsChanged();
     void requestQuit();
     void backToDesktopRequested();
+    void showBubbleMessageRequested(const QString &message);
 
 private:
     void setStatusText(const QString &text);

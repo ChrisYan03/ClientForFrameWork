@@ -58,9 +58,7 @@ Window {
             onBackToDesktopClicked: {
                 if (contentStack.depth > 1) {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {
-                        toastMessage = "请暂停后再回到主界面"
-                        toastVisible = true
-                        toastTimer.restart()
+                        root.showBubbleMessage("请暂停后再回到主界面")
                     } else if (appController) {
                         appController.requestBackToDesktop()
                     }
@@ -68,9 +66,7 @@ Window {
             }
             onSettingsClicked: {
                 if (appController && appController.hasRunnableComponent && appController.isRunning) {
-                    toastMessage = "停止运行后可配置"
-                    toastVisible = true
-                    toastTimer.restart()
+                    root.showBubbleMessage("停止运行后可配置")
                     return
                 }
                 root.settingsOpen = !root.settingsOpen
@@ -169,6 +165,11 @@ Window {
         while (contentStack.depth > 1)
             contentStack.pop()
     }
+    function showBubbleMessage(msg) {
+        root.toastMessage = msg
+        root.toastVisible = true
+        toastTimer.restart()
+    }
 
     Component.onCompleted: {
         if (appController)
@@ -187,6 +188,9 @@ Window {
             if (appController)
                 root.mainStatusText = appController.statusText
         }
+        function onShowBubbleMessageRequested(msg) {
+            root.showBubbleMessage(msg)
+        }
         function onBackToDesktopRequested() {
             if (appController)
                 appController.unregisterComponentHost()
@@ -194,8 +198,9 @@ Window {
         }
     }
 
+    // 气泡提示：主框架标题栏下 40px 显示（无尖角）
     Window {
-        id: toastWindow
+        id: bubbleWindow
         flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         color: "transparent"
         width: 260

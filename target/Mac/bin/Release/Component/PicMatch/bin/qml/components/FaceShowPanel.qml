@@ -57,7 +57,7 @@ Rectangle {
                     id: faceCard
                     width: faceListView.width
                     height: 80
-                    color: "#2d2d30"
+                    color: root.themeColors.appTileBackground || "#2d2d30"
                     radius: 4
 
                     property string faceIdValue: root.faceModel
@@ -79,7 +79,7 @@ Rectangle {
                         Rectangle {
                             Layout.preferredWidth: 64
                             Layout.preferredHeight: 64
-                            color: "#1e1e1e"
+                            color: root.themeColors.contentBackground || "#1e1e1e"
                             radius: 4
                             clip: true
 
@@ -101,7 +101,7 @@ Rectangle {
 
                             Label {
                                 text: faceIdValue ? ("Face " + faceIdValue) : "--"
-                                color: "#cccccc"
+                                color: root.themeColors.textPrimary || "#cccccc"
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
@@ -109,7 +109,7 @@ Rectangle {
 
                             Label {
                                 text: confidenceValue > 0 ? ((confidenceValue * 100).toFixed(0) + "%") : "--"
-                                color: "#888888"
+                                color: root.themeColors.textSecondary || "#888888"
                                 font.pixelSize: 11
                                 Layout.fillWidth: true
                             }

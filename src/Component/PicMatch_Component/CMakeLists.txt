@@ -24,7 +24,7 @@ set(PICRECOGNITION_SRC_DIR ${PICMATCH_COMPONENT_DIR}/SubComponent/PicRecognition
 include_directories(
     ${PICMATCH_SOURCE_DIR}
     ${PICMATCH_SOURCE_DIR}/Common
-    ${PICMATCH_SOURCE_DIR}/ComponentInstance
+    ${PICMATCH_SOURCE_DIR}/StbImage
     ${PICMATCH_SOURCE_DIR}/QmlBridge
     ${PICMATCH_SOURCE_DIR}/Core
     ${PICPLAYER_SRC_DIR}
@@ -35,10 +35,8 @@ include_directories(${CMAKE_SOURCE_DIR}/LogUtil)
 file(GLOB PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/Common/*.cpp"
     "${PICMATCH_SOURCE_DIR}/Common/*.h"
-    "${PICMATCH_SOURCE_DIR}/ComponentInstance/*.cpp"
-    "${PICMATCH_SOURCE_DIR}/ComponentInstance/*.h"
-    "${PICMATCH_SOURCE_DIR}/ComponentInstance/StbImage/*.cpp"
-    "${PICMATCH_SOURCE_DIR}/ComponentInstance/StbImage/*.h"
+    "${PICMATCH_SOURCE_DIR}/StbImage/*.cpp"
+    "${PICMATCH_SOURCE_DIR}/StbImage/*.h"
     "${PICMATCH_SOURCE_DIR}/Core/*.cpp"
     "${PICMATCH_SOURCE_DIR}/Core/*.h"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.cpp"

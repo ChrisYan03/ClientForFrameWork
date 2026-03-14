@@ -40,11 +40,6 @@ Rectangle {
             tooltipWindow.visible = false
     }
 
-    function showBlockedConfigTip() {
-        showTip(configButton, qsTr("停止运行后可配置"))
-        blockedTipTimer.restart()
-    }
-
     height: 38
     color: bgColor
     border.color: borderColor
@@ -85,13 +80,6 @@ Rectangle {
                 text: tooltipWindow.tipText
             }
         }
-    }
-
-    Timer {
-        id: blockedTipTimer
-        interval: 1500
-        repeat: false
-        onTriggered: root.tryHideTip()
     }
 
     RowLayout {
@@ -196,7 +184,8 @@ Rectangle {
 
             onClicked: {
                 if (root.running) {
-                    root.showBlockedConfigTip()
+                    if (typeof appController !== "undefined" && appController)
+                        appController.requestShowBubbleMessage(qsTr("停止运行后可配置"))
                     return
                 }
                 root.configClicked()
