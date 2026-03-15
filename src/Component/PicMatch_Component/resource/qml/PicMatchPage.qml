@@ -14,6 +14,11 @@ Item {
     id: root
     objectName: "picMatchPage"
 
+    // 组件优先使用自身皮肤（resource/themes/*.json），否则回退到主框架 themeColors
+    property var effectiveThemeColors: (picMatchViewModel && picMatchViewModel.componentThemeColors && Object.keys(picMatchViewModel.componentThemeColors).length > 0)
+        ? picMatchViewModel.componentThemeColors
+        : (appController ? appController.themeColors : {})
+
     // 生命周期管理
     Component.onCompleted: {
         if (typeof appController !== "undefined" && appController) {
@@ -21,6 +26,7 @@ Item {
             // 初始化ViewModel
             if (picMatchViewModel) {
                 picMatchViewModel.initialize()
+                picMatchViewModel.setComponentTheme(appController.theme)
             }
         }
     }
@@ -69,8 +75,7 @@ Item {
             id: rightPanel
             Layout.preferredWidth: 280
             Layout.fillHeight: true
-            color: appController && appController.themeColors ?
-                   appController.themeColors.contentBackground : "#1e1e1e"
+            color: root.effectiveThemeColors.contentBackground || "#1e1e1e"
 
             ColumnLayout {
                 anchors.fill: parent
@@ -82,7 +87,7 @@ Item {
                     Layout.fillWidth: true
 
                     running: picMatchViewModel.running
-                    themeColors: appController ? appController.themeColors : {}
+                    themeColors: root.effectiveThemeColors
 
                     onRunClicked: picMatchViewModel.run()
                     onStopClicked: picMatchViewModel.stop()
@@ -101,7 +106,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         faceModel: picMatchViewModel.faceModel
-                        themeColors: appController ? appController.themeColors : {}
+                        themeColors: root.effectiveThemeColors
                         onFaceClicked: function(faceId) {
                             console.log("Face clicked:", faceId)
                             // TODO: 处理人脸点击事件
@@ -114,7 +119,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         dataPath: picMatchViewModel.dataPath
-                        themeColors: appController ? appController.themeColors : {}
+                        themeColors: root.effectiveThemeColors
 
                         onApplyClicked: {
                             // 保存路径到ViewModel
@@ -137,13 +142,21 @@ Item {
         }
     }
 
-    // 接收主题变化
+    // 主框架主题索引变化时，加载组件对应皮肤（resource/themes/light.json 或 dark.json）
     Connections {
         target: appController
-        function onThemeColorsChanged() {
-            if (picMatchViewModel) {
-                picMatchViewModel.applyTheme(appController.themeColors)
-            }
+        function onThemeChanged() {
+            if (picMatchViewModel && appController)
+                picMatchViewModel.setComponentTheme(appController.theme)
+        }
+    }
+
+    // 组件皮肤加载后同步到播放区（左侧窗口背景等）
+    Connections {
+        target: picMatchViewModel
+        function onComponentThemeColorsChanged() {
+            if (playerHost && picMatchViewModel.componentThemeColors && Object.keys(picMatchViewModel.componentThemeColors).length > 0)
+                playerHost.applyTheme(picMatchViewModel.componentThemeColors)
         }
     }
 

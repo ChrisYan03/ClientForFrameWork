@@ -1,0 +1,17 @@
+{
+  "windowBackground": "#f3f3f3",
+  "contentBackground": "#ffffff",
+  "titleBarBackground": "#ffffff",
+  "titleBarBorder": "#e0e0e0",
+  "textPrimary": "#323232",
+  "textSecondary": "#5f6368",
+  "border": "#e0e0e0",
+  "buttonHover": "#e5e5e5",
+  "primaryColor": "#1a73e8",
+  "tooltipBackground": "#ffffff",
+  "tooltipBorder": "#dadce0",
+  "tooltipText": "#3c4043",
+  "appTileBackground": "#f1f3f4",
+  "appTileBackgroundHover": "#e8f0fe",
+  "appTileBorder": "#1a73e8"
+}

@@ -4,9 +4,12 @@
 #include "StbImage/stb_image.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QGuiApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QWindow>
 #include <QTimer>
 #include <QSettings>
@@ -108,8 +111,37 @@ PicMatchViewModel::~PicMatchViewModel()
     shutdown();
 }
 
+void PicMatchViewModel::loadComponentTheme(int theme)
+{
+    QString fileName = (theme == 1) ? QStringLiteral("dark.json") : QStringLiteral("light.json");
+    QString path = componentBinPath() + QStringLiteral("/resource/themes/") + fileName;
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        m_componentThemeColors = QVariantMap();
+        emit componentThemeColorsChanged();
+        return;
+    }
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &err);
+    file.close();
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        m_componentThemeColors = QVariantMap();
+        emit componentThemeColorsChanged();
+        return;
+    }
+    m_componentThemeColors = doc.object().toVariantMap();
+    applyTheme(m_componentThemeColors);
+    emit componentThemeColorsChanged();
+}
+
+void PicMatchViewModel::setComponentTheme(int theme)
+{
+    loadComponentTheme(theme);
+}
+
 void PicMatchViewModel::initialize()
 {
+    loadComponentTheme(0);
     // 初始化数据路径
     QString dataPath = m_model->getCurrentDataPath();
     if (dataPath.isEmpty()) {

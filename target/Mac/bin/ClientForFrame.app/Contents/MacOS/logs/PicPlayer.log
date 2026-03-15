@@ -1,60 +1,9 @@
-[2026-03-14 22:32:27.541] [debug] [:] [PicPlayerShowWindow.cpp:277:CreateRenderWindow] glfwGetWindowSize size: 1120 x 862
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='beauty_20250216152514' (index=0)
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: beauty_20250216152514
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=beauty_20250216152514
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: beauty_20250216152514
-[2026-03-14 22:32:34.161] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=beauty_20250216152514
-[2026-03-14 22:32:37.527] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='xiaoxiaoyan_1' (index=1)
-[2026-03-14 22:32:37.528] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: xiaoxiaoyan_1
-[2026-03-14 22:32:37.528] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:32:37.528] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:32:37.528] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=xiaoxiaoyan_1
-[2026-03-14 22:32:37.528] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: xiaoxiaoyan_1
-[2026-03-14 22:32:37.529] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=xiaoxiaoyan_1
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='xiaoxiaoyan_2' (index=2)
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: xiaoxiaoyan_2
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=xiaoxiaoyan_2
-[2026-03-14 22:32:41.044] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: xiaoxiaoyan_2
-[2026-03-14 22:32:41.045] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=xiaoxiaoyan_2
-[2026-03-14 22:32:43.761] [debug] [:] [PicPlayer.cpp:24:~PicPlayer] ~PicPlayer start
-[2026-03-14 22:32:43.762] [debug] [:] [PicPlayerShowWindow.cpp:149:Quit] Quit called on window: 0x788539c00
-[2026-03-14 22:32:43.773] [debug] [:] [PicPlayerShowWindow.cpp:155:Quit] Force destroying window
-[2026-03-14 22:32:43.780] [debug] [:] [PicPlayerShowWindow.cpp:160:Quit] Quit completed
-[2026-03-14 22:32:43.784] [debug] [:] [PicPlayer.cpp:27:~PicPlayer] ~PicPlayer suc
-[2026-03-14 22:32:43.784] [debug] [:] [PicPlayerShowWindow.cpp:118:RunRendLoop] Window closed during buffer swap
-[2026-03-14 22:32:43.784] [debug] [:] [PicPlayerShowWindow.cpp:137:RunRendLoop] Exit render loop, destroying window
-[2026-03-14 22:32:43.784] [debug] [:] [PicPlayerShowWindow.cpp:142:RunRendLoop] Render loop finished completely
-[2026-03-14 22:32:49.694] [debug] [:] [PicPlayerShowWindow.cpp:277:CreateRenderWindow] glfwGetWindowSize size: 1120 x 862
-[2026-03-14 22:32:55.493] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='beauty_20250216152514' (index=0)
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: beauty_20250216152514
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=beauty_20250216152514
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: beauty_20250216152514
-[2026-03-14 22:32:55.495] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=beauty_20250216152514
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='xiaoxiaoyan_1' (index=1)
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: xiaoxiaoyan_1
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=xiaoxiaoyan_1
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: xiaoxiaoyan_1
-[2026-03-14 22:32:58.660] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=xiaoxiaoyan_1
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerMovieByScene.cpp:248:SetPicInfoToComponent] SetPicInfoToComponent: picture fully displayed and scrolled past, showId='xiaoxiaoyan_2' (index=2)
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerScene.cpp:34:OnCurPicChange] OnCurPicChange called with picId: xiaoxiaoyan_2
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerScene.cpp:37:OnCurPicChange] OnCurPicChange: calling RenderComCallback
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerCtrlDelegate.cpp:109:OnRenderComCallback] OnRenderComCallback: RenderType=5
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerCtrlDelegate.cpp:114:OnRenderComCallback] OnRenderComCallback: PicChangeType, picId=xiaoxiaoyan_2
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerCtrlDelegate.cpp:116:operator()] ShowPicCallback invoked for picId: xiaoxiaoyan_2
-[2026-03-14 22:33:01.966] [debug] [:] [PicPlayerCtrlBase.cpp:58:ShowPicCallback] ShowPicCallback: handle=1, showPicId=xiaoxiaoyan_2
-[2026-03-14 22:33:04.944] [debug] [:] [PicPlayer.cpp:24:~PicPlayer] ~PicPlayer start
-[2026-03-14 22:33:04.951] [debug] [:] [PicPlayerShowWindow.cpp:149:Quit] Quit called on window: 0x78853a400
-[2026-03-14 22:33:04.962] [debug] [:] [PicPlayerShowWindow.cpp:155:Quit] Force destroying window
-[2026-03-14 22:33:04.990] [debug] [:] [PicPlayerShowWindow.cpp:160:Quit] Quit completed
-[2026-03-14 22:33:04.990] [debug] [:] [PicPlayer.cpp:27:~PicPlayer] ~PicPlayer suc
-[2026-03-14 22:33:04.990] [debug] [:] [PicPlayerShowWindow.cpp:118:RunRendLoop] Window closed during buffer swap
-[2026-03-14 22:33:04.990] [debug] [:] [PicPlayerShowWindow.cpp:137:RunRendLoop] Exit render loop, destroying window
-[2026-03-14 22:33:04.990] [debug] [:] [PicPlayerShowWindow.cpp:142:RunRendLoop] Render loop finished completely
+[2026-03-14 23:05:55.965] [debug] [:] [PicPlayerShowWindow.cpp:277:CreateRenderWindow] glfwGetWindowSize size: 1120 x 862
+[2026-03-14 23:06:00.612] [debug] [:] [PicPlayer.cpp:24:~PicPlayer] ~PicPlayer start
+[2026-03-14 23:06:00.618] [debug] [:] [PicPlayerShowWindow.cpp:149:Quit] Quit called on window: 0xb1c057400
+[2026-03-14 23:06:00.629] [debug] [:] [PicPlayerShowWindow.cpp:155:Quit] Force destroying window
+[2026-03-14 23:06:00.635] [debug] [:] [PicPlayerShowWindow.cpp:160:Quit] Quit completed
+[2026-03-14 23:06:00.636] [debug] [:] [PicPlayer.cpp:27:~PicPlayer] ~PicPlayer suc
+[2026-03-14 23:06:00.636] [debug] [:] [PicPlayerShowWindow.cpp:118:RunRendLoop] Window closed during buffer swap
+[2026-03-14 23:06:00.636] [debug] [:] [PicPlayerShowWindow.cpp:137:RunRendLoop] Exit render loop, destroying window
+[2026-03-14 23:06:00.636] [debug] [:] [PicPlayerShowWindow.cpp:142:RunRendLoop] Render loop finished completely

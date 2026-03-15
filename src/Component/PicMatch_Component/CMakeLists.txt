@@ -97,13 +97,17 @@ if(APPLE)
     )
 endif()
 
-# 复制资源文件（图标）到输出目录，供运行时加载
+# 复制资源文件（图标、皮肤）到输出目录，供运行时加载
 add_custom_command(TARGET PicMatchComponent POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/start.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/stop.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/settings.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
-    COMMENT "Copy PicMatch icons to output directory"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/settings_dark.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/icons/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/resource/themes"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/themes/light.json" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/themes/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/themes/dark.json" "$<TARGET_FILE_DIR:PicMatchComponent>/resource/themes/"
+    COMMENT "Copy PicMatch icons and theme JSON to output directory"
 )
 
 # 组件 QML 页与子组件复制到 bin/qml/，供主框架按 manifest.qmlPage 加载

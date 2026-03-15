@@ -171,10 +171,12 @@ Rectangle {
             hoverEnabled: true
 
             Image {
-                source: Qt.resolvedUrl("../../resource/icons/settings.svg")
                 width: 16
                 height: 16
                 anchors.centerIn: parent
+                source: (root.textColor && String(root.textColor).toLowerCase().indexOf("cc") >= 0)
+                    ? Qt.resolvedUrl("../../resource/icons/settings_dark.svg")
+                    : Qt.resolvedUrl("../../resource/icons/settings.svg")
             }
 
             background: Rectangle {

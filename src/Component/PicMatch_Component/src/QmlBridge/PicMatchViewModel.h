@@ -41,6 +41,9 @@ class PicMatchViewModel : public QObject
     // 引擎句柄
     Q_PROPERTY(int playerHandle READ playerHandle NOTIFY handleChanged)
 
+    /** 组件自身皮肤（从 resource/themes/light.json 或 dark.json 加载），QML 优先使用此项 */
+    Q_PROPERTY(QVariantMap componentThemeColors READ componentThemeColors NOTIFY componentThemeColorsChanged)
+
 public:
     explicit PicMatchViewModel(QObject* parent = nullptr);
     ~PicMatchViewModel();
@@ -58,6 +61,10 @@ public:
 
     // 引擎句柄
     int playerHandle() const { return m_playerHandle; }
+
+    /** 组件皮肤：theme 0=light, 1=dark，从组件 resource/themes/*.json 加载并更新 componentThemeColors */
+    QVariantMap componentThemeColors() const { return m_componentThemeColors; }
+    Q_INVOKABLE void setComponentTheme(int theme);
 
     // QML调用接口
     Q_INVOKABLE void run();
@@ -101,12 +108,15 @@ signals:
     // 配置面板相关
     void configApplied();
 
+    void componentThemeColorsChanged();
+
 private slots:
     void onImageUpdated(const QString& showId, const QString& imagePath);
 
 private:
     void updateUIState();
     void publishFaceList(const QVariantList& list);
+    void loadComponentTheme(int theme);
     QString getEffectiveBaseDir() const;
     QString getComponentDataPath() const;
 
@@ -132,6 +142,7 @@ private:
     QString m_statusText;
     QVariantMap m_themeColors;
     QVariantMap m_lastThemeColors;
+    QVariantMap m_componentThemeColors;
     int m_playerHandle;
 
     // Windows resize timer
