@@ -1,6 +1,6 @@
 #include "QmlBridge/AppController.h"
 #include "Common/StyleManager.h"
-#include "Common/ComponentLoader.h"
+#include "Common/FrameworkComponentLoader.h"
 #include "Common/MainWindowSetup.h"
 #include "Common/CrashpadInit.h"
 #include <QApplication>
@@ -37,8 +37,9 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appController", &appController);
 
-    ComponentLoader componentLoader;
-    const QList<ShutdownEntry> shutdownList = componentLoader.loadAllComponents(&engine, &appController);
+    FrameworkComponentLoader frameworkLoader;
+    if (!frameworkLoader.loadAllComponents(&engine, &appController))
+        LOG_INFO("FrameworkComponentLoader: one or more components failed to load (see logs)");
 
     QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
         for (const auto &w : warnings)
@@ -73,8 +74,8 @@ int main(int argc, char *argv[])
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
 
-    QObject::connect(&app, &QApplication::aboutToQuit, &app, [shutdownList]() {
-        ComponentLoader::runShutdownList(shutdownList);
+    QObject::connect(&app, &QApplication::aboutToQuit, &app, [&frameworkLoader]() {
+        frameworkLoader.unloadAllComponents();
     });
 
     LOG_INFO("-------------------------------Application started (QML).");

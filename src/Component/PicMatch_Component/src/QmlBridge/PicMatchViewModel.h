@@ -62,7 +62,7 @@ public:
     // 引擎句柄
     int playerHandle() const { return m_playerHandle; }
 
-    /** 组件皮肤：theme 0=light, 1=dark，从组件 resource/themes/*.json 加载并更新 componentThemeColors */
+    // 组件皮肤：theme 0=light, 1=dark，从组件 resource/themes/xxx.json 加载并更新 componentThemeColors
     QVariantMap componentThemeColors() const { return m_componentThemeColors; }
     Q_INVOKABLE void setComponentTheme(int theme);
 

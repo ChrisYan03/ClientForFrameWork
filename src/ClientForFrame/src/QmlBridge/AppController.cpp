@@ -18,8 +18,10 @@ AppController::AppController(QObject *parent)
 
 void AppController::applyThemeToPicPlayer()
 {
-    if (m_componentHost)
-        QMetaObject::invokeMethod(m_componentHost, "applyTheme", Q_ARG(QVariantMap, m_themeColors));
+    QObject* host = m_componentHost;
+    if (!host)
+        return;
+    QMetaObject::invokeMethod(host, "applyTheme", Q_ARG(QVariantMap, m_themeColors));
 }
 
 void AppController::loadThemeColors()
@@ -99,15 +101,23 @@ void AppController::registerComponentHost(QObject *hostItem)
         return;
     m_componentHost = hostItem;
     setHasRunnableComponent(true);
-    QObject::connect(hostItem, &QObject::destroyed, this, [this]() { m_componentHost = nullptr; setHasRunnableComponent(false); });
+    // 仅当析构对象仍是当前宿主时才清空。否则：先 pop 再快速 push 时，旧 PlayerHostItem 的 destroyed
+    // 可能晚于新页 registerComponentHost，若无条件 m_componentHost=nullptr 会误清新宿主，随后 invokeMethod 等对坏指针有风险。
+    QObject::connect(hostItem, &QObject::destroyed, this, [this, hostItem]() {
+        if (m_componentHost == hostItem) {
+            m_componentHost = nullptr;
+            setHasRunnableComponent(false);
+        }
+    });
     applyThemeToPicPlayer(); // 组件注册后立即应用当前主题，使右侧面板等与主框架换肤一致
 }
 
 void AppController::unregisterComponentHost()
 {
-    if (m_componentHost) {
-        QMetaObject::invokeMethod(m_componentHost, "quit", Qt::DirectConnection);
+    QObject* host = m_componentHost;
+    if (host) {
         m_componentHost = nullptr;
+        QMetaObject::invokeMethod(host, "quit", Qt::DirectConnection);
     }
     setRunning(false);
     setHasRunnableComponent(false);

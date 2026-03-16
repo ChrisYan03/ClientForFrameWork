@@ -50,7 +50,8 @@ if(APPLE)
   endif()
 endif()
 
-# 添加子项目：先构建组件（含 PicPlayer、PicRecognition），再构建主框架
+# 添加子项目：先构建框架接口层，再构建组件，最后构建主框架
+add_subdirectory(Framework)
 add_subdirectory(Component/PicMatch_Component)
 add_subdirectory(ClientForFrame)
 

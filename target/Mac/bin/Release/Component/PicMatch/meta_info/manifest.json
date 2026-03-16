@@ -1,10 +1,15 @@
 {
   "id": "picmatch",
   "name": "图像人脸识别",
+  "version": "1.0.0",
+  "description": "图像人脸识别组件，支持图片序列播放和人脸检测",
+  "author": "ClientForFrameWork",
+  "type": "native",
   "module": "PicMatchComponent.dll",
   "registerSymbol": "PicMatchComponent_Register",
   "shutdownModule": "PicPlayer.dll",
   "shutdownSymbol": "PicPlayer_Shutdown",
   "icon": "face_recognition.svg",
-  "qmlPage": "PicMatchPage.qml"
+  "qmlPage": "PicMatchPage.qml",
+  "dependencies": []
 }

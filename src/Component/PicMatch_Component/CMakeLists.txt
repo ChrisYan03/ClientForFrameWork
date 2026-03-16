@@ -29,12 +29,11 @@ include_directories(
     ${PICMATCH_SOURCE_DIR}/Core
     ${PICPLAYER_SRC_DIR}
     ${PICRECOGNITION_SRC_DIR}
+    ${CMAKE_SOURCE_DIR}/Framework  # 添加 Framework 目录
 )
 include_directories(${CMAKE_SOURCE_DIR}/LogUtil)
 
 file(GLOB PICMATCH_SOURCES
-    "${PICMATCH_SOURCE_DIR}/Common/*.cpp"
-    "${PICMATCH_SOURCE_DIR}/Common/*.h"
     "${PICMATCH_SOURCE_DIR}/StbImage/*.cpp"
     "${PICMATCH_SOURCE_DIR}/StbImage/*.h"
     "${PICMATCH_SOURCE_DIR}/Core/*.cpp"
@@ -43,6 +42,8 @@ file(GLOB PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.h"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.cpp"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.h"
+    "${PICMATCH_SOURCE_DIR}/PicMatchComponent.cpp"
+    "${PICMATCH_SOURCE_DIR}/PicMatchComponent.h"
 )
 # 显式加入 FaceListModel，避免 GLOB 在 configure 时未包含新文件导致链接缺失
 list(APPEND PICMATCH_SOURCES
@@ -59,6 +60,7 @@ if(WIN32)
 endif()
 
 target_link_libraries(PicMatchComponent PUBLIC
+    Framework
     PicPlayer
     PicRecognition
     Qt${QT_VERSION_MAJOR}::Core
