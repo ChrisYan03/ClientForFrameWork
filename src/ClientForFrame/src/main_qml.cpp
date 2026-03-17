@@ -1,8 +1,9 @@
 #include "QmlBridge/AppController.h"
 #include "Common/StyleManager.h"
-#include "Common/FrameworkComponentLoader.h"
+#include "Common/ApplicationPaths.h"
 #include "Common/MainWindowSetup.h"
 #include "Common/CrashpadInit.h"
+#include "ComponentService.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -33,13 +34,19 @@ int main(int argc, char *argv[])
     LogUtil::initLogger("ClientApp");
     LOG_INFO("-------------------------------Application starting (QML)...");
 
+    // 获取应用基础路径
+    ApplicationPaths paths;
+    QString baseDir = paths.baseDir();
+
     AppController appController;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appController", &appController);
 
-    FrameworkComponentLoader frameworkLoader;
-    if (!frameworkLoader.loadAllComponents(&engine, &appController))
-        LOG_INFO("FrameworkComponentLoader: one or more components failed to load (see logs)");
+    // 使用 Framework ComponentService 加载组件
+    ComponentService componentService;
+    componentService.setBasePath(baseDir);
+    if (!componentService.initialize(&engine, &appController))
+        LOG_INFO("ComponentService: one or more components failed to load (see logs)");
 
     QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
         for (const auto &w : warnings)
@@ -74,8 +81,8 @@ int main(int argc, char *argv[])
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
 
-    QObject::connect(&app, &QApplication::aboutToQuit, &app, [&frameworkLoader]() {
-        frameworkLoader.unloadAllComponents();
+    QObject::connect(&app, &QApplication::aboutToQuit, &app, [&componentService]() {
+        componentService.shutdown();
     });
 
     LOG_INFO("-------------------------------Application started (QML).");

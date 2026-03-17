@@ -10,7 +10,7 @@ Item {
     property int cellSize: 120
     property int spacing: 24
     /** 与 Windows 一致：从组件路径 Component/xxx/meta_info/icon 加载，无则回退 qrc */
-    property string picMatchIcon: appController ? appController.getComponentIconPath("picmatch") : ""
+    property string picMatchIcon: appController ? appController.getComponentIconPath("PicMatch") : ""
 
     Flow {
         id: appGrid
@@ -43,7 +43,7 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.openApp("picmatch")
+                    onClicked: root.openApp("PicMatch")
                 }
             }
             Label {

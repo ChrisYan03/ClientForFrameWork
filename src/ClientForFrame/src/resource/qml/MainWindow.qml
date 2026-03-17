@@ -157,7 +157,7 @@ Window {
         var pageUrl = appController.getComponentPageUrl(appId)
         if (pageUrl && pageUrl.toString()) {
             contentStack.push(pageUrl)
-            if (appId === "picmatch")
+            if (appId === "PicMatch")
                 appController.setPageTitle("图像人脸识别")
         }
     }

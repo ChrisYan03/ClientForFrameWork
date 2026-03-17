@@ -1,13 +1,12 @@
 /**
- * @file IComponentApiImpl.cpp
+ * @file ComponentApiImpl.cpp
  * @brief C 风格 API 接口实现
  *
- * 实现 IComponentApi.h 中声明的所有 C 风格函数。
- * 这些函数提供对 ComponentManager 的封装，避免暴露类定义。
+ * 实现 ComponentApi.h 中声明的所有 C 风格函数。
  */
 #include "ComponentManager.h"
-#include "../Interface/IComponentApi.h"
-#include "../Interface/IComponentData.h"
+#include "ComponentApi.h"
+#include "IComponentData.h"
 #include <QMetaObject>
 #include <QQmlEngine>
 #include <cstring>
@@ -41,6 +40,17 @@ int Component_Initialize(ComponentHandle handle, void* qmlEngine)
 
     instance->qmlEngine = static_cast<QQmlEngine*>(qmlEngine);
     instance->state = ComponentInstance::Initializing;
+
+    // 如果组件实现了 IComponent 接口，调用其 initialize 方法
+    if (instance->iComponent) {
+        QString basePath = instance->basePath;
+        bool success = instance->iComponent->initialize(instance->qmlEngine, basePath);
+        if (!success) {
+            instance->state = ComponentInstance::Error;
+            return 0;
+        }
+    }
+
     instance->state = ComponentInstance::Running;
     return 1;
 }
@@ -49,6 +59,11 @@ void Component_Shutdown(ComponentHandle handle)
 {
     auto instance = static_cast<ComponentInstance*>(handle);
     if (!instance) return;
+
+    // 如果组件实现了 IComponent 接口，调用其 shutdown 方法
+    if (instance->iComponent) {
+        instance->iComponent->shutdown();
+    }
 
     instance->state = ComponentInstance::Shutdown;
 }
@@ -60,7 +75,8 @@ int Component_GetManifest(ComponentHandle handle, ComponentManifest* manifest)
     auto instance = static_cast<ComponentInstance*>(handle);
     if (!instance || !manifest) return 0;
 
-    // 一次性复制整个结构体
+    // 从 ComponentInstance 的 manifest 成员获取信息
+    // 组件通过 m_manifest 成员直接访问
     *manifest = instance->manifest;
     return 1;
 }
@@ -107,12 +123,24 @@ int Component_SetConfig(ComponentHandle handle, const QVariantMap* config)
 int Component_RegisterQmlTypes(ComponentHandle handle, void* qmlEngine)
 {
     auto instance = static_cast<ComponentInstance*>(handle);
-    if (!instance || !instance->componentObject || !qmlEngine) return 0;
+    if (!instance || !qmlEngine) return 0;
 
     QQmlEngine* engine = static_cast<QQmlEngine*>(qmlEngine);
-    bool ok = QMetaObject::invokeMethod(instance->componentObject, "registerQmlTypes",
-                                        Q_ARG(QQmlEngine*, engine));
-    return ok ? 1 : 0;
+
+    // 优先使用 IComponent 接口
+    if (instance->iComponent) {
+        instance->iComponent->registerQmlTypes(engine);
+        return 1;
+    }
+
+    // 兼容旧方式：通过 QMetaObject 调用
+    if (instance->componentObject) {
+        bool ok = QMetaObject::invokeMethod(instance->componentObject, "registerQmlTypes",
+                                            Q_ARG(QQmlEngine*, engine));
+        return ok ? 1 : 0;
+    }
+
+    return 0;
 }
 
 int Component_GetQmlImportPaths(ComponentHandle handle, QStringList* paths)
@@ -132,6 +160,13 @@ void* Component_GetInterface(ComponentHandle handle, const char* interfaceName)
     if (!instance || !interfaceName) return nullptr;
 
     QString name = QString::fromUtf8(interfaceName);
+
+    // 优先使用 IComponent 接口
+    if (instance->iComponent) {
+        return instance->iComponent->getInterface(name);
+    }
+
+    // 兼容旧方式：从 interfaces map 中获取
     return instance->interfaces.value(name, nullptr);
 }
 

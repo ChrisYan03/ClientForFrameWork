@@ -9,6 +9,7 @@
 #define COMPONENT_MANAGER_H
 
 #include "../Interface/IComponentData.h"
+#include "../Interface/IComponent.h"
 #include <QObject>
 #include <QString>
 #include <QMap>
@@ -61,6 +62,9 @@ public:
 
     // 组件对象实例（通过 createComponent 创建）
     QObject* componentObject = nullptr;
+
+    // IComponent 接口指针（用于调用组件的初始化等方法）
+    IComponent* iComponent = nullptr;
 
     // 获取各种元数据信息的便捷方法
     QString getId() const { return QString::fromStdString(manifest.id); }

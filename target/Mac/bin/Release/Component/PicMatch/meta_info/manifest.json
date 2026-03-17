@@ -1,5 +1,5 @@
 {
-  "id": "picmatch",
+  "id": "PicMatch",
   "name": "图像人脸识别",
   "version": "1.0.0",
   "description": "图像人脸识别组件，支持图片序列播放和人脸检测",

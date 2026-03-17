@@ -14,16 +14,18 @@ set(FRAMEWORK_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Framework 源文件（实现放在 src）
 set(FRAMEWORK_SOURCES
-    ${FRAMEWORK_SRC_DIR}/IComponentApiImpl.cpp    # C 风格 API 实现
+    ${FRAMEWORK_SRC_DIR}/ComponentApiImpl.cpp    # C 风格 API 实现
     ${FRAMEWORK_SRC_DIR}/ComponentManager.cpp     # 组件管理器实现
     ${FRAMEWORK_SRC_DIR}/ComponentManager.h       # 组件管理器头文件
     ${FRAMEWORK_SRC_DIR}/ComponentManifest.cpp    # JSON 解析实现
+    ${FRAMEWORK_SRC_DIR}/ComponentService.cpp     # 组件服务统一入口
 )
 
 # Framework 接口头文件（对外暴露）
 set(FRAMEWORK_INTERFACE_HEADERS
-    ${FRAMEWORK_INTERFACE_DIR}/IComponentApi.h    # C 风格 API 接口
-    ${FRAMEWORK_INTERFACE_DIR}/IComponentData.h   # 数据结构定义
+    ${FRAMEWORK_INTERFACE_DIR}/IComponentData.h     # 数据结构定义
+    ${FRAMEWORK_INTERFACE_DIR}/IComponent.h        # 组件接口定义（C++）
+    ${FRAMEWORK_INTERFACE_DIR}/ComponentService.h  # 组件服务统一入口
 )
 
 # 创建静态库

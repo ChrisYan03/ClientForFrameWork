@@ -4,6 +4,7 @@
  */
 #include "ComponentManager.h"
 #include "../Interface/IComponentData.h"
+#include "../Interface/IComponent.h"
 #include <QFile>
 #include <QDir>
 #include <QLibrary>
@@ -126,6 +127,18 @@ ComponentInstance* ComponentManager::loadComponent(const QString &componentId, c
 
     // 存储组件实例指针（作为 QObject*）
     component->componentObject = static_cast<QObject*>(componentVoid);
+
+    // 尝试转换为 IComponent 接口（运行时多态转换，无需 IComponent 继承 QObject）
+    component->iComponent = dynamic_cast<IComponent*>(component->componentObject);
+
+    // 如果组件实现了 IComponent，将 manifest 信息传递给组件
+    if (component->iComponent && component->componentObject) {
+        // 通过 QMetaObject 调用 setManifest 方法传递 manifest
+        QVariant arg = QVariant::fromValue(component->manifest);
+        QMetaObject::invokeMethod(component->componentObject, "setManifest",
+                                 Qt::DirectConnection,
+                                 Q_ARG(ComponentManifest, component->manifest));
+    }
 
     component->state = ComponentInstance::Loaded;
     m_components[componentId] = component;

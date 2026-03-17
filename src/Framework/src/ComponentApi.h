@@ -1,19 +1,17 @@
 /**
- * @file IComponentApi.h
- * @brief Framework 组件 C 风格 API 接口
+ * @file ComponentApi.h
+ * @brief Framework C 风格 API 接口
  *
- * 此文件提供纯 C 风格的函数接口，不暴露任何类定义。
- * 所有数据结构定义在 IComponentData.h 中，此文件只包含函数接口。
+ * 此文件提供纯 C 风格的函数接口，供 Framework 内部或高级场景使用。
+ * 主框架通常使用 ComponentService。
  *
  * 设计原则：
  * - 纯 C 风格函数接口
- * - 不暴露任何类定义
  * - 句柄（Handle）机制管理对象
  * - 接口稳定，向后兼容
- * - 数据结构完全分离
  */
-#ifndef ICOMPONENT_API_H
-#define ICOMPONENT_API_H
+#ifndef COMPONENT_API_H
+#define COMPONENT_API_H
 
 // 引用数据结构定义
 #include "IComponentData.h"
@@ -170,4 +168,4 @@ ComponentHandle ComponentManager_GetComponent(ComponentManagerHandle managerHand
 }
 #endif
 
-#endif // ICOMPONENT_API_H
+#endif // COMPONENT_API_H
