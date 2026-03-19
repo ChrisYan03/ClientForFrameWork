@@ -56,7 +56,7 @@ message("ClientForFrame qt_directory: Qt${QT_VERSION_MAJOR} found at ${Qt${QT_VE
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(RESOURCE_DIR ${SOURCE_DIR}/resource)
 include_directories(${SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/Framework/Interface)  # 添加 Framework 接口头文件目录
+include_directories(${CMAKE_SOURCE_DIR}/Framework/include)  # 添加 Framework 头文件目录
 
 # 纯 QML 框架：不包含业务组件头文件，组件由运行时动态加载
 include_directories(${CMAKE_SOURCE_DIR}/LogUtil)

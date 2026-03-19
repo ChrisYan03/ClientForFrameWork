@@ -1,36 +1,36 @@
 /**
  * @file ComponentManager.h
- * @brief 组件管理器类定义
+ * @brief 增强版组件管理器
  *
- * 此文件是 Framework 内部实现，对外部组件不可见。
- * 负责组件的生命周期管理、元数据解析、配置管理等。
+ * 支持4种组件类型的统一管理，使用加载器工厂模式
  */
 #ifndef COMPONENT_MANAGER_H
 #define COMPONENT_MANAGER_H
 
-#include "../Interface/IComponentData.h"
-#include "../Interface/IComponent.h"
+#include "../include/ComponentTypes.h"
+#include "../interface/IComponent.h"
+#include "IComponentLoader.h"
+#include "ComponentLoaderFactory.h"
 #include <QObject>
 #include <QString>
 #include <QMap>
 #include <QSharedPointer>
 #include <QQmlEngine>
-#include <QLibrary>
 
 /**
- * @brief 组件实例包装类
+ * @brief 增强版组件实例包装类
  *
- * 内部使用，封装组件的实际实现细节。
+ * 支持多种组件类型的统一管理
  */
-class ComponentInstance : public QObject
+class ComponentInstanceV2 : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ComponentInstance(const QString &componentId, QObject *parent = nullptr);
-    ~ComponentInstance() override;
+    explicit ComponentInstanceV2(const QString& componentId, QObject* parent = nullptr);
+    ~ComponentInstanceV2() override;
 
-    // 组件元数据（从 manifest.json 解析）
+    // 组件元数据
     ComponentManifest manifest;
 
     // 组件配置
@@ -48,6 +48,9 @@ public:
     };
     State state = Unloaded;
 
+    // 组件类型
+    ComponentType componentType = ComponentType_NativeDll;
+
     // 组件基础路径
     QString basePath;
 
@@ -57,66 +60,62 @@ public:
     // 暴露的接口对象
     QMap<QString, QObject*> interfaces;
 
-    // 动态库
-    QLibrary* library = nullptr;
-
-    // 组件对象实例（通过 createComponent 创建）
+    // 组件对象实例（可能是IComponent、进程包装器等）
     QObject* componentObject = nullptr;
 
-    // IComponent 接口指针（用于调用组件的初始化等方法）
+    // IComponent 接口指针（仅对NativeDll组件有效）
     IComponent* iComponent = nullptr;
 
-    // 获取各种元数据信息的便捷方法
+    // 组件加载器（用于卸载）
+    IComponentLoader* loader = nullptr;
+
+    // 便捷方法
     QString getId() const { return QString::fromStdString(manifest.id); }
     QString getName() const { return QString::fromStdString(manifest.name); }
     QString getVersion() const { return QString::fromStdString(manifest.version); }
-    QString getDescription() const { return QString::fromStdString(manifest.description); }
-    QString getAuthor() const { return QString::fromStdString(manifest.author); }
-    QString getIconPath() const { return QString::fromStdString(manifest.icon); }
-    QString getQmlPage() const { return QString::fromStdString(manifest.qmlPage); }
-    QString getDataPath() const { return QString::fromStdString(manifest.dataPath); }
+    ComponentType getType() const { return componentType; }
 
     bool isInitialized() const { return state >= Running; }
 };
 
 /**
- * @brief 组件管理器类
+ * @brief 增强版组件管理器
  *
- * 负责：
- * 1. 组件的加载、卸载管理
- * 2. 组件元数据解析（使用 xpack）
- * 3. 组件配置管理
- * 4. 组件间通信协调
+ * 支持4种组件类型的统一管理：
+ * - NativeDll: 原生动态库
+ * - StandaloneExe: 独立可执行文件
+ * - WebUrl: Web URL组件
+ * - EmbeddedExe: 嵌入式可执行文件
  */
-class ComponentManager : public QObject
+class ComponentManagerV2 : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ComponentManager(QObject *parent = nullptr);
-    ~ComponentManager() override;
+    explicit ComponentManagerV2(QObject* parent = nullptr);
+    ~ComponentManagerV2() override;
 
     /**
-     * @brief 加载组件
+     * @brief 加载组件（自动识别类型）
      * @param componentId 组件ID
      * @param basePath 组件基础路径
      * @return 组件实例指针，失败返回 nullptr
      */
-    ComponentInstance* loadComponent(const QString &componentId, const QString &basePath);
+    ComponentInstanceV2* loadComponent(const QString& componentId, const QString& basePath);
 
     /**
      * @brief 卸载组件
      * @param componentId 组件ID
      * @return 是否成功
      */
-    bool unloadComponent(const QString &componentId);
+    bool unloadComponent(const QString& componentId);
 
     /**
      * @brief 获取组件实例
      * @param componentId 组件ID
      * @return 组件实例指针，不存在返回 nullptr
      */
-    ComponentInstance* getComponent(const QString &componentId) const;
+    ComponentInstanceV2* getComponent(const QString& componentId) const;
 
     /**
      * @brief 获取所有已加载的组件ID列表
@@ -124,8 +123,60 @@ public:
      */
     QStringList getLoadedComponentIds() const;
 
+    /**
+     * @brief 根据类型获取组件列表
+     * @param type 组件类型
+     * @return 组件ID列表
+     */
+    QStringList getComponentsByType(ComponentType type) const;
+
+    /**
+     * @brief 检查组件类型是否支持
+     * @param type 组件类型
+     * @return 是否支持
+     */
+    bool isComponentTypeSupported(ComponentType type) const;
+
+signals:
+    /**
+     * @brief 组件加载成功信号
+     * @param componentId 组件ID
+     */
+    void componentLoaded(const QString& componentId);
+
+    /**
+     * @brief 组件加载失败信号
+     * @param componentId 组件ID
+     * @param error 错误信息
+     */
+    void componentLoadFailed(const QString& componentId, const QString& error);
+
+    /**
+     * @brief 组件卸载信号
+     * @param componentId 组件ID
+     */
+    void componentUnloaded(const QString& componentId);
+
 private:
-    QMap<QString, QSharedPointer<ComponentInstance>> m_components;
+    /**
+     * @brief 从manifest中解析组件类型
+     * @param manifest 组件元数据
+     * @return 组件类型枚举
+     */
+    ComponentType parseComponentType(const ComponentManifest& manifest) const;
+
+    /**
+     * @brief 字符串类型转换为枚举
+     * @param typeStr 类型字符串
+     * @return 组件类型枚举
+     */
+    ComponentType stringToComponentType(const std::string& typeStr) const;
+
+    // 组件实例存储
+    QMap<QString, QSharedPointer<ComponentInstanceV2>> m_components;
+
+    // 加载器工厂
+    ComponentLoaderFactory* m_loaderFactory;
 };
 
-#endif // COMPONENT_MANAGER_H
+#endif // COMPONENT_MANAGER_V2_H

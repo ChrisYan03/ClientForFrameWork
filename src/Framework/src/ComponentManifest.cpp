@@ -4,7 +4,7 @@
  *
  * 此文件包含 xpack 相关代码，不应在 MOC 处理的头文件中包含。
  */
-#include "../Interface/IComponentData.h"  // 从 Interface 目录包含
+#include "../include/ComponentTypes.h"
 #include "xpack/json.h"
 
 // ==================== 辅助函数实现 ====================
@@ -57,6 +57,7 @@ bool loadComponentManifest(const QString &manifestPath, ComponentManifest &manif
         manifest.icon = getString("icon", "").toStdString();
         manifest.qmlPage = getString("qmlPage", "").toStdString();
         manifest.dataPath = getString("dataPath", "").toStdString();
+        manifest.module = getString("module", "").toStdString();
         // 转换 QStringList 为 std::vector<std::string>
         QStringList depsList = getStringList("dependencies");
         manifest.dependencies.clear();

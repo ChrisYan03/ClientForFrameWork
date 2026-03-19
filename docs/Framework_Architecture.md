@@ -177,5 +177,13 @@ Framework                           组件
 - **构建**: CMake 3.16+
 
 ---
+## 总结：组件类型对应关系
+
+| 类型 | Windows | macOS | 实现类 |
+|------|---------|-------|--------|
+| **NativeDll** | `.dll` | `.dylib` | `NativeComponent` |
+| **StandaloneExe** | `.exe` | `.app` | `ExeComponent` |
+| **WebUrl** | CEF | CEF | `CefComponent` |
+| **EmbeddedExe** | CEF + EXE | CEF + APP | `EmbeddedComponent` |
 
 **状态**: 架构 2.1 完成 | **文档**: v2.1.0

@@ -1,3 +1,5 @@
 {
-  "components": ["PicMatch"]
+  "components": [
+    {"id": "PicMatch", "enabled": true}
+  ]
 }

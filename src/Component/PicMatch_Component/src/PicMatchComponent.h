@@ -12,7 +12,6 @@
 #include <QQmlEngine>
 #include <QVariantMap>
 #include "IComponent.h"
-#include "IComponentData.h"
 
 /**
  * @brief PicMatch 组件实现
@@ -31,10 +30,11 @@ public:
 
     // ==================== IComponent 接口实现 ====================
 
-    bool initialize(QQmlEngine *engine, const QString &basePath) override;
+    /// 初始化组件（void*/const char* 接口，与Framework保持一致）
+    int initialize(void* engine, const char* basePath) override;
     void shutdown() override;
-    void registerQmlTypes(QQmlEngine *engine) override;
-    QObject* getInterface(const QString &interfaceName) override;
+    void registerQmlTypes(void* engine) override;
+    void* getInterface(const char* interfaceName) override;
 
     // ==================== Framework 调用 ====================
 

@@ -1,64 +1,103 @@
 /**
  * @file ComponentManager.cpp
- * @brief 组件管理器实现
+ * @brief 增强版组件管理器实现
+ *
+ * 支持4种组件类型的统一管理
  */
 #include "ComponentManager.h"
-#include "../Interface/IComponentData.h"
-#include "../Interface/IComponent.h"
+#include "../interface/IComponent.h"
+#include "Loaders/NativeDllComponentLoader.h"
+#include "Loaders/StandaloneExeComponentLoader.h"
+#include "Loaders/WebUrlComponentLoader.h"
+#include "Loaders/EmbeddedExeComponentLoader.h"
+#include "ComponentLoaderFactory.h"
 #include <QFile>
 #include <QDir>
-#include <QLibrary>
+#include <QDateTime>
+#include "LogUtil.h"
 
-// ==================== ComponentInstance 实现 ====================
+// ==================== ComponentInstanceV2 实现 ====================
 
-ComponentInstance::ComponentInstance(const QString &componentId, QObject *parent)
+ComponentInstanceV2::ComponentInstanceV2(const QString &componentId, QObject *parent)
     : QObject(parent)
 {
     manifest.id = componentId.toStdString();
 }
 
-ComponentInstance::~ComponentInstance()
+ComponentInstanceV2::~ComponentInstanceV2()
 {
     // 清理接口对象
     qDeleteAll(interfaces);
     interfaces.clear();
 
-    // 卸载动态库
-    if (library) {
-        library->unload();
-        delete library;
-        library = nullptr;
+    // 清理组件对象
+    if (componentObject) {
+        // 如果是IComponent接口，调用shutdown
+        IComponent* component = dynamic_cast<IComponent*>(componentObject);
+        if (component) {
+            component->shutdown();
+        }
+        delete componentObject;
+        componentObject = nullptr;
+    }
+
+    // 清理动态库（仅对NativeDll组件）
+    if (loader && componentType == ComponentType_NativeDll) {
+        loader->unload(componentObject);
     }
 }
 
-// ==================== ComponentManager 实现 ====================
+// ==================== ComponentManagerV2 实现 ====================
 
-ComponentManager::ComponentManager(QObject *parent)
+ComponentManagerV2::ComponentManagerV2(QObject *parent)
     : QObject(parent)
 {
+    // 创建加载器工厂
+    m_loaderFactory = new ComponentLoaderFactory(this);
 }
 
-ComponentManager::~ComponentManager()
+ComponentManagerV2::~ComponentManagerV2()
 {
     // 卸载所有组件
     for (auto &component : m_components) {
         if (component) {
-            component->state = ComponentInstance::Shutdown;
+            component->state = ComponentInstanceV2::Shutdown;
         }
     }
     m_components.clear();
 }
 
-ComponentInstance* ComponentManager::loadComponent(const QString &componentId, const QString &basePath)
+ComponentType ComponentManagerV2::parseComponentType(const ComponentManifest& manifest) const
 {
-    // 检���是否已存在
+    return stringToComponentType(manifest.type);
+}
+
+ComponentType ComponentManagerV2::stringToComponentType(const std::string& typeStr) const
+{
+    if (typeStr == "native" || typeStr == "dll") {
+        return ComponentType_NativeDll;
+    } else if (typeStr == "exe" || typeStr == "executable") {
+        return ComponentType_StandaloneExe;
+    } else if (typeStr == "web" || typeStr == "url") {
+        return ComponentType_WebUrl;
+    } else if (typeStr == "embedded") {
+        return ComponentType_EmbeddedExe;
+    } else {
+        // 默认为原生DLL
+        return ComponentType_NativeDll;
+    }
+}
+
+ComponentInstanceV2* ComponentManagerV2::loadComponent(const QString &componentId, const QString& basePath)
+{
+    // 检查是否已存在
     if (m_components.contains(componentId)) {
         return m_components[componentId].get();
     }
 
     // 创建新组件实例
-    auto component = QSharedPointer<ComponentInstance>::create(componentId, this);
-    component->state = ComponentInstance::Loading;
+    auto component = QSharedPointer<ComponentInstanceV2>::create(componentId, this);
+    component->state = ComponentInstanceV2::Loading;
     component->basePath = basePath;
 
     // 解析 manifest.json
@@ -69,84 +108,68 @@ ComponentInstance* ComponentManager::loadComponent(const QString &componentId, c
         component->manifest.name = componentId.toStdString();
         component->manifest.version = "1.0.0";
         component->manifest.type = "native";
-        component->state = ComponentInstance::Error;
+    }
+
+    // 解析组件类型
+    component->componentType = parseComponentType(component->manifest);
+
+    // 检查组件类型是否支持
+    if (!isComponentTypeSupported(component->componentType)) {
+        LOG_WARN("Unsupported component type: {} for component: {}",
+                static_cast<int>(component->componentType), componentId.toStdString());
+        component->state = ComponentInstanceV2::Error;
         return nullptr;
     }
 
-    // 构建动态库路径
-    QString libPath = basePath + QStringLiteral("/bin/");
-    QString module = QString::fromStdString(component->manifest.type == "native" ? "component" :
-                                                     component->manifest.type.c_str());
-
-#if defined(Q_OS_WIN)
-    libPath += module + QStringLiteral(".dll");
-#elif defined(Q_OS_MAC)
-    libPath += QStringLiteral("lib") + module + QStringLiteral(".dylib");
-#else
-    libPath += QStringLiteral("lib") + module + QStringLiteral(".so");
-#endif
-
-    // 加载动态库
-    component->library = new QLibrary(libPath);
-    if (!component->library->load()) {
-        // 尝试其他可能的模块名
-        QString altModule = QString::fromStdString(component->manifest.id) + QStringLiteral("Component");
-#if defined(Q_OS_WIN)
-        libPath = basePath + QStringLiteral("/bin/") + altModule + QStringLiteral(".dll");
-#elif defined(Q_OS_MAC)
-        libPath = basePath + QStringLiteral("/bin/lib") + altModule + QStringLiteral(".dylib");
-#else
-        libPath = basePath + QStringLiteral("/bin/lib") + altModule + QStringLiteral(".so");
-#endif
-
-        delete component->library;
-        component->library = new QLibrary(libPath);
-        if (!component->library->load()) {
-            component->state = ComponentInstance::Error;
-            return nullptr;
-        }
-    }
-
-    // 解析 createComponent 导出函数
-    typedef void* (*CreateComponentFunc)();
-    auto createFn = reinterpret_cast<CreateComponentFunc>(
-        component->library->resolve("createComponent")
-    );
-
-    if (!createFn) {
-        component->state = ComponentInstance::Error;
+    // 获取对应的加载器
+    IComponentLoader* loader = m_loaderFactory->getLoader(component->componentType);
+    if (!loader) {
+        LOG_WARN("Failed to get loader for component type: {}",
+                static_cast<int>(component->componentType));
+        component->state = ComponentInstanceV2::Error;
         return nullptr;
     }
 
-    // 调用工厂函数创建组件实例
-    void* componentVoid = createFn();
-    if (!componentVoid) {
-        component->state = ComponentInstance::Error;
+    // 检查组件是否可以加载
+    LOG_INFO("ComponentManager: Checking if component can be loaded: {}", componentId.toStdString());
+    if (!loader->canLoad(component->manifest, basePath)) {
+        LOG_WARN("Component cannot be loaded: {}", componentId.toStdString());
+        component->state = ComponentInstanceV2::Error;
+        emit componentLoadFailed(componentId, "Component cannot be loaded");
+        return nullptr;
+    }
+    LOG_INFO("ComponentManager: Component can be loaded: {}", componentId.toStdString());
+
+    // 加载组件
+    QObject* componentObject = loader->load(component->manifest, basePath);
+    if (!componentObject) {
+        LOG_WARN("Failed to load component: {}", componentId.toStdString());
+        component->state = ComponentInstanceV2::Error;
+        emit componentLoadFailed(componentId, "Failed to load component");
         return nullptr;
     }
 
-    // 存储组件实例指针（作为 QObject*）
-    component->componentObject = static_cast<QObject*>(componentVoid);
+    // 保存组件对象和加载器
+    component->componentObject = componentObject;
+    component->loader = loader;
 
-    // 尝试转换为 IComponent 接口（运行时多态转换，无需 IComponent 继承 QObject）
-    component->iComponent = dynamic_cast<IComponent*>(component->componentObject);
+    // 对于NativeDll组件，尝试转换为IComponent接口
+    if (component->componentType == ComponentType_NativeDll) {
+        component->iComponent = dynamic_cast<IComponent*>(componentObject);
 
-    // 如果组件实现了 IComponent，将 manifest 信息传递给组件
-    if (component->iComponent && component->componentObject) {
-        // 通过 QMetaObject 调用 setManifest 方法传递 manifest
-        QVariant arg = QVariant::fromValue(component->manifest);
-        QMetaObject::invokeMethod(component->componentObject, "setManifest",
-                                 Qt::DirectConnection,
-                                 Q_ARG(ComponentManifest, component->manifest));
+        // 如果组件实现了 IComponent 接口，可以通过 getInterface 获取更多信息
+        // setManifest 是可选的，组件可以通过 getInterface("manifest") 获取 manifest
     }
 
-    component->state = ComponentInstance::Loaded;
+    component->state = ComponentInstanceV2::Loaded;
     m_components[componentId] = component;
+
+    emit componentLoaded(componentId);
 
     return component.get();
 }
 
-bool ComponentManager::unloadComponent(const QString &componentId)
+bool ComponentManagerV2::unloadComponent(const QString &componentId)
 {
     if (!m_components.contains(componentId)) {
         return false;
@@ -154,24 +177,51 @@ bool ComponentManager::unloadComponent(const QString &componentId)
 
     auto &component = m_components[componentId];
 
-    // 关闭组件
-    if (component->componentObject) {
-        // 这里可以调用组件的 shutdown 方法
-        component->componentObject = nullptr;
+    // 使用加载器卸载组件
+    if (component->loader) {
+        component->loader->unload(component->componentObject);
+    } else {
+        // 兼容旧方式：直接删除组件对象
+        if (component->componentObject) {
+            IComponent* iComponent = dynamic_cast<IComponent*>(component->componentObject);
+            if (iComponent) {
+                iComponent->shutdown();
+            }
+            delete component->componentObject;
+            component->componentObject = nullptr;
+        }
     }
 
-    component->state = ComponentInstance::Shutdown;
+    component->state = ComponentInstanceV2::Shutdown;
     m_components.remove(componentId);
+
+    emit componentUnloaded(componentId);
 
     return true;
 }
 
-ComponentInstance* ComponentManager::getComponent(const QString &componentId) const
+ComponentInstanceV2* ComponentManagerV2::getComponent(const QString &componentId) const
 {
     return m_components.value(componentId, nullptr).get();
 }
 
-QStringList ComponentManager::getLoadedComponentIds() const
+QStringList ComponentManagerV2::getLoadedComponentIds() const
 {
     return m_components.keys();
+}
+
+QStringList ComponentManagerV2::getComponentsByType(ComponentType type) const
+{
+    QStringList result;
+    for (auto it = m_components.begin(); it != m_components.end(); ++it) {
+        if (it.value()->componentType == type) {
+            result.append(it.key());
+        }
+    }
+    return result;
+}
+
+bool ComponentManagerV2::isComponentTypeSupported(ComponentType type) const
+{
+    return m_loaderFactory->isTypeSupported(type);
 }

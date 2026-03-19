@@ -29,7 +29,7 @@ include_directories(
     ${PICMATCH_SOURCE_DIR}/Core
     ${PICPLAYER_SRC_DIR}
     ${PICRECOGNITION_SRC_DIR}
-    ${CMAKE_SOURCE_DIR}/Framework  # 添加 Framework 目录
+    ${CMAKE_SOURCE_DIR}/Framework/interface
 )
 include_directories(${CMAKE_SOURCE_DIR}/LogUtil)
 
@@ -40,8 +40,7 @@ file(GLOB PICMATCH_SOURCES
     "${PICMATCH_SOURCE_DIR}/Core/*.h"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.cpp"
     "${PICMATCH_SOURCE_DIR}/QmlBridge/*.h"
-    "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.cpp"
-    "${PICMATCH_SOURCE_DIR}/PicMatchComponentApi.h"
+    "${PICMATCH_SOURCE_DIR}/PicMatchComponentGlobal.h"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponent.cpp"
     "${PICMATCH_SOURCE_DIR}/PicMatchComponent.h"
 )

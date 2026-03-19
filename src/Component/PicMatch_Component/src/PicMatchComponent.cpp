@@ -4,6 +4,8 @@
 #include "QmlBridge/PicMatchViewModel.h"
 #include "QmlBridge/FaceImageProvider.h"
 #include <QDir>
+#include <cstring>
+#include "LogUtil.h"
 
 // ==================== 构造函数和析构函数 ====================
 
@@ -22,14 +24,17 @@ PicMatchComponent::~PicMatchComponent()
 
 // ==================== IComponent 接口实现 ====================
 
-bool PicMatchComponent::initialize(QQmlEngine *engine, const QString &basePath)
+int PicMatchComponent::initialize(void* engine, const char* basePath)
 {
+    LOG_INFO("PicMatchComponent::initialize - engine: {} basePath: {}", engine, basePath);
     if (!engine) {
-        return false;
+        LOG_WARN("PicMatchComponent::initialize - engine is null!");
+        return 0;
     }
 
-    m_engine = engine;
-    m_basePath = basePath;
+    m_engine = static_cast<QQmlEngine*>(engine);
+    m_basePath = QString::fromUtf8(basePath);
+    LOG_INFO("PicMatchComponent::initialize - m_basePath: {}", m_basePath.toStdString());
 
     // 确保路径以 / 结尾
     if (!m_basePath.endsWith('/') && !m_basePath.endsWith('\\')) {
@@ -39,17 +44,21 @@ bool PicMatchComponent::initialize(QQmlEngine *engine, const QString &basePath)
     // 解析 manifest.json 获取组件信息
     // 注意：Framework 会自动填充 m_manifest，这里可以直接使用
     // 如果 m_manifest 为空，使用默认值
+    LOG_INFO("PicMatchComponent::initialize - m_manifest.id: {}", m_manifest.id);
     if (m_manifest.id.empty()) {
         m_manifest.id = "picmatch";
         m_manifest.name = "图像人脸识别";
         m_manifest.version = "1.0.0";
+        LOG_INFO("PicMatchComponent::initialize - using default manifest");
     }
 
     // 注册 QML 类型
-    registerQmlTypes(engine);
+    LOG_INFO("PicMatchComponent::initialize - calling registerQmlTypes");
+    registerQmlTypes(m_engine);
 
     m_initialized = true;
-    return true;
+    LOG_INFO("PicMatchComponent::initialize - completed successfully");
+    return 1;
 }
 
 void PicMatchComponent::shutdown()
@@ -65,33 +74,52 @@ void PicMatchComponent::shutdown()
     m_initialized = false;
 }
 
-void PicMatchComponent::registerQmlTypes(QQmlEngine *engine)
+void PicMatchComponent::registerQmlTypes(void* engine)
 {
+    QQmlEngine* qmlEngine = static_cast<QQmlEngine*>(engine);
+    LOG_INFO("PicMatchComponent::registerQmlTypes - manifest.id: {}", m_manifest.id);
     if (!engine || m_manifest.id.empty()) {
+        LOG_WARN("PicMatchComponent::registerQmlTypes - skipping registration (engine or manifest empty)");
         return;
     }
 
     // 注册 QML 类型
+    LOG_INFO("PicMatchComponent: Registering QML types for PicMatchCore");
     qmlRegisterType<PlayerHostItem>("PicMatchCore", 1, 0, "PlayerHostItem");
     qmlRegisterType<PicMatchViewModel>("PicMatchCore", 1, 0, "PicMatchViewModel");
 
     // 注册图片提供者（仅注册一次）
     static bool imageProviderRegistered = false;
     if (!imageProviderRegistered) {
-        engine->addImageProvider(QStringLiteral("picmatchfaces"), new FaceImageProvider());
+        qmlEngine->addImageProvider(QStringLiteral("picmatchfaces"), new FaceImageProvider());
         imageProviderRegistered = true;
+        LOG_INFO("PicMatchComponent: Registered image provider 'picmatchfaces'");
     }
 
     // 添加组件 QML 导入路径
-    QString qmlPath = m_basePath + QStringLiteral("qml/");
+    // basePath指向组件根目录，DLL和QML在bin/子目录下
+    QString qmlPath = m_basePath + QStringLiteral("bin/qml/");
+    LOG_INFO("PicMatchComponent: Checking QML path: {} exists: {}",
+            qmlPath.toStdString(), QDir(qmlPath).exists());
     if (QDir(qmlPath).exists()) {
-        engine->addImportPath(qmlPath);
+        qmlEngine->addImportPath(qmlPath);
+        LOG_INFO("PicMatchComponent: Added QML import path: {}", qmlPath.toStdString());
+    } else {
+        LOG_WARN("PicMatchComponent: QML path does not exist: {}", qmlPath.toStdString());
+        // 尝试列出basePath下的目录
+        QDir baseDir(m_basePath);
+        auto entries = baseDir.entryList();
+        QString entriesStr;
+        for (const auto& entry : entries) {
+            entriesStr += entry + " ";
+        }
+        LOG_INFO("PicMatchComponent: Contents of basePath: {}", entriesStr.toStdString());
     }
 }
 
-QObject* PicMatchComponent::getInterface(const QString &interfaceName)
+void* PicMatchComponent::getInterface(const char* interfaceName)
 {
-    if (interfaceName == QStringLiteral("ViewModel")) {
+    if (strcmp(interfaceName, "ViewModel") == 0) {
         return m_viewModel;
     }
     return nullptr;

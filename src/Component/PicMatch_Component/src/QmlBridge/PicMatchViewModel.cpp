@@ -492,12 +492,10 @@ void PicMatchViewModel::onImageUpdated(const QString& showId, const QString& ima
         }
     }
 
-    // 缓存人脸；同时立即更新 faceModel 并 emit，避免仅依赖回调时界面不刷新（如回调 key 不一致或晚到）
+    // 缓存人脸，等待 Callback_ShowPicId 回调后再展示
     m_faceCacheByShowId[showId] = m_model->faces();
     while (m_faceCacheByShowId.size() > 10)
         m_faceCacheByShowId.remove(m_faceCacheByShowId.firstKey());
-    QVariantList variantList = m_model->facesToVariantList();
-    publishFaceList(variantList);
     emit imageUpdated(showId, imagePath);
 }
 

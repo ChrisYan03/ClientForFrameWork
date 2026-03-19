@@ -16,33 +16,6 @@
 #include <QtGlobal>
 #include "LogUtil.h"
 
-// 全局 Qt 消息处理，将 qDebug/qInfo/qWarning/qCritical/qFatal 输出统一转发到 LogUtil(spdlog)
-static void QtLogMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    const QByteArray localMsg = msg.toLocal8Bit();
-    const char* file = context.file ? context.file : "";
-    int line = context.line;
-    const char* function = context.function ? context.function : "";
-
-    switch (type) {
-    case QtDebugMsg:
-        LOG_DEBUG("{} ({}:{}:{})", localMsg.constData(), file, line, function);
-        break;
-    case QtInfoMsg:
-        LOG_INFO("{} ({}:{}:{})", localMsg.constData(), file, line, function);
-        break;
-    case QtWarningMsg:
-        LOG_WARN("{} ({}:{}:{})", localMsg.constData(), file, line, function);
-        break;
-    case QtCriticalMsg:
-        LOG_ERROR("{} ({}:{}:{})", localMsg.constData(), file, line, function);
-        break;
-    case QtFatalMsg:
-        LOG_CRITICAL("{} ({}:{}:{})", localMsg.constData(), file, line, function);
-        abort();
-    }
-}
-
 int main(int argc, char *argv[])
 {
 #if defined(Q_OS_WIN)
@@ -60,7 +33,6 @@ int main(int argc, char *argv[])
     QDir().mkpath("logs");
 
     LogUtil::initLogger("ClientApp");
-    qInstallMessageHandler(QtLogMessageHandler);
     LOG_INFO("-------------------------------Application starting (QML)...");
 
     // 获取应用基础路径
@@ -114,6 +86,6 @@ int main(int argc, char *argv[])
         componentService.shutdown();
     });
 
-    LOG_INFO("-------------------------------Application started (QML).");
+    LOG_INFO("-------------------------------Application (QML) is End.");
     return app.exec();
 }
