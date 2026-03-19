@@ -19,6 +19,7 @@ class AppController : public QObject
     Q_PROPERTY(bool isRunning READ isRunning NOTIFY isRunningChanged)
     Q_PROPERTY(int theme READ theme NOTIFY themeChanged)
     Q_PROPERTY(QVariantMap themeColors READ themeColors NOTIFY themeColorsChanged)
+    Q_PROPERTY(QStringList loadedComponents READ loadedComponents NOTIFY loadedComponentsChanged)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -30,6 +31,7 @@ public:
     bool isRunning() const { return m_isRunning; }
     int theme() const { return m_theme; }
     QVariantMap themeColors() const { return m_themeColors; }
+    QStringList loadedComponents() const { return m_componentPageUrls.keys(); }
 
     Q_INVOKABLE void setTheme(int theme);
     Q_INVOKABLE void start();
@@ -48,6 +50,10 @@ public:
     Q_INVOKABLE void registerComponentIcon(const QString &appId, const QString &iconPath);
     /** 获取组件桌面图标 URL（file://），空则 QML 用主程序 qrc 兜底 */
     Q_INVOKABLE QString getComponentIconPath(const QString &appId) const;
+    /** 注册组件显示名称（从 manifest 读取） */
+    Q_INVOKABLE void registerComponentName(const QString &appId, const QString &name);
+    /** 获取组件显示名称（从 manifest 读取） */
+    Q_INVOKABLE QString getComponentName(const QString &appId) const;
 
     /** 由框架加载组件时调用：注册组件页 QML URL，点击桌面图标后按此 URL 加载（仅框架调用） */
     Q_INVOKABLE void registerComponentPage(const QString &appId, const QUrl &pageUrl);
@@ -64,6 +70,7 @@ signals:
     void isRunningChanged();
     void themeChanged();
     void themeColorsChanged();
+    void loadedComponentsChanged();
     void requestQuit();
     void backToDesktopRequested();
     void showBubbleMessageRequested(const QString &message);
@@ -84,6 +91,7 @@ private:
     QObject *m_componentHost = nullptr;
     QMap<QString, QString> m_componentIconPaths;
     QMap<QString, QUrl> m_componentPageUrls;
+    QMap<QString, QString> m_componentNames;
 };
 
 #endif // APPCONTROLLER_H

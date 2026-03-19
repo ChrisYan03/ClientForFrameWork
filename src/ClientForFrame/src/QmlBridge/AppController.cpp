@@ -1,6 +1,7 @@
 #include "AppController.h"
 #include "../Common/StyleManager.h"
 #include <QFile>
+#include "LogUtil.h"
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -152,8 +153,25 @@ void AppController::closeApp()
 
 void AppController::registerComponentIcon(const QString &appId, const QString &iconPath)
 {
-    if (!appId.isEmpty() && !iconPath.isEmpty())
-        m_componentIconPaths.insert(appId, iconPath);
+    if (!appId.isEmpty() && !iconPath.isEmpty()) {
+        // 检查图标文件是否存在
+        if (QFile::exists(iconPath)) {
+            m_componentIconPaths.insert(appId, iconPath);
+            LOG_INFO("AppController: Registered icon for {} -> {}", appId.toStdString(), iconPath.toStdString());
+        } else {
+            LOG_WARN("AppController: Icon file not found: {}", iconPath.toStdString());
+            // 即使文件不存在也记录空路径，让 QML 使用回退图标
+            m_componentIconPaths.insert(appId, QString());
+        }
+    }
+}
+
+void AppController::registerComponentName(const QString &appId, const QString &name)
+{
+    if (!appId.isEmpty() && !name.isEmpty()) {
+        m_componentNames.insert(appId, name);
+        LOG_INFO("AppController: Registered name for {} -> {}", appId.toStdString(), name.toStdString());
+    }
 }
 
 QString AppController::getComponentIconPath(const QString &appId) const
@@ -162,10 +180,17 @@ QString AppController::getComponentIconPath(const QString &appId) const
     return path.isEmpty() ? path : QUrl::fromLocalFile(path).toString();
 }
 
+QString AppController::getComponentName(const QString &appId) const
+{
+    return m_componentNames.value(appId, QString());
+}
+
 void AppController::registerComponentPage(const QString &appId, const QUrl &pageUrl)
 {
-    if (!appId.isEmpty() && pageUrl.isValid())
+    if (!appId.isEmpty() && pageUrl.isValid()) {
         m_componentPageUrls.insert(appId, pageUrl);
+        emit loadedComponentsChanged();
+    }
 }
 
 QUrl AppController::getComponentPageUrl(const QString &appId) const

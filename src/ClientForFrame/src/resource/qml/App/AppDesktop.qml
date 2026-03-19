@@ -9,51 +9,70 @@ Item {
 
     property int cellSize: 120
     property int spacing: 24
-    /** 与 Windows 一致：从组件路径 Component/xxx/meta_info/icon 加载，无则回退 qrc */
-    property string picMatchIcon: appController ? appController.getComponentIconPath("PicMatch") : ""
 
     Flow {
         id: appGrid
         anchors.centerIn: parent
         spacing: root.spacing
 
-        // 图像人脸识别组件
-        Item {
-            width: root.cellSize + root.spacing
-            height: root.cellSize + 32
-            Rectangle {
-                id: picMatchBg
-                width: root.cellSize
-                height: root.cellSize
-                anchors.horizontalCenter: parent.horizontalCenter
-                radius: 12
-                color: picMatchMouse.containsMouse && appController && appController.themeColors ? appController.themeColors.appTileBackgroundHover : (appController && appController.themeColors ? appController.themeColors.appTileBackground : "#f1f3f4")
-                border.width: picMatchMouse.containsMouse ? 1 : 0
-                border.color: appController && appController.themeColors ? appController.themeColors.appTileBorder : "#1a73e8"
+        // 动态加载已注册的组件图标
+        Repeater {
+            model: appController ? appController.loadedComponents : []
 
-                Image {
-                    anchors.centerIn: parent
-                    source: root.picMatchIcon || "qrc:/icons/face_recognition.svg"
-                    sourceSize.width: 48
-                    sourceSize.height: 48
+            Item {
+                width: root.cellSize + root.spacing
+                height: root.cellSize + 32
+
+                Rectangle {
+                    id: appBg
+                    width: root.cellSize
+                    height: root.cellSize
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    radius: 12
+                    color: appMouse.containsMouse && appController && appController.themeColors ? appController.themeColors.appTileBackgroundHover : (appController && appController.themeColors ? appController.themeColors.appTileBackground : "#f1f3f4")
+                    border.width: appMouse.containsMouse ? 1 : 0
+                    border.color: appController && appController.themeColors ? appController.themeColors.appTileBorder : "#1a73e8"
+
+                    Image {
+                        anchors.centerIn: parent
+                        // 根据组件ID获取对应的图标路径
+                        source: {
+                            var iconPath = appController ? appController.getComponentIconPath(modelData) : ""
+                            if (iconPath) {
+                                return iconPath
+                            }
+                            // 根据组件ID回退到默认图标
+                            if (modelData === "PicMatch") {
+                                return "qrc:/icons/face_recognition.svg"
+                            }
+                            return "qrc:/icons/app_default.svg"
+                        }
+                        sourceSize.width: 48
+                        sourceSize.height: 48
+                    }
+
+                    MouseArea {
+                        id: appMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.openApp(modelData)
+                    }
                 }
 
-                MouseArea {
-                    id: picMatchMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.openApp("PicMatch")
+                Label {
+                    anchors.top: appBg.bottom
+                    anchors.topMargin: 8
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    // 优先使用从 manifest 读取的名称，如果没有则使用组件 ID
+                    text: {
+                        var name = appController ? appController.getComponentName(modelData) : ""
+                        return name ? name : modelData
+                    }
+                    font.pixelSize: 13
+                    font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
+                    color: appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
                 }
-            }
-            Label {
-                anchors.top: picMatchBg.bottom
-                anchors.topMargin: 8
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "图像人脸识别"
-                font.pixelSize: 13
-                font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-                color: appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
             }
         }
     }

@@ -155,6 +155,28 @@ bool ComponentService::loadComponent(const QString& componentId)
                                            Q_ARG(QUrl, pageUrl));
                 }
 
+                // 注册组件图标到 AppController
+                QString iconFile = QString::fromStdString(instance->manifest.icon);
+                if (!iconFile.isEmpty() && d->appController) {
+                    // 图标路径：Component/PicMatch/meta_info/runtime_info/face_recognition.svg
+                    QString iconPath = componentPath + "/meta_info/runtime_info/" + iconFile;
+                    LOG_INFO("ComponentService: Registering component icon: {}", iconPath.toStdString());
+                    QMetaObject::invokeMethod(d->appController, "registerComponentIcon",
+                                           Qt::AutoConnection,
+                                           Q_ARG(QString, componentId),
+                                           Q_ARG(QString, iconPath));
+                }
+
+                // 注册组件名称到 AppController
+                QString componentName = QString::fromStdString(instance->manifest.name);
+                if (!componentName.isEmpty() && d->appController) {
+                    LOG_INFO("ComponentService: Registering component name: {} -> {}", componentId.toStdString(), componentName.toStdString());
+                    QMetaObject::invokeMethod(d->appController, "registerComponentName",
+                                           Qt::AutoConnection,
+                                           Q_ARG(QString, componentId),
+                                           Q_ARG(QString, componentName));
+                }
+
                 LOG_INFO("ComponentService: Emitting componentLoaded signal");
                 emit componentLoaded(componentId);
                 return true;

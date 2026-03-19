@@ -124,8 +124,8 @@ add_custom_command(TARGET PicMatchComponent POST_BUILD
 
 # meta_info：图标与 manifest 复制到 exe 同盘下的 Component/PicMatch/meta_info（主程序据此加载 DLL 与图标）
 add_custom_command(TARGET PicMatchComponent POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/face_recognition.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/runtime_info"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_RESOURCE_DIR}/icons/face_recognition.svg" "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/runtime_info/"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PICMATCH_COMPONENT_DIR}/resource/meta_info/manifest.json" "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/"
     COMMENT "Copy PicMatch meta_info (icon + manifest) to Component/PicMatch/meta_info"
 )
