@@ -6,9 +6,9 @@
     <file>icons/maximize.svg</file>
     <file>icons/restore.svg</file>
     <file>icons/app_title.svg</file>
-    <file>icons/face_recognition.svg</file>
     <file>icons/settings.svg</file>
     <file>icons/home.svg</file>
+    <file>icons/app_default.svg</file>
     <file>themes/light.json</file>
     <file>themes/dark.json</file>
   </qresource>

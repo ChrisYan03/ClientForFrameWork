@@ -173,6 +173,8 @@ if(USE_QML)
 endif()
 if(WIN32)
     target_link_libraries(ClientForFrame PRIVATE dwmapi)
+    # Windows 应用图标
+    target_sources(ClientForFrame PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/resource/app.rc")
 endif()
 
 # Crashpad：minidump 崩溃捕获，需在 target 创建后配置（产物在 ext/lib/crashpad/Mac 或 ext/lib/crashpad/Win64）

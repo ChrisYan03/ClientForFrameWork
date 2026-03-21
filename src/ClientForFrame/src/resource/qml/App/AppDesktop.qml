@@ -41,10 +41,6 @@ Item {
                             if (iconPath) {
                                 return iconPath
                             }
-                            // 根据组件ID回退到默认图标
-                            if (modelData === "PicMatch") {
-                                return "qrc:/icons/face_recognition.svg"
-                            }
                             return "qrc:/icons/app_default.svg"
                         }
                         sourceSize.width: 48
