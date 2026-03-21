@@ -80,6 +80,9 @@ public:
     Q_INVOKABLE void initialize();
     Q_INVOKABLE void shutdown();
 
+    /** QQmlEngine 已析构后由 PicMatchComponent::shutdown 调用：只做原生释放，不向 QML 发信号 */
+    void shutdownAfterQmlEngineDestroyed();
+
     // 注册窗口句柄（由QML调用）。可传 QWindow* 或 void* 原生 id
     Q_INVOKABLE void registerWindow(QObject* windowObject);
     /** 播放区尺寸变化时由 PlayerHostItem 调用 */
@@ -114,6 +117,7 @@ private slots:
     void onImageUpdated(const QString& showId, const QString& imagePath);
 
 private:
+    void stopWithoutUiSignals();
     void updateUIState();
     void publishFaceList(const QVariantList& list);
     void loadComponentTheme(int theme);
@@ -144,6 +148,7 @@ private:
     QVariantMap m_lastThemeColors;
     QVariantMap m_componentThemeColors;
     int m_playerHandle;
+    bool m_tornDown = false;
 
     // Windows resize timer
 #if defined(Q_OS_WIN)

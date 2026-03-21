@@ -75,8 +75,8 @@ target_include_directories(PicMatchComponent PUBLIC
     ${PICRECOGNITION_SRC_DIR}
 )
 
-# 组件成果物输出到 exe 同盘下的 Component/PicMatch/bin（多配置下带 Release/Debug 子目录）
-set(COMPONENT_PICMATCH_BIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/Component/PicMatch/bin")
+# 组件成果物输出到 exe 同盘下的 Component/PicMatch/bin
+set(COMPONENT_PICMATCH_BIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Component/PicMatch/bin")
 set_target_properties(PicMatchComponent PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     RUNTIME_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"

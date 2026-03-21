@@ -116,6 +116,11 @@ void PicMatchModel::clearFaces()
     emit facesChanged();
 }
 
+void PicMatchModel::clearFacesWithoutNotify()
+{
+    m_faces.clear();
+}
+
 QVariantList PicMatchModel::facesToVariantList() const
 {
     QVariantList list;

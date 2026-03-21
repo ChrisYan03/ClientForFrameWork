@@ -106,6 +106,8 @@ public:
     // 人脸数据
     void addFace(const FaceData& face);
     void clearFaces();
+    /** 清空人脸数据但不 emit（QQmlEngine 已销毁后的 teardown 用） */
+    void clearFacesWithoutNotify();
     QList<FaceData> faces() const { return m_faces; }
 
     // 序列化

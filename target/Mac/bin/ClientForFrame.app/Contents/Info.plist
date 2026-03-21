@@ -9,9 +9,9 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>app_icon</string>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string>com.clientforframe.ClientForFrame</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>

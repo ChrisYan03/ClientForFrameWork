@@ -9,6 +9,7 @@
 #define PICMATCHCOMPONENT_H
 
 #include <QObject>
+#include <QPointer>
 #include <QQmlEngine>
 #include <QVariantMap>
 #include "IComponent.h"
@@ -53,7 +54,7 @@ signals:
     void viewModelCreated(QObject *viewModel);
 
 private:
-    QQmlEngine *m_engine = nullptr;
+    QPointer<QQmlEngine> m_engine;
     QString m_basePath;
     QObject *m_viewModel = nullptr;
     bool m_initialized = false;

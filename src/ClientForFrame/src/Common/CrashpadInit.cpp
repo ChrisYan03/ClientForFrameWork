@@ -65,8 +65,15 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
 
     std::vector<std::string> arguments;
 
-    crashpad::CrashpadClient client;
-    const bool ok = client.StartHandler(
+    // CrashpadClient 必须存活至进程结束：若在栈上则函数返回时析构会释放 Mach 异常端口的 send right，
+    // 任务仍指向已失效端口，正常退出阶段（或 IMK/mach 消息）可能 SIGSEGV。见 crashpad_client_mac.cc 中
+    // SetHandlerMachPort / exception_port_ 成员析构。
+    static crashpad::CrashpadClient* s_client = nullptr;
+    static bool s_finished = false;
+    if (s_finished)
+        return s_client != nullptr;
+    s_client = new crashpad::CrashpadClient();
+    const bool ok = s_client->StartHandler(
         handler,
         database,
         metricsDir,
@@ -76,6 +83,11 @@ bool initializeCrashpad(const QString& handlerDir, const QString& databaseDir)
         false,  // restartable
         false   // asynchronous_start
     );
+    s_finished = true;
+    if (!ok) {
+        delete s_client;
+        s_client = nullptr;
+    }
     if (ok)
         LOG_INFO("Crashpad initialized: handler={} database={}", handlerPath.toStdString(), dbDir.toStdString());
     else

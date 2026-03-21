@@ -3,6 +3,7 @@
 #include "PicRecognitionApi.h"
 #include "StbImage/stb_image.h"
 #include <QCoreApplication>
+#include <QSignalBlocker>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -108,7 +109,11 @@ PicMatchViewModel::PicMatchViewModel(QObject* parent)
 
 PicMatchViewModel::~PicMatchViewModel()
 {
-    shutdown();
+    if (m_tornDown)
+        return;
+    m_tornDown = true;
+    stopWithoutUiSignals();
+    destroyFaceRecognition();
 }
 
 void PicMatchViewModel::loadComponentTheme(int theme)
@@ -156,8 +161,44 @@ void PicMatchViewModel::initialize()
 
 void PicMatchViewModel::shutdown()
 {
+    if (m_tornDown)
+        return;
+    m_tornDown = true;
     stop();
     destroyFaceRecognition();
+}
+
+void PicMatchViewModel::shutdownAfterQmlEngineDestroyed()
+{
+    if (m_tornDown)
+        return;
+    m_tornDown = true;
+    stopWithoutUiSignals();
+    destroyFaceRecognition();
+}
+
+void PicMatchViewModel::stopWithoutUiSignals()
+{
+    QSignalBlocker blockVm(this);
+    QSignalBlocker blockModel(m_model);
+    QSignalBlocker blockFaceList(m_faceListModel);
+
+    if (!m_running)
+        return;
+
+    m_running = false;
+
+    // clearFaces() 会 emit facesChanged，QML 已销毁时仍会踩野连接
+    m_model->clearFacesWithoutNotify();
+
+    if (m_playerHandle != -1) {
+        PicPlayer_DestroyInstance(m_playerHandle);
+        m_playerHandle = -1;
+    }
+    PicPlayer_UnInit();
+
+    m_model->setCurrentShowId("");
+    m_model->resetIndex();
 }
 
 void PicMatchViewModel::run()

@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(ClientForFrameWork VERSION 0.1 LANGUAGES CXX)
 
+# 必须在顶层启用，若在 add_subdirectory 之后才 enable_language(OBJCXX)，Ninja 可能缺少 CMAKE_OBJCXX_COMPILE_OBJECT
+if(APPLE)
+  enable_language(OBJCXX)
+endif()
+
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

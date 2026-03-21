@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QDir>
 #include <QCoreApplication>
+#include <QEventLoop>
 #include <QtGlobal>
 #include "LogUtil.h"
 
@@ -40,11 +41,13 @@ int main(int argc, char *argv[])
     QString baseDir = paths.baseDir();
 
     AppController appController;
+    // ComponentService 必须在 QQmlApplicationEngine 之前构造，使进程退出时先析构引擎（释放组件 QML），
+    // 再析构 ComponentService（unload 动态库）。若顺序反了或 aboutToQuit 里提前 shutdown，
+    // 会在 DLL 已卸载后仍析构 QML 对象，关闭应用时易崩溃。
+    ComponentService componentService;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appController", &appController);
 
-    // 使用 Framework ComponentService 加载组件
-    ComponentService componentService;
     componentService.setBasePath(baseDir);
     if (!componentService.initialize(&engine, &appController))
         LOG_INFO("ComponentService: one or more components failed to load (see logs)");
@@ -82,10 +85,17 @@ int main(int argc, char *argv[])
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
 
-    QObject::connect(&app, &QApplication::aboutToQuit, &app, [&componentService]() {
-        componentService.shutdown();
-    });
+    // 退出前：先收起窗口、让组件宿主 quit（不 unload DLL），再进入析构。
+    // 可减轻 macOS 上 IMK 输入法（控制台 IMKCFRunLoopWakeUpReliable）与 Qt/QML 销毁顺序冲突导致的 segfault。
+    QObject::connect(&app, &QApplication::aboutToQuit, &app, [&appController, root]() {
+        if (QQuickWindow *w = qobject_cast<QQuickWindow *>(root))
+            w->hide();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        appController.unregisterComponentHost();
+    }, Qt::DirectConnection);
 
-    LOG_INFO("-------------------------------Application (QML) is End.");
-    return app.exec();
+    LOG_INFO("-------------------------------Application (QML) entering event loop...");
+    const int code = app.exec();
+    LOG_INFO("-------------------------------Application (QML) event loop exited, code={}", code);
+    return code;
 }

@@ -180,6 +180,7 @@ bool ComponentManagerV2::unloadComponent(const QString &componentId)
     // 使用加载器卸载组件
     if (component->loader) {
         component->loader->unload(component->componentObject);
+        component->componentObject = nullptr;
     } else {
         // 兼容旧方式：直接删除组件对象
         if (component->componentObject) {

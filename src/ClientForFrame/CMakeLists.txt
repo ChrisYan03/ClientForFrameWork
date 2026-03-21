@@ -176,6 +176,37 @@ if(WIN32)
     # Windows 应用图标
     target_sources(ClientForFrame PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/resource/app.rc")
 endif()
+if(APPLE)
+    # macOS .app 使用 .icns；由 app_icon.ico 在构建时生成并放入 Contents/Resources
+    set(APP_ICON_ICO "${CMAKE_CURRENT_SOURCE_DIR}/src/resource/app_icon.ico")
+    set(APP_ICON_ICNS "${CMAKE_CURRENT_BINARY_DIR}/app_icon.icns")
+    set(APP_ICON_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/make_app_icon_icns.sh")
+    execute_process(COMMAND chmod +x "${APP_ICON_SCRIPT}")
+    add_custom_command(
+        OUTPUT "${APP_ICON_ICNS}"
+        COMMAND /bin/bash "${APP_ICON_SCRIPT}" "${APP_ICON_ICO}" "${APP_ICON_ICNS}"
+        DEPENDS "${APP_ICON_ICO}" "${APP_ICON_SCRIPT}"
+        COMMENT "Generate app_icon.icns from app_icon.ico"
+        VERBATIM
+    )
+    target_sources(ClientForFrame PRIVATE "${APP_ICON_ICNS}")
+    set_source_files_properties("${APP_ICON_ICNS}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+        GENERATED TRUE
+    )
+    # CFBundleIconFile 必须为不含 .icns 扩展名的基名；空 CFBundleIdentifier 不利于 Launch Services / 图标缓存
+    set_target_properties(ClientForFrame PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE "app_icon"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.clientforframe.ClientForFrame"
+    )
+    # Info.plist 放入 Contents/Info.plist（空 MACOSX_PACKAGE_LOCATION 即 Contents 根目录）
+    set(APP_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/src/resource/Info.plist")
+    target_sources(ClientForFrame PRIVATE "${APP_INFO_PLIST}")
+    set_source_files_properties("${APP_INFO_PLIST}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION ""
+        GENERATED TRUE
+    )
+endif()
 
 # Crashpad：minidump 崩溃捕获，需在 target 创建后配置（产物在 ext/lib/crashpad/Mac 或 ext/lib/crashpad/Win64）
 # ClientForFrame 在 src/ClientForFrame，项目根为 src，ext 在 src/../ext

@@ -54,7 +54,7 @@ int PicMatchComponent::initialize(void* engine, const char* basePath)
 
     // 注册 QML 类型
     LOG_INFO("PicMatchComponent::initialize - calling registerQmlTypes");
-    registerQmlTypes(m_engine);
+    registerQmlTypes(m_engine.data());
 
     m_initialized = true;
     LOG_INFO("PicMatchComponent::initialize - completed successfully");
@@ -67,10 +67,21 @@ void PicMatchComponent::shutdown()
         return;
     }
 
-    // 通知 ViewModel 关闭
-    QMetaObject::invokeMethod(m_viewModel, "shutdown", Qt::DirectConnection);
-    m_viewModel = nullptr;
+    auto* vm = qobject_cast<PicMatchViewModel*>(m_viewModel);
+    if (!vm) {
+        m_initialized = false;
+        return;
+    }
 
+    // Framework 析构顺序：~QQmlApplicationEngine 先于 ComponentService::shutdown。
+    // 此时 QML 已销毁，若仍走带 emit 的 shutdown/stop，会向已释放的 QML 连接发信号导致 segfault。
+    if (m_engine)
+        vm->shutdown();
+    else
+        vm->shutdownAfterQmlEngineDestroyed();
+
+    delete m_viewModel;
+    m_viewModel = nullptr;
     m_initialized = false;
 }
 
