@@ -4,7 +4,12 @@
  */
 #include "NativeDllComponentLoader.h"
 #include "../interface/IComponent.h"
+#include <QDateTime>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "LogUtil.h"
 
 NativeDllComponentLoader::NativeDllComponentLoader(QObject* parent)
@@ -161,23 +166,58 @@ QString NativeDllComponentLoader::resolveLibraryPath(const ComponentManifest& ma
         libPath = basePath + "/bin/" + moduleName;
     }
 
-    // 如果moduleName已经包含.dll/.so/.dylib后缀，不再添加
+    const QString libPathBeforeSuffix = libPath;
+
+    // 如果 moduleName 已带当前平台库后缀，则不再改写；否则按平台补全。
+    // 若 manifest 写成了 Windows 的 .dll，在 macOS/Linux 上需按「lib<basename>.dylib/.so」解析，
+    // 不能把 "lib.dylib" 直接拼在含 .dll 的路径后面（会得到 *.dlllib.dylib）。
     bool hasSuffix = false;
 #if defined(Q_OS_WIN)
-    hasSuffix = moduleName.endsWith(".dll", Qt::CaseInsensitive);
+    hasSuffix = moduleName.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive);
 #elif defined(Q_OS_MAC)
-    hasSuffix = moduleName.endsWith(".dylib", Qt::CaseInsensitive);
+    hasSuffix = moduleName.endsWith(QStringLiteral(".dylib"), Qt::CaseInsensitive);
 #else
-    hasSuffix = moduleName.endsWith(".so", Qt::CaseInsensitive);
+    hasSuffix = moduleName.endsWith(QStringLiteral(".so"), Qt::CaseInsensitive);
 #endif
 
 #if defined(Q_OS_WIN)
-    if (!hasSuffix) libPath += ".dll";
+    if (!hasSuffix) {
+        libPath += QStringLiteral(".dll");
+    }
 #elif defined(Q_OS_MAC)
-    if (!hasSuffix) libPath = libPath + "lib" + ".dylib";
+    if (!hasSuffix) {
+        const QFileInfo fi(libPath);
+        libPath = fi.path() + QStringLiteral("/lib") + fi.completeBaseName() + QStringLiteral(".dylib");
+    }
 #else
-    if (!hasSuffix) libPath = libPath + "lib" + ".so";
+    if (!hasSuffix) {
+        const QFileInfo fi(libPath);
+        libPath = fi.path() + QStringLiteral("/lib") + fi.completeBaseName() + QStringLiteral(".so");
+    }
 #endif
+
+    // #region agent log
+    {
+        QJsonObject data;
+        data.insert(QStringLiteral("moduleName"), moduleName);
+        data.insert(QStringLiteral("libPathBeforeSuffix"), libPathBeforeSuffix);
+        data.insert(QStringLiteral("hasSuffix"), hasSuffix);
+        data.insert(QStringLiteral("resolved"), libPath);
+        QJsonObject root;
+        root.insert(QStringLiteral("sessionId"), QStringLiteral("8410d7"));
+        root.insert(QStringLiteral("hypothesisId"), QStringLiteral("H1-H3"));
+        root.insert(QStringLiteral("location"),
+                    QStringLiteral("NativeDllComponentLoader.cpp:resolveLibraryPath"));
+        root.insert(QStringLiteral("message"), QStringLiteral("suffix_resolution"));
+        root.insert(QStringLiteral("data"), data);
+        root.insert(QStringLiteral("timestamp"), QDateTime::currentMSecsSinceEpoch());
+        QFile f(QStringLiteral("/Users/chrisyan/ClientForFrameWork/.cursor/debug-8410d7.log"));
+        if (f.open(QIODevice::Append | QIODevice::WriteOnly)) {
+            f.write(QJsonDocument(root).toJson(QJsonDocument::Compact));
+            f.write("\n", 1);
+        }
+    }
+    // #endregion
 
     LOG_INFO("resolveLibraryPath: resolved to = {}", libPath.toStdString());
     return libPath;

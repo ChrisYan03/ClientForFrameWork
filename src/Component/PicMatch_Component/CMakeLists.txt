@@ -1,4 +1,5 @@
-# PicMatch 独立组件：包含 SubComponent(PicPlayer、PicRecognition) 及本组件 UI，由主框架按配置加载
+# PicMatch 特性组件：依赖共性组件 PicPlayer + 本地 PicRecognition + 本组件 UI
+# 共性组件 PicPlayer 成果物（头文件）由 post-build 脚本拷贝到 deps/PicPlayer
 cmake_minimum_required(VERSION 3.16)
 
 # 组件依赖 Qt Widgets / Qml / Quick（与主框架一致）
@@ -7,8 +8,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Qml Quick)
 
 set(PICMATCH_COMPONENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-# 先构建依赖库（PicPlayer、PicRecognition 在 SubComponent 下，不依赖 Qt，不启用 MOC/UIC）
-add_subdirectory(${PICMATCH_COMPONENT_DIR}/SubComponent/PicPlayer ${CMAKE_BINARY_DIR}/PicPlayer)
+# 仅构建本地子组件 PicRecognition（不依赖 Qt，不启用 MOC/UIC）
 add_subdirectory(${PICMATCH_COMPONENT_DIR}/SubComponent/PicRecognition ${CMAKE_BINARY_DIR}/PicRecognition)
 
 # 仅对后续的 PicMatchComponent 启用 MOC/UIC（含 Q_OBJECT 的 Qt 代码）
@@ -18,7 +18,8 @@ set(CMAKE_AUTOUIC ON)
 # 本组件的 UI 与桥接代码
 set(PICMATCH_SOURCE_DIR ${PICMATCH_COMPONENT_DIR}/src)
 set(PICMATCH_RESOURCE_DIR ${PICMATCH_COMPONENT_DIR}/resource)
-set(PICPLAYER_SRC_DIR ${PICMATCH_COMPONENT_DIR}/SubComponent/PicPlayer/src)
+# PicPlayer 头文件从 deps/PicPlayer（由 post-build 从 Common 拷贝）引入
+set(PICPLAYER_INCLUDE_DIR ${PICMATCH_COMPONENT_DIR}/deps/PicPlayer/include)
 set(PICRECOGNITION_SRC_DIR ${PICMATCH_COMPONENT_DIR}/SubComponent/PicRecognition/src)
 
 include_directories(
@@ -27,7 +28,7 @@ include_directories(
     ${PICMATCH_SOURCE_DIR}/StbImage
     ${PICMATCH_SOURCE_DIR}/QmlBridge
     ${PICMATCH_SOURCE_DIR}/Core
-    ${PICPLAYER_SRC_DIR}
+    ${PICPLAYER_INCLUDE_DIR}
     ${PICRECOGNITION_SRC_DIR}
     ${CMAKE_SOURCE_DIR}/Framework/interface
 )
@@ -70,7 +71,7 @@ target_link_libraries(PicMatchComponent PUBLIC
 )
 target_include_directories(PicMatchComponent PUBLIC
     ${PICMATCH_SOURCE_DIR}
-    ${PICPLAYER_SRC_DIR}
+    ${PICPLAYER_INCLUDE_DIR}
     ${PICRECOGNITION_SRC_DIR}
 )
 
@@ -82,8 +83,8 @@ set_target_properties(PicMatchComponent PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
     ARCHIVE_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
 )
-# PicPlayer、PicRecognition 作为组件依赖，DLL 也输出到同一目录
-set_target_properties(PicPlayer PicRecognition PROPERTIES
+# PicRecognition 作为组件依赖，DLL 也输出到同一目录
+set_target_properties(PicRecognition PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
     LIBRARY_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
     ARCHIVE_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
@@ -97,6 +98,19 @@ if(APPLE)
         "-framework Metal"
     )
 endif()
+
+# ========== post-build: 将共性组件 PicPlayer 的接口头文件拷贝到 deps/PicPlayer ==========
+# 触发时机：每次构建前
+# 结果：PicPlayerApi.h + PicPlayerDataDef.h 被复制到 deps/PicPlayer/include，
+#      使 PicMatch_Component 可以通过 deps/PicPlayer/include 引入 PicPlayer 接口
+add_custom_command(TARGET PicMatchComponent PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PICMATCH_COMPONENT_DIR}/deps/PicPlayer/include"
+    COMMENT "Ensure deps/PicPlayer/include directory exists"
+)
+add_custom_command(TARGET PicMatchComponent PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/Component/Common/PicPlayer/src/PicPlayerApi.h" "${PICMATCH_COMPONENT_DIR}/deps/PicPlayer/include/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/Component/Common/PicPlayer/src/PicPlayerDataDef.h" "${PICMATCH_COMPONENT_DIR}/deps/PicPlayer/include/"
+)
 
 # 复制资源文件（图标、皮肤）到输出目录，供运行时加载
 add_custom_command(TARGET PicMatchComponent POST_BUILD
@@ -130,4 +144,4 @@ add_custom_command(TARGET PicMatchComponent POST_BUILD
     COMMENT "Copy PicMatch meta_info (icon + manifest) to Component/PicMatch/meta_info"
 )
 
-message(STATUS "PicMatch_Component: built PicMatchComponent (SubComponent PicPlayer + PicRecognition + UI) -> Component/PicMatch/bin, meta_info -> Component/PicMatch/meta_info")
+message(STATUS "PicMatch_Component: built (deps PicPlayer + PicRecognition + UI) -> Component/PicMatch/bin, meta_info -> Component/PicMatch/meta_info")

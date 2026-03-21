@@ -25,8 +25,8 @@ message(STATUS "OpenCV/ext directory: ${OPENCV_EXT_DIR}")
 set(OpenCV_INCLUDE_DIRS ${OPENCV_EXT_DIR}/include)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-# 设置源码目录（PicPlayer 在同级 SubComponent/PicPlayer）
-set(PicPlayer_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../PicPlayer/src)
+# 设置源码目录（PicPlayer 头文件从 deps 引入）
+set(PicPlayer_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../deps/PicPlayer/include)
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 # 新增源码目录
 set(LOG_DIR ${CMAKE_SOURCE_DIR}/LogUtil)
