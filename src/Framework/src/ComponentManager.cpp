@@ -5,7 +5,7 @@
  * 支持4种组件类型的统一管理
  */
 #include "ComponentManager.h"
-#include "../interface/IComponent.h"
+#include "../Interface/IComponent.h"
 #include "Loaders/NativeDllComponentLoader.h"
 #include "Loaders/StandaloneExeComponentLoader.h"
 #include "Loaders/WebUrlComponentLoader.h"

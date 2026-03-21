@@ -25,6 +25,13 @@ Rectangle {
     property color buttonPrimary: themeColors.appTileBorder || "#007acc"
     property color buttonHover: themeColors.buttonHover || "#3c3c3c"
 
+    // 翻译文本（Framework通知组件语言变化时，qsTr会自动重新求值）
+    property string imagePathLabel: qsTr("图片查看路径")
+    property string pathPlaceholder: qsTr("留空则使用默认路径")
+    property string browseBtn: qsTr("浏览...")
+    property string okBtn: qsTr("确定")
+    property string backBtn: qsTr("返回")
+
     color: contentBg
 
     ColumnLayout {
@@ -34,7 +41,7 @@ Rectangle {
 
         // 标题
         Label {
-            text: qsTr("图片查看路径")
+            text: root.imagePathLabel
             color: textPrimary
             font.pixelSize: 13
             font.family: "'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei UI', sans-serif"
@@ -48,7 +55,7 @@ Rectangle {
                 id: pathEdit
                 Layout.fillWidth: true
                 Layout.minimumHeight: 28
-                placeholderText: qsTr("留空则使用默认路径")
+                placeholderText: root.pathPlaceholder
 
                 // 样式
                 background: Rectangle {
@@ -60,7 +67,7 @@ Rectangle {
             }
 
             Button {
-                text: qsTr("浏览...")
+                text: root.browseBtn
                 Layout.preferredHeight: 28
                 leftPadding: 12
                 rightPadding: 12
@@ -95,7 +102,7 @@ Rectangle {
 
             // 应用/确定按钮
             Button {
-                text: qsTr("确定")
+                text: root.okBtn
                 Layout.preferredHeight: 28
                 leftPadding: 16
                 rightPadding: 16
@@ -116,7 +123,7 @@ Rectangle {
 
             // 返回按钮
             Button {
-                text: qsTr("返回")
+                text: root.backBtn
                 Layout.preferredHeight: 28
                 leftPadding: 16
                 rightPadding: 16

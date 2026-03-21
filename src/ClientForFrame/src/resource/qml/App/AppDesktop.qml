@@ -61,7 +61,9 @@ Item {
                     anchors.topMargin: 8
                     anchors.horizontalCenter: parent.horizontalCenter
                     // 优先使用从 manifest 读取的名称，如果没有则使用组件 ID
+                    // 强制依赖 currentLanguage，确保语言切换时重新求值
                     text: {
+                        var _lang = appController ? appController.currentLanguage : 0
                         var name = appController ? appController.getComponentName(modelData) : ""
                         return name ? name : modelData
                     }

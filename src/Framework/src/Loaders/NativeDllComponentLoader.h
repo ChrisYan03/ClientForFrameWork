@@ -8,7 +8,7 @@
 #define NATIVE_DLL_COMPONENT_LOADER_H
 
 #include "../IComponentLoader.h"
-#include "../interface/IComponent.h"
+#include "../Interface/IComponent.h"
 #include <QLibrary>
 #include <QMap>
 

@@ -8,6 +8,28 @@ Rectangle {
     z: 100
     color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBackground : "#ffffff"
     border.width: 0
+
+    // 翻译文本
+    property string appTitle: qsTr("小闫客户端")
+    property string settingsTooltip: qsTr("设置")
+    property string backTooltip: qsTr("返回主界面")
+    property string restoreTooltip: qsTr("还原")
+    property string maximizeTooltip: qsTr("最大化")
+    property string closeTooltip: qsTr("关闭应用程序")
+
+    // 监听语言变化
+    Connections {
+        target: typeof appController !== "undefined" ? appController : null
+        function onCurrentLanguageChanged() {
+            appTitle = qsTr("小闫客户端")
+            settingsTooltip = qsTr("设置")
+            backTooltip = qsTr("返回主界面")
+            restoreTooltip = qsTr("还原")
+            maximizeTooltip = qsTr("最大化")
+            closeTooltip = qsTr("关闭应用程序")
+        }
+    }
+
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -86,7 +108,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignVCenter
                 }
                 Label {
-                    text: typeof appController !== "undefined" && appController ? appController.pageTitle : "小闫客户端"
+                    text: typeof appController !== "undefined" && appController ? appController.pageTitle : titleBarRoot.appTitle
                     font.pixelSize: 13
                     font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
                     color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
@@ -160,7 +182,7 @@ Rectangle {
                 hoverEnabled: true
                 onHoveredChanged: {
                     if (hovered) {
-                        tooltipWindow.tipText = "设置"
+                        tooltipWindow.tipText = titleBarRoot.settingsTooltip
                         var pt = settingsBtn.mapToGlobal(0, settingsBtn.height + 4)
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
@@ -195,7 +217,7 @@ Rectangle {
                 hoverEnabled: true
                 onHoveredChanged: {
                     if (hovered) {
-                        tooltipWindow.tipText = "返回主界面"
+                        tooltipWindow.tipText = titleBarRoot.backTooltip
                         var pt = backBtn.mapToGlobal(0, backBtn.height + 4)
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
@@ -228,7 +250,7 @@ Rectangle {
                 hoverEnabled: true
                 onHoveredChanged: {
                     if (hovered) {
-                        tooltipWindow.tipText = titleBarRoot.isMaximized ? "还原" : "最大化"
+                        tooltipWindow.tipText = titleBarRoot.isMaximized ? titleBarRoot.restoreTooltip : titleBarRoot.maximizeTooltip
                         var pt = maxBtn.mapToGlobal(0, maxBtn.height + 4)
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y
@@ -260,7 +282,7 @@ Rectangle {
                 hoverEnabled: true
                 onHoveredChanged: {
                     if (hovered) {
-                        tooltipWindow.tipText = "关闭应用程序"
+                        tooltipWindow.tipText = titleBarRoot.closeTooltip
                         var pt = closeBtn.mapToGlobal(0, closeBtn.height + 4)
                         tooltipWindow.x = pt.x
                         tooltipWindow.y = pt.y

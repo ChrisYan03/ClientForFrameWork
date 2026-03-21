@@ -19,6 +19,9 @@ Item {
         ? picMatchViewModel.componentThemeColors
         : (appController ? appController.themeColors : {})
 
+    // 翻译文本（Framework通知组件语言变化时，qsTr会自动重新求值）
+    property string selectFolderTitle: qsTr("选择图片目录")
+
     // 生命周期管理
     Component.onCompleted: {
         if (typeof appController !== "undefined" && appController) {
@@ -163,7 +166,7 @@ Item {
     // 文件夹选择对话框
     FolderDialog {
         id: folderDialog
-        title: qsTr("选择图片目录")
+        title: root.selectFolderTitle
         onAccepted: {
             // 设置选中的路径
             configPanel.dataPath = selectedFolder

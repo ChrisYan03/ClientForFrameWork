@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # 组件依赖 Qt Widgets / Qml / Quick（与主框架一致）
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Qml Quick)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Qml Quick)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Qml Quick LinguistTools)
 
 set(PICMATCH_COMPONENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -144,4 +144,61 @@ add_custom_command(TARGET PicMatchComponent POST_BUILD
     COMMENT "Copy PicMatch meta_info (icon + manifest) to Component/PicMatch/meta_info"
 )
 
+# 复制 OpenCV 人脸检测模型到组件输出目录
+set(OPENCV_HAARCASCADES_DIR "${CMAKE_SOURCE_DIR}/../ext/OrginPackage/opencv/install_with_qt681/share/opencv4/haarcascades")
+add_custom_command(TARGET PicMatchComponent POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENCV_HAARCASCADES_DIR}/haarcascade_frontalface_default.xml" "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades/"
+    COMMENT "Copy OpenCV haarcascade files to component output directory"
+)
+
 message(STATUS "PicMatch_Component: built (deps PicPlayer + PicRecognition + UI) -> Component/PicMatch/bin, meta_info -> Component/PicMatch/meta_info")
+
+# 翻译文件配置
+set(PICMATCH_TRANSLATIONS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/translations")
+set(PICMATCH_TS_FILES
+    "${PICMATCH_TRANSLATIONS_DIR}/picmatch_zh_CN.ts"
+    "${PICMATCH_TRANSLATIONS_DIR}/picmatch_en_US.ts"
+)
+
+# 预先编译所有.ts文件为.qm
+set(PICMATCH_QM_FILES_LIST)
+foreach(TS_FILE ${PICMATCH_TS_FILES})
+    get_filename_component(TS_NAME ${TS_FILE} NAME_WE)
+    list(APPEND PICMATCH_QM_FILES_LIST "${CMAKE_CURRENT_BINARY_DIR}/${TS_NAME}.qm")
+endforeach()
+
+# 单独的目标用于生成翻译文件（在主目标之前执行）
+add_custom_target(picmatch_generate_translations ALL
+    DEPENDS ${PICMATCH_QM_FILES_LIST}
+    COMMENT "Generating PicMatch translation files"
+)
+
+# 生成.qm文件
+foreach(TS_FILE ${PICMATCH_TS_FILES})
+    get_filename_component(TS_NAME ${TS_FILE} NAME_WE)
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TS_NAME}.qm"
+        COMMAND Qt6::lrelease ${TS_FILE} -qm "${CMAKE_CURRENT_BINARY_DIR}/${TS_NAME}.qm"
+        DEPENDS ${TS_FILE}
+        COMMENT "Generating PicMatch translation: ${TS_NAME}.qm"
+        VERBATIM
+    )
+endforeach()
+
+# 复制翻译文件到组件输出目录（在组件链接后执行POST_BUILD）
+add_custom_command(TARGET PicMatchComponent POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/runtime_info/language"
+    COMMENT "Creating language directory"
+)
+
+foreach(TS_FILE ${PICMATCH_TS_FILES})
+    get_filename_component(TS_NAME ${TS_FILE} NAME_WE)
+    add_custom_command(TARGET PicMatchComponent POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/${TS_NAME}.qm" "$<TARGET_FILE_DIR:PicMatchComponent>/../meta_info/runtime_info/language/${TS_NAME}.qm"
+        COMMENT "Copying PicMatch translation: ${TS_NAME}.qm"
+        VERBATIM
+    )
+endforeach()
+
+message(STATUS "PicMatch translation files: ${PICMATCH_TS_FILES}")

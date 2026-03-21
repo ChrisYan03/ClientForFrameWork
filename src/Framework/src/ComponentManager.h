@@ -8,7 +8,7 @@
 #define COMPONENT_MANAGER_H
 
 #include "../include/ComponentTypes.h"
-#include "../interface/IComponent.h"
+#include "../Interface/IComponent.h"
 #include "IComponentLoader.h"
 #include "ComponentLoaderFactory.h"
 #include <QObject>

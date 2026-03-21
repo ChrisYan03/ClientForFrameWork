@@ -9,7 +9,7 @@ import App 1.0
 Window {
     id: root
     visible: false
-    title: "小闫客户端"
+    title: root.appTitle
     width: 1400
     height: 900
     minimumWidth: 1000
@@ -20,11 +20,28 @@ Window {
     property string mainStatusText: ""
     property bool isMaximized: visibility === Window.Maximized
     property bool toastVisible: false
-    property string toastMessage: "请暂停后再回到主界面"
+    property string toastMessage: root.pauseMessage
     property bool settingsOpen: false
     readonly property int titleBarHeight: 38
     readonly property int cornerRadius: 8
     readonly property int contentMargin: 0
+
+    // 翻译文本
+    property string appTitle: qsTr("小闫客户端")
+    property string pauseMessage: qsTr("请暂停后再回到主界面")
+    property string stopConfigMessage: qsTr("停止运行后可配置")
+    property string faceRecogTitle: qsTr("图像人脸识别")
+
+    // 监听语言变化
+    Connections {
+        target: typeof appController !== "undefined" ? appController : null
+        function onCurrentLanguageChanged() {
+            appTitle = qsTr("小闫客户端")
+            pauseMessage = qsTr("请暂停后再回到主界面")
+            stopConfigMessage = qsTr("停止运行后可配置")
+            faceRecogTitle = qsTr("图像人脸识别")
+        }
+    }
 
     Rectangle {
         id: roundBack
@@ -58,7 +75,7 @@ Window {
             onBackToDesktopClicked: {
                 if (contentStack.depth > 1) {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {
-                        root.showBubbleMessage("请暂停后再回到主界面")
+                        root.showBubbleMessage(root.pauseMessage)
                     } else if (appController) {
                         appController.requestBackToDesktop()
                     }
@@ -66,7 +83,7 @@ Window {
             }
             onSettingsClicked: {
                 if (appController && appController.hasRunnableComponent && appController.isRunning) {
-                    root.showBubbleMessage("停止运行后可配置")
+                    root.showBubbleMessage(root.stopConfigMessage)
                     return
                 }
                 root.settingsOpen = !root.settingsOpen
@@ -158,7 +175,7 @@ Window {
         if (pageUrl && pageUrl.toString()) {
             contentStack.push(pageUrl)
             if (appId === "PicMatch")
-                appController.setPageTitle("图像人脸识别")
+                appController.setPageTitle(root.faceRecogTitle)
         }
     }
     function popToDesktop() {

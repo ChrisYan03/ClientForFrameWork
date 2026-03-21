@@ -4,6 +4,7 @@
 #include "QmlBridge/PicMatchViewModel.h"
 #include "QmlBridge/FaceImageProvider.h"
 #include <QDir>
+#include <QCoreApplication>
 #include <cstring>
 #include "LogUtil.h"
 
@@ -47,7 +48,7 @@ int PicMatchComponent::initialize(void* engine, const char* basePath)
     LOG_INFO("PicMatchComponent::initialize - m_manifest.id: {}", m_manifest.id);
     if (m_manifest.id.empty()) {
         m_manifest.id = "picmatch";
-        m_manifest.name = "图像人脸识别";
+        m_manifest.name = qApp->translate("PicMatchComponent", "图像人脸识别").toStdString();
         m_manifest.version = "1.0.0";
         LOG_INFO("PicMatchComponent::initialize - using default manifest");
     }
@@ -134,6 +135,25 @@ void* PicMatchComponent::getInterface(const char* interfaceName)
         return m_viewModel;
     }
     return nullptr;
+}
+
+void PicMatchComponent::onThemeChanged(int theme)
+{
+    LOG_INFO("PicMatchComponent::onThemeChanged - theme: {}", theme);
+    // 通知ViewModel更新主题
+    if (m_viewModel) {
+        auto* vm = qobject_cast<PicMatchViewModel*>(m_viewModel);
+        if (vm) {
+            vm->setComponentTheme(theme);
+        }
+    }
+}
+
+void PicMatchComponent::onLanguageChanged(int language)
+{
+    LOG_INFO("PicMatchComponent::onLanguageChanged - language: {}", language);
+    // 组件的QML会通过qsTr()自动重新翻译
+    // 这里可以添加额外的语言变化处理逻辑
 }
 
 // ==================== 工厂函数 ====================

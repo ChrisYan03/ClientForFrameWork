@@ -3,6 +3,7 @@
 #include "Common/ApplicationPaths.h"
 #include "Common/MainWindowSetup.h"
 #include "Common/CrashpadInit.h"
+#include "TranslationManager.h"
 #include "ComponentService.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
 
     LogUtil::initLogger("ClientApp");
     LOG_INFO("-------------------------------Application starting (QML)...");
+
+    // 初始化翻译管理器
+    TranslationManager::instance()->loadSavedLanguage();
 
     // 获取应用基础路径
     ApplicationPaths paths;
@@ -84,6 +88,25 @@ int main(int argc, char *argv[])
         QApplication::closeAllWindows();
         QTimer::singleShot(100, &app, &QApplication::quit);
     }, Qt::QueuedConnection);
+
+    // 连接翻译管理器的语言变化信号到AppController和组件服务
+    QObject::connect(TranslationManager::instance(), &TranslationManager::languageChanged, &appController, [&appController, &engine, &componentService](TranslationManager::Language language) {
+        // 通知所有组件语言已变化
+        componentService.notifyLanguageChanged(static_cast<int>(language));
+        // 触发AppController信号
+        Q_EMIT appController.currentLanguageChanged();
+        // 重新设置默认页面标题以应用新翻译
+        appController.setPageTitle(qApp->translate("MainWindow", "小闫客户端"));
+        // 重新翻译UI
+        QMetaObject::invokeMethod(&appController, "retranslateUi");
+        // 触发QML引擎重新翻译
+        QCoreApplication::postEvent(&engine, new QEvent(QEvent::LanguageChange));
+    });
+
+    // 连接主题变化信号到ComponentService
+    QObject::connect(&appController, &AppController::themeChanged, &componentService, [&componentService](int theme) {
+        componentService.notifyThemeChanged(theme);
+    });
 
     // 退出前：先收起窗口、让组件宿主 quit（不 unload DLL），再进入析构。
     // 可减轻 macOS 上 IMK 输入法（控制台 IMKCFRunLoopWakeUpReliable）与 Qt/QML 销毁顺序冲突导致的 segfault。

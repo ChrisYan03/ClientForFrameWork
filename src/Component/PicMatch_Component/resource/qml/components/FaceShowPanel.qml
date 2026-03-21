@@ -24,6 +24,10 @@ Rectangle {
         refreshNonce++
     }
 
+    // 翻译文本（Framework通知组件语言变化时，qsTr会自动重新求值）
+    property string detectedFacesLabel: qsTr("检测到的人脸")
+    property string noFaceLabel: qsTr("未检测到人脸")
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 12
@@ -31,7 +35,7 @@ Rectangle {
 
         // 标题
         Label {
-            text: qsTr("检测到的人脸")
+            text: root.detectedFacesLabel
             color: themeColors.textPrimary || "#cccccc"
             font.pixelSize: 13
             font.family: "'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei UI', sans-serif"
@@ -131,7 +135,7 @@ Rectangle {
             Label {
                 anchors.fill: parent
                 visible: root.faceCount === 0
-                text: qsTr("未检测到人脸")
+                text: root.noFaceLabel
                 color: themeColors.textPrimary || "#cccccc"
                 opacity: 0.5
                 font.pixelSize: 12

@@ -4,13 +4,15 @@
  */
 #include "../include/ComponentService.h"
 #include "ComponentManager.h"
-#include "../interface/IComponent.h"
+#include "../Interface/IComponent.h"
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QQmlContext>
+#include <QCoreApplication>
+#include <QEvent>
 #include "LogUtil.h"
 
 // ==================== ComponentService::ComponentManagerPrivate 实现 ====================
@@ -212,6 +214,38 @@ QStringList ComponentService::loadedComponents() const
 QStringList ComponentService::getComponentsByType(ComponentType type) const
 {
     return d->manager->getComponentsByType(type);
+}
+
+void ComponentService::notifyThemeChanged(int theme)
+{
+    QStringList components = d->manager->getLoadedComponentIds();
+    for (const QString& componentId : components) {
+        ComponentInstanceV2* instance = d->manager->getComponent(componentId);
+        if (instance && instance->componentObject) {
+            IComponent* component = dynamic_cast<IComponent*>(instance->componentObject);
+            if (component) {
+                component->onThemeChanged(theme);
+            }
+        }
+    }
+}
+
+void ComponentService::notifyLanguageChanged(int language)
+{
+    QStringList components = d->manager->getLoadedComponentIds();
+    for (const QString& componentId : components) {
+        ComponentInstanceV2* instance = d->manager->getComponent(componentId);
+        if (instance && instance->componentObject) {
+            IComponent* component = dynamic_cast<IComponent*>(instance->componentObject);
+            if (component) {
+                component->onLanguageChanged(language);
+            }
+        }
+    }
+    // 向QML引擎发送语言变化事件，触发所有qsTr()重新求值
+    if (d->qmlEngine) {
+        QCoreApplication::postEvent(d->qmlEngine, new QEvent(QEvent::LanguageChange));
+    }
 }
 
 #include "ComponentService.moc"

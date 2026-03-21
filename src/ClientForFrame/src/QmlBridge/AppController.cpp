@@ -1,19 +1,23 @@
 #include "AppController.h"
 #include "../Common/StyleManager.h"
+#include "TranslationManager.h"
 #include <QFile>
 #include "LogUtil.h"
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaObject>
+#include <QCoreApplication>
 
 static const QString kDefaultPageTitle(QStringLiteral("小闫客户端"));
+static const QString kDefaultPageTitleKey(QStringLiteral("小闫客户端")); // 用于翻译的key
 
 AppController::AppController(QObject *parent)
     : QObject(parent)
 {
     setStatusText(QString());
-    m_pageTitle = kDefaultPageTitle;
+    // 使用翻译后的默认标题
+    m_pageTitle = qApp->translate("MainWindow", kDefaultPageTitleKey.toUtf8().constData());
     loadThemeColors();
 }
 
@@ -56,7 +60,7 @@ void AppController::setTheme(int theme)
         sm->applyTheme(theme == 1 ? StyleManager::DarkTheme : StyleManager::LightTheme);
     }
     loadThemeColors();
-    emit themeChanged();
+    emit themeChanged(m_theme);
 }
 
 AppController::~AppController()
@@ -122,7 +126,8 @@ void AppController::unregisterComponentHost()
     }
     setRunning(false);
     setHasRunnableComponent(false);
-    setPageTitle(kDefaultPageTitle);
+    // 使用翻译后的默认标题
+    setPageTitle(qApp->translate("MainWindow", kDefaultPageTitleKey.toUtf8().constData()));
 }
 
 void AppController::requestBackToDesktop()
@@ -182,7 +187,11 @@ QString AppController::getComponentIconPath(const QString &appId) const
 
 QString AppController::getComponentName(const QString &appId) const
 {
-    return m_componentNames.value(appId, QString());
+    QString name = m_componentNames.value(appId, QString());
+    if (name.isEmpty())
+        return QString();
+    // 翻译组件名称（同一 context = PicMatchComponent）
+    return qApp->translate("PicMatchComponent", name.toUtf8().constData());
 }
 
 void AppController::registerComponentPage(const QString &appId, const QUrl &pageUrl)
@@ -202,4 +211,29 @@ void AppController::requestShowBubbleMessage(const QString &message)
 {
     if (!message.isEmpty())
         emit showBubbleMessageRequested(message);
+}
+
+void AppController::setLanguage(int language)
+{
+    LOG_INFO("AppController::setLanguage: language = {}", language);
+    TranslationManager::Language lang = static_cast<TranslationManager::Language>(language);
+    TranslationManager::instance()->setLanguage(lang);
+    LOG_INFO("AppController::setLanguage: emitting currentLanguageChanged");
+    emit currentLanguageChanged();
+    LOG_INFO("AppController::setLanguage: calling retranslateUi");
+    retranslateUi();
+}
+
+QString AppController::getLanguageName(int language) const
+{
+    TranslationManager::Language lang = static_cast<TranslationManager::Language>(language);
+    return TranslationManager::instance()->getLanguageDisplayName(lang);
+}
+
+void AppController::retranslateUi()
+{
+    // 触发QML重新翻译：重新发送所有相关的change信号
+    emit pageTitleChanged();
+    // 触发组件列表重新绑定，使 getComponentName 被重新调用
+    emit loadedComponentsChanged();
 }

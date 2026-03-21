@@ -83,6 +83,18 @@ public:
      */
     QStringList getComponentsByType(ComponentType type) const;
 
+    /**
+     * @brief 通知所有组件主题变化
+     * @param theme 主题索引 (0=浅色, 1=深色)
+     */
+    void notifyThemeChanged(int theme);
+
+    /**
+     * @brief 通知所有组件语言变化
+     * @param language 语言索引 (0=中文, 1=英文)
+     */
+    void notifyLanguageChanged(int language);
+
 signals:
     void componentLoaded(const QString& componentId);
     void componentLoadFailed(const QString& componentId, const QString& error);

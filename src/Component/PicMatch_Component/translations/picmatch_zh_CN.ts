@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="zh_CN">
+<context>
+    <name>PicMatchComponent</name>
+    <message>
+        <source>图像人脸识别</source>
+        <translation>图像人脸识别</translation>
+    </message>
+</context>
+<context>
+    <name>PicMatchPage</name>
+    <message>
+        <source>选择图片目录</source>
+        <translation>选择图片目录</translation>
+    </message>
+</context>
+<context>
+    <name>PicMatchToolBar</name>
+    <message>
+        <source>启动</source>
+        <translation>启动</translation>
+    </message>
+    <message>
+        <source>停止</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>配置</source>
+        <translation>配置</translation>
+    </message>
+    <message>
+        <source>停止运行后可配置</source>
+        <translation>停止运行后可配置</translation>
+    </message>
+</context>
+<context>
+    <name>PicMatchConfigPanel</name>
+    <message>
+        <source>图片查看路径</source>
+        <translation>图片查看路径</translation>
+    </message>
+    <message>
+        <source>留空则使用默认路径</source>
+        <translation>留空则使用默认路径</translation>
+    </message>
+    <message>
+        <source>浏览...</source>
+        <translation>浏览...</translation>
+    </message>
+    <message>
+        <source>确定</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>返回</source>
+        <translation>返回</translation>
+    </message>
+</context>
+<context>
+    <name>FaceShowPanel</name>
+    <message>
+        <source>检测到的人脸</source>
+        <translation>检测到的人脸</translation>
+    </message>
+    <message>
+        <source>未检测到人脸</source>
+        <translation>未检测到人脸</translation>
+    </message>
+</context>
+</TS>

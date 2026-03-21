@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QVariantMap>
+#include "TranslationManager.h"
 
 /**
  * @brief 纯 QML 框架的桥接类，暴露主题/状态及组件宿主注册。
@@ -20,6 +21,8 @@ class AppController : public QObject
     Q_PROPERTY(int theme READ theme NOTIFY themeChanged)
     Q_PROPERTY(QVariantMap themeColors READ themeColors NOTIFY themeColorsChanged)
     Q_PROPERTY(QStringList loadedComponents READ loadedComponents NOTIFY loadedComponentsChanged)
+    Q_PROPERTY(int currentLanguage READ currentLanguage NOTIFY currentLanguageChanged)
+    Q_PROPERTY(QString currentLanguageName READ currentLanguageName NOTIFY currentLanguageChanged)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -32,11 +35,16 @@ public:
     int theme() const { return m_theme; }
     QVariantMap themeColors() const { return m_themeColors; }
     QStringList loadedComponents() const { return m_componentPageUrls.keys(); }
+    int currentLanguage() const { return static_cast<int>(TranslationManager::instance()->currentLanguage()); }
+    QString currentLanguageName() const { return TranslationManager::instance()->getLanguageDisplayName(TranslationManager::instance()->currentLanguage()); }
 
     Q_INVOKABLE void setTheme(int theme);
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
     Q_INVOKABLE void closeApp();
+    Q_INVOKABLE void setLanguage(int language);
+    Q_INVOKABLE QString getLanguageName(int language) const;
+    Q_INVOKABLE void retranslateUi();
 
     /** 组件页加载时调用，注册宿主（QObject 需提供 run/quit 等 Q_INVOKABLE） */
     Q_INVOKABLE void registerComponentHost(QObject *hostItem);
@@ -68,12 +76,13 @@ signals:
     void pageTitleChanged();
     void hasRunnableComponentChanged();
     void isRunningChanged();
-    void themeChanged();
+    void themeChanged(int theme);
     void themeColorsChanged();
     void loadedComponentsChanged();
     void requestQuit();
     void backToDesktopRequested();
     void showBubbleMessageRequested(const QString &message);
+    void currentLanguageChanged();
 
 private:
     void setStatusText(const QString &text);

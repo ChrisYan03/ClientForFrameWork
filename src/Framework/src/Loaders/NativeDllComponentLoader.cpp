@@ -3,7 +3,7 @@
  * @brief 原生动态库组件加载器实现
  */
 #include "NativeDllComponentLoader.h"
-#include "../interface/IComponent.h"
+#include "../Interface/IComponent.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>

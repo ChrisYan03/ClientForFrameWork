@@ -89,6 +89,32 @@ public:
         // 默认空实现，避免强制组件处理元数据
         (void)manifest;
     }
+
+    /**
+     * @brief 主题变化通知
+     * @param theme 主题索引 (0=浅色, 1=深色)
+     *
+     * Framework在主题���换时调用此方法通知组件
+     * 组件可以重写此方法来更新内部UI主题
+     *
+     * 默认实现为空，组件如果不关心主题可以不重写
+     */
+    virtual void onThemeChanged(int theme) {
+        (void)theme;
+    }
+
+    /**
+     * @brief 语言变化通知
+     * @param language 语言索引 (0=中文, 1=英文)
+     *
+     * Framework在语言切换时调用此方法通知组件
+     * 组件可以重写此方法来更新内部UI翻译
+     *
+     * 默认实现为空，组件如果不关心语言可以不重写
+     */
+    virtual void onLanguageChanged(int language) {
+        (void)language;
+    }
 };
 
 // ==================== 组件导出宏定义 ====================

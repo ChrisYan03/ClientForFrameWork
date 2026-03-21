@@ -46,6 +46,7 @@ set(USE_QML ON CACHE BOOL "Use QML for UI instead of Qt Widgets")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 
 if(USE_QML)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Quick QuickControls2)
@@ -69,6 +70,13 @@ file(GLOB_RECURSE PROJECT_SOURCES_RECURSIVE
     "${RESOURCE_DIR}/*.qrc"
 )
 list(APPEND PROJECT_SOURCES ${PROJECT_SOURCES_RECURSIVE})
+
+# 添加公共目录的TranslationManager
+list(APPEND PROJECT_SOURCES
+    "${CMAKE_SOURCE_DIR}/Common/TranslationManager.cpp"
+    "${CMAKE_SOURCE_DIR}/Common/TranslationManager.h"
+)
+
 if(USE_QML)
     list(REMOVE_ITEM PROJECT_SOURCES "${SOURCE_DIR}/main.cpp"
         "${SOURCE_DIR}/QmlBridge/PlayerHostItem.cpp"
@@ -285,4 +293,72 @@ set_target_properties(ClientForFrame PROPERTIES
 
 message("ClientForFrame output run_directory: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 message("ClientForFrame output lib_directory: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
+
+# 翻译文件配置
+set(TRANSLATIONS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/translations")
+set(TS_FILES
+    "${TRANSLATIONS_DIR}/clientframe_zh_CN.ts"
+    "${TRANSLATIONS_DIR}/clientframe_en_US.ts"
+)
+
+# 将.ts文件编译为.qm文件
+set(QM_FILES)
+foreach(TS_FILE ${TS_FILES})
+    get_filename_component(TS_NAME ${TS_FILE} NAME_WE)
+    set(QM_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TS_NAME}.qm")
+    list(APPEND QM_FILES ${QM_FILE})
+
+    # 使用Qt6的lrelease工具编译翻译文件
+    add_custom_command(
+        OUTPUT ${QM_FILE}
+        COMMAND Qt6::lrelease ${TS_FILE} -qm ${QM_FILE}
+        DEPENDS ${TS_FILE}
+        COMMENT "Generating translation file: ${TS_NAME}.qm"
+        VERBATIM
+    )
+endforeach()
+
+# 创建自定义目标来生成翻译文件
+add_custom_target(translate_files ALL DEPENDS ${QM_FILES})
+
+# 创建translations目录并复制.qm文件
+add_custom_command(TARGET translate_files POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations"
+    COMMENT "Creating translations directory"
+)
+
+foreach(QM_FILE ${QM_FILES})
+    get_filename_component(QM_NAME ${QM_FILE} NAME)
+    add_custom_command(TARGET translate_files POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QM_FILE}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations/${QM_NAME}"
+        COMMENT "Copying translation file: ${QM_NAME}"
+    )
+endforeach()
+
+# macOS特殊处理：复制翻译文件到app bundle内部
+if(APPLE)
+    add_custom_command(TARGET translate_files POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ClientForFrame.app/Contents/MacOS/translations"
+        COMMENT "Creating translations directory in app bundle"
+    )
+
+    foreach(QM_FILE ${QM_FILES})
+        get_filename_component(QM_NAME ${QM_FILE} NAME)
+        add_custom_command(TARGET translate_files POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QM_FILE}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ClientForFrame.app/Contents/MacOS/translations/${QM_NAME}"
+            COMMENT "Copying translation file to app bundle: ${QM_NAME}"
+        )
+    endforeach()
+endif()
+
+# 让主目标依赖于翻译文件生成
+add_dependencies(ClientForFrame translate_files)
+
+# 设置目标属性以包含翻译文件的依赖
+set_target_properties(ClientForFrame PROPERTIES
+    QT_TRANSLATION_FILES "${TS_FILES}"
+)
+
+message("Translation files: ${TS_FILES}")
+message("Compiled translation files: ${QM_FILES}")
 

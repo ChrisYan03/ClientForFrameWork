@@ -37,6 +37,12 @@ public:
     void registerQmlTypes(void* engine) override;
     void* getInterface(const char* interfaceName) override;
 
+    /// Framework通知：主题变化
+    void onThemeChanged(int theme) override;
+
+    /// Framework通知：语言变化
+    void onLanguageChanged(int language) override;
+
     // ==================== Framework 调用 ====================
 
     /// 由 Framework 调用，设置组件元信息

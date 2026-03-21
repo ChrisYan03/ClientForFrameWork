@@ -27,6 +27,12 @@ Rectangle {
     property color primaryColor: themeColors.primaryColor || "#007acc"
     property color successColor: "#4CAF50"  // 运行时的绿色
 
+    // 翻译文本（Framework通知组件语言变化时，qsTr会自动重新求值）
+    property string startTip: qsTr("启动")
+    property string stopTip: qsTr("停止")
+    property string configTip: qsTr("配置")
+    property string stopForConfigTip: qsTr("停止运行后可配置")
+
     function showTip(btn, text) {
         tooltipWindow.tipText = text
         var pt = btn.mapToGlobal(0, btn.height + 4)
@@ -123,7 +129,7 @@ Rectangle {
             onClicked: root.runClicked()
             onHoveredChanged: {
                 if (hovered)
-                    root.showTip(runButton, qsTr("启动"))
+                    root.showTip(runButton, root.startTip)
                 else
                     root.tryHideTip()
             }
@@ -152,7 +158,7 @@ Rectangle {
             onClicked: root.stopClicked()
             onHoveredChanged: {
                 if (hovered)
-                    root.showTip(stopButton, qsTr("停止"))
+                    root.showTip(stopButton, root.stopTip)
                 else
                     root.tryHideTip()
             }
@@ -187,14 +193,14 @@ Rectangle {
             onClicked: {
                 if (root.running) {
                     if (typeof appController !== "undefined" && appController)
-                        appController.requestShowBubbleMessage(qsTr("停止运行后可配置"))
+                        appController.requestShowBubbleMessage(root.stopForConfigTip)
                     return
                 }
                 root.configClicked()
             }
             onHoveredChanged: {
                 if (hovered)
-                    root.showTip(configButton, qsTr("配置"))
+                    root.showTip(configButton, root.configTip)
                 else
                     root.tryHideTip()
             }
