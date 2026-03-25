@@ -1,6 +1,7 @@
 #ifndef PICPLAYER_H
 #define PICPLAYER_H
 
+#include <atomic>
 #include <thread>
 #include "PicPlayerGui.h"
 
@@ -42,6 +43,7 @@ private:
 
     std::thread m_tPicCtrlThread;
     std::thread m_tRenderThread;
+    std::atomic<bool> m_renderThreadExited{true};
     std::shared_ptr<PicPlayerGui> m_guiPtr;
     std::shared_ptr<PicPlayerCtrlDelegate> m_ctrlDelPtr;
     std::shared_ptr<PicPlayerRender> m_renderPtr;

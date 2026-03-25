@@ -7,7 +7,7 @@
 #ifdef __APPLE__
     #include "PicPlayerWindowForMac.h"
     #include <dispatch/dispatch.h>
-    #include <unistd.h>  // for usleep
+    #include <pthread.h>
 #else
     #define GLFW_EXPOSE_NATIVE_WIN32
     #include <GLFW/glfw3native.h>
@@ -19,6 +19,31 @@
 namespace {
     float s_themeBgR = 0.15f, s_themeBgG = 0.15f, s_themeBgB = 0.15f;
     std::mutex s_themeBgMutex;
+
+#ifdef __APPLE__
+    template <typename Fn>
+    void runOnMainThreadSync(Fn&& fn)
+    {
+        if (pthread_main_np() != 0) {
+            fn();
+            return;
+        }
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            fn();
+        });
+    }
+
+    bool getWindowShouldCloseOnMainThread(GLFWwindow* window)
+    {
+        if (!window)
+            return true;
+        bool shouldClose = false;
+        runOnMainThreadSync([&]() {
+            shouldClose = (glfwWindowShouldClose(window) != 0);
+        });
+        return shouldClose;
+    }
+#endif
 }
 
 void PicPlayerShowWindow::SetThemeBackgroundColor(float r, float g, float b)
@@ -43,19 +68,12 @@ void PicPlayerShowWindow::ApplyThemeClearColor()
 
 void PicPlayerShowWindow::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
-#ifdef __APPLE__
-    dispatch_async(dispatch_get_main_queue(), ^{
-        PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
-        if (pThis){
-            pThis->OnResize(width, height);
-        }
-    });
-#else
     PicPlayerShowWindow* pThis = (PicPlayerShowWindow*)glfwGetWindowUserPointer(window);
     if (pThis) {
-        pThis->OnResize(width, height);
+        // 仅记录目标尺寸，真正的 OnResize 在渲染线程的 checkAndApplyResize 中执行，
+        // 避免在 macOS 主线程回调中触发 OpenGL 相关更新。
+        pThis->SetDesiredSize(width, height);
     }
-#endif
 }
 
 PicPlayerShowWindow::PicPlayerShowWindow(Window_ShowID hParent, int iCacheNum)
@@ -97,7 +115,7 @@ int PicPlayerShowWindow::RunRendLoop()
     bool shouldContinue = true;
     while (shouldContinue && m_window) {
         // 检查外部停止请求
-        if (glfwWindowShouldClose(m_window)) {
+        if (getWindowShouldCloseOnMainThread(m_window)) {
             LOG_DEBUG("Window should close detected");
             shouldContinue = false;
             break;
@@ -106,13 +124,18 @@ int PicPlayerShowWindow::RunRendLoop()
         ApplyThemeClearColor();
         glClear(GL_COLOR_BUFFER_BIT);
         GetRender()->InitFramerate(ImGui::GetIO().Framerate);
-        glfwPollEvents();
+        // Cocoa 事件循环必须在主线程执行。这里使用同步调用，避免异步队列残留在对象销毁后访问已释放窗口。
+        runOnMainThreadSync([this]() {
+            if (m_window) {
+                glfwPollEvents();
+            }
+        });
         checkAndApplyResize();
         Draw();
         Render();
 
         // 再次检查窗口状态
-        if (m_window && !glfwWindowShouldClose(m_window)) {
+        if (m_window && !getWindowShouldCloseOnMainThread(m_window)) {
             glfwSwapBuffers(m_window);
         } else {
             LOG_DEBUG("Window closed during buffer swap");
@@ -150,12 +173,6 @@ void PicPlayerShowWindow::Quit()
     if (m_window) {
         glfwSetWindowShouldClose(m_window, 1);
         glfwPostEmptyEvent();
-        usleep(10000);
-        if (m_window) {
-            LOG_DEBUG("Force destroying window");
-            glfwDestroyWindow(m_window);
-            m_window = nullptr;
-        }
     }
     LOG_DEBUG("Quit completed");
 #else
@@ -206,26 +223,37 @@ bool PicPlayerShowWindow::CreateRenderWindow()
         }
     }
 #elif __APPLE__
-    if (m_hParent != 0) {
-        int width = 0, height = 0;
-        if (!GetWindowSizeForMac((void*)m_hParent, width, height)) {
-            LOG_ERROR("Failed GetWindowSizeForMac");
-            return false;
-        }
-        m_window = glfwCreateWindow(width, height, "ImGui PicPlayer", nullptr, nullptr);
-        if (m_window) {
-            if (!SetChildWindow((void*)m_hParent, m_window)) {
-                LOG_ERROR("Failed SetChildWindow");
-                glfwDestroyWindow(m_window);
-                m_window = nullptr;
-                return false;
-            }
-        }
-        else{
-            LOG_ERROR("Failed to create GLFW window for Mac child window");
-            return false;
-        }
+    if (m_hParent == 0) {
+        LOG_ERROR("Invalid parent window handle on macOS");
+        return false;
     }
+
+    void* parent = reinterpret_cast<void*>(m_hParent);
+    GLFWwindow* createdWindow = nullptr;
+    int parentWidth = 0;
+    int parentHeight = 0;
+
+    runOnMainThreadSync([&]() {
+        if (!GetWindowSizeForMac(parent, parentWidth, parentHeight)) {
+            LOG_ERROR("Failed GetWindowSizeForMac");
+            return;
+        }
+
+        createdWindow = glfwCreateWindow(parentWidth, parentHeight, "ImGui PicPlayer", nullptr, nullptr);
+        if (!createdWindow) {
+            LOG_ERROR("Failed to create GLFW window for Mac child window");
+            return;
+        }
+
+        if (!SetChildWindow(parent, createdWindow)) {
+            LOG_ERROR("Failed SetChildWindow");
+            glfwDestroyWindow(createdWindow);
+            createdWindow = nullptr;
+            return;
+        }
+    });
+
+    m_window = createdWindow;
 #endif
 
     // 确保窗口创建成功后再进行后续初始化
@@ -275,8 +303,17 @@ bool PicPlayerShowWindow::CreateRenderWindow()
     int width, height;
     glfwGetWindowSize(m_window, &width, &height);
     LOG_DEBUG("glfwGetWindowSize size: {} x {}", width, height);
+#ifdef __APPLE__
+    // macOS 子窗口由父 view 托管，避免在渲染线程直接调整窗口位置/尺寸触发 Cocoa 断言。
+    runOnMainThreadSync([&]() {
+        if (m_window) {
+            glfwSetWindowSize(m_window, width, height);
+        }
+    });
+#else
     glfwSetWindowPos(m_window, 0, 0);
     glfwSetWindowSize(m_window, width, height);
+#endif
     m_lastViewportWidth = width;
     m_lastViewportHeight = height;
     GetRender()->InitScene(ImRect(0, 0, width, height));
@@ -302,7 +339,14 @@ void PicPlayerShowWindow::checkAndApplyResize()
     if (desiredW > 0 && desiredH > 0) {
         w = desiredW;
         h = desiredH;
+#ifdef __APPLE__
+        runOnMainThreadSync([&]() {
+            if (m_window)
+                glfwSetWindowSize(m_window, w, h);
+        });
+#else
         glfwSetWindowSize(m_window, w, h);
+#endif
     } else {
         w = 0;
         h = 0;
@@ -320,11 +364,23 @@ void PicPlayerShowWindow::checkAndApplyResize()
         }
 #endif
 #ifdef __APPLE__
-        if (m_hParent && m_window && GetWindowSizeForMac((void*)m_hParent, w, h) && w > 0 && h > 0 && (w != m_lastViewportWidth || h != m_lastViewportHeight))
-            glfwSetWindowSize(m_window, w, h);
+        if (m_hParent && m_window && GetWindowSizeForMac((void*)m_hParent, w, h) && w > 0 && h > 0 && (w != m_lastViewportWidth || h != m_lastViewportHeight)) {
+            runOnMainThreadSync([&]() {
+                if (m_window)
+                    glfwSetWindowSize(m_window, w, h);
+            });
+        }
 #endif
-        if (w < 1 || h < 1)
+        if (w < 1 || h < 1) {
+#ifdef __APPLE__
+            runOnMainThreadSync([&]() {
+                if (m_window)
+                    glfwGetWindowSize(m_window, &w, &h);
+            });
+#else
             glfwGetWindowSize(m_window, &w, &h);
+#endif
+        }
     }
     if (w < 1) w = 1;
     if (h < 1) h = 1;
@@ -360,9 +416,16 @@ void PicPlayerShowWindow::Draw()
 
 void PicPlayerShowWindow::Render()
 {
-    if (nullptr == m_window || glfwWindowShouldClose(m_window)) {
+    if (nullptr == m_window) {
         return;
     }
+#ifdef __APPLE__
+    if (getWindowShouldCloseOnMainThread(m_window))
+        return;
+#else
+    if (glfwWindowShouldClose(m_window))
+        return;
+#endif
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -390,15 +453,18 @@ void PicPlayerShowWindow::DestroyRenderWindow()
 #ifdef __APPLE__
         void* parent = reinterpret_cast<void*>(m_hParent);
         GLFWwindow* win = m_window;
-        if (parent && win) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+        runOnMainThreadSync([&]() {
+            if (parent && win) {
                 RemoveChildWindowForMac(parent, win);
-            });
-        }
-#endif
+            }
+            glfwSetWindowShouldClose(win, 1);
+            glfwDestroyWindow(win);
+        });
+#else
         glfwSetWindowShouldClose(m_window, 1);
         glfwDestroyWindow(m_window);
         LOG_DEBUG("glfwSetWindowShouldClose");
+#endif
         m_window = nullptr;
     }
     

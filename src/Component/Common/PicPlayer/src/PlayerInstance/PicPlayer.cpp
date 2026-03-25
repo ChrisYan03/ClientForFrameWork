@@ -2,9 +2,11 @@
 #include "PicPlayerVideoRender.h"
 #include "PicPlayerCtrlDelegate.h"
 #include <iostream>
+#include <chrono>
 #include "PicPlayerLog.h"
 #ifdef __APPLE__
-#include <dispatch/dispatch.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <pthread.h>
 #endif
 
 PicPlayer::PicPlayer(int cacheNum)
@@ -63,6 +65,7 @@ bool PicPlayer::StartPlayer()
     if (m_ctrlDelPtr) {
         m_ctrlDelPtr->SetRenderSync(m_renderPtr->GetSynchronizer());
     }
+    m_renderThreadExited.store(false);
     m_tRenderThread = std::thread(std::bind(&PicPlayer::RenderThreadProc, this));
     auto thread = m_tRenderThread.native_handle();
     #ifdef __APPLE__
@@ -79,10 +82,20 @@ bool PicPlayer::StartPlayer()
 
 bool PicPlayer::StopPlayer()
 {
+    m_bStop = true;
     if (m_guiPtr) {
         m_guiPtr->Quit();
     }
     if (m_tRenderThread.joinable()) {
+#ifdef __APPLE__
+        // 若在主线程直接 join，渲染线程里的 dispatch_sync(main) 会互锁。
+        if (pthread_main_np() != 0) {
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+            while (!m_renderThreadExited.load() && std::chrono::steady_clock::now() < deadline) {
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.005, true);
+            }
+        }
+#endif
         m_tRenderThread.join();
     }
     if (m_ctrlDelPtr) {
@@ -133,25 +146,27 @@ void PicPlayer::StopControllerThread()
 void PicPlayer::RenderThreadProc()
 {
 #ifdef __APPLE__
-    // 分派任务到主线程以创建 NSWindow
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (nullptr == m_guiPtr) {
-            m_guiPtr = PicPlayerGui::Create(GetWid());
-        }
-        if (!m_guiPtr)
-            return;
-        m_guiPtr->SetIRenderFactory(this);
-        m_guiPtr->RunRendLoop();
-    });
-#else
+    // macOS 下窗口必须在 registerWindow 之后拿到父窗口句柄再创建，否则会直接失败。
+    while (!m_bStop && GetWid() == 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    if (m_bStop) {
+        m_renderThreadExited.store(true);
+        return;
+    }
+#endif
+
     if (nullptr == m_guiPtr) {
         m_guiPtr = PicPlayerGui::Create(GetWid());
     }
     if (!m_guiPtr)
+    {
+        m_renderThreadExited.store(true);
         return;
+    }
     m_guiPtr->SetIRenderFactory(this);
     m_guiPtr->RunRendLoop();
-#endif
+    m_renderThreadExited.store(true);
 }
 
 void PicPlayer::PicDataThreadProc()
