@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QMetaObject>
 #include <QCoreApplication>
+#include <QTimer>
 
 static const QString kDefaultPageTitle(QStringLiteral("小闫客户端"));
 static const QString kDefaultPageTitleKey(QStringLiteral("小闫客户端")); // 用于翻译的key
@@ -215,13 +216,19 @@ void AppController::requestShowBubbleMessage(const QString &message)
 
 void AppController::setLanguage(int language)
 {
+    // 语言/主题切换开始：通知 PlayerHostItem 等组件在延迟回调中跳过操作
+    TranslationManager::beginUiTransition();
+
     LOG_INFO("AppController::setLanguage: language = {}", language);
     TranslationManager::Language lang = static_cast<TranslationManager::Language>(language);
     TranslationManager::instance()->setLanguage(lang);
-    LOG_INFO("AppController::setLanguage: emitting currentLanguageChanged");
-    emit currentLanguageChanged();
-    LOG_INFO("AppController::setLanguage: calling retranslateUi");
-    retranslateUi();
+
+    // 切换结束后通知组件可以恢复操作（用 QTimer::singleShot 延迟到当前事件处理完成后）
+    QTimer::singleShot(0, this, [this]() {
+        emit currentLanguageChanged();
+        retranslateUi();
+        TranslationManager::endUiTransition();
+    });
 }
 
 QString AppController::getLanguageName(int language) const

@@ -1,7 +1,7 @@
 #include "TranslationManager.h"
+#include "LogUtil.h"
 #include <QSettings>
 #include <QDir>
-#include <QDebug>
 #include <QFileInfo>
 
 TranslationManager* TranslationManager::instance()
@@ -21,16 +21,36 @@ TranslationManager::~TranslationManager()
 {
 }
 
+void TranslationManager::beginUiTransition()
+{
+    s_inUiTransition = true;
+    LOG_DEBUG("TranslationManager: UI transition begin");
+}
+
+void TranslationManager::endUiTransition()
+{
+    s_inUiTransition = false;
+    LOG_DEBUG("TranslationManager: UI transition end");
+}
+
 void TranslationManager::setLanguage(Language language)
 {
+    if (m_inSetLanguage) {
+        LOG_WARN("TranslationManager::setLanguage: in SetLanguage, ignore");
+        return;  // 防止重入（避免 QML 信号级联导致的循环调用）
+    }
+
     if (m_currentLanguage == language) {
         return;  // 语言未变化，无需处理
     }
 
+    m_inSetLanguage = true;
     m_currentLanguage = language;
+    LOG_INFO("TranslationManager::setLanguage: language={}", static_cast<int>(language));
     applyTranslation(language);
     saveLanguage(language);
     emit languageChanged(language);
+    m_inSetLanguage = false;
 }
 
 void TranslationManager::applyTranslation(Language language)
@@ -57,9 +77,9 @@ void TranslationManager::applyTranslation(Language language)
     QString mainTranslationPath = QCoreApplication::applicationDirPath() + "/translations/" + mainTranslationFile;
     if (m_translator.load(mainTranslationPath)) {
         QCoreApplication::installTranslator(&m_translator);
-        qDebug() << "Translation loaded:" << mainTranslationPath;
+        LOG_INFO("TranslationManager: main translation loaded, path={}", mainTranslationPath.toStdString());
     } else {
-        qWarning() << "Failed to load main translation file:" << mainTranslationPath;
+        LOG_WARN("TranslationManager: failed to load main translation, path={}", mainTranslationPath.toStdString());
     }
 
     // 加载组件翻译文件（自动扫描Component目录）
@@ -71,18 +91,18 @@ void TranslationManager::loadComponentTranslations()
     // 扫描Component目录下的所有meta_info/runtime_info/language目录
     QString appDir = QCoreApplication::applicationDirPath();
 #ifdef Q_OS_MAC
-    // macOS: appDir = Contents/MacOS/，Component/ 在 bin/ 同��
+    // macOS: appDir = Contents/MacOS/，Component/ 在 bin/ 同级
     if (appDir.endsWith("/MacOS") || appDir.endsWith("/macOS")) {
         // 直接移除 /ClientForFrame.app/Contents/MacOS 后缀
         QString suffix = "/ClientForFrame.app/Contents/MacOS";
         if (appDir.endsWith(suffix)) {
             appDir = appDir.left(appDir.length() - suffix.length());
         }
-        qDebug() << "macOS: Adjusted appDir to:" << appDir;
+        LOG_DEBUG("TranslationManager: macOS adjusted appDir={}", appDir.toStdString());
     }
 #endif
     QString componentBaseDir = appDir + "/Component";
-    qDebug() << "Loading component translations from:" << componentBaseDir << "language:" << m_currentLanguage;
+    LOG_INFO("TranslationManager: loading component translations from dir={}", componentBaseDir.toStdString());
     QDir componentDir(componentBaseDir);
 
     // 根据当前语言确定翻译文件后缀
@@ -92,7 +112,7 @@ void TranslationManager::loadComponentTranslations()
     } else {
         langSuffix = "_en_US.qm";
     }
-    qDebug() << "Looking for translation files with suffix:" << langSuffix;
+    LOG_DEBUG("TranslationManager: translation suffix={}", langSuffix.toStdString());
 
     if (componentDir.exists()) {
         QFileInfoList componentDirs = componentDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -103,22 +123,19 @@ void TranslationManager::loadComponentTranslations()
                 // 只加载匹配当前语言的翻译文件
                 QString componentName = dirInfo.fileName().toLower();
                 QString qmFile = langDir.path() + "/" + componentName + langSuffix;
-                qDebug() << "Trying to load component translation:" << qmFile;
+                LOG_DEBUG("TranslationManager: trying component translation file={}", qmFile.toStdString());
                 QTranslator *translator = new QTranslator();
                 if (QFile::exists(qmFile)) {
                     if (translator->load(qmFile)) {
                         QCoreApplication::installTranslator(translator);
                         m_componentTranslators.append(translator);
-                        qDebug() << "Component translation loaded:" << qmFile;
-                        // 验证翻译是否正确安装
-                        QString test = qApp->translate("PicMatchToolBar", "启动");
-                        qDebug() << "Test translation '启动' ->" << test;
+                        LOG_INFO("TranslationManager: component translation loaded, file={}", qmFile.toStdString());
                     } else {
-                        qWarning() << "Failed to load component translation (load failed):" << qmFile;
+                        LOG_WARN("TranslationManager: component translation load failed, file={}", qmFile.toStdString());
                         delete translator;
                     }
                 } else {
-                    qWarning() << "Component translation file does not exist:" << qmFile;
+                    LOG_DEBUG("TranslationManager: component translation file not exist, file={}", qmFile.toStdString());
                     delete translator;
                 }
             }
@@ -150,9 +167,11 @@ void TranslationManager::loadSavedLanguage()
     if (settings.contains("language")) {
         int languageValue = settings.value("language").toInt();
         m_currentLanguage = static_cast<Language>(languageValue);
+        LOG_INFO("TranslationManager: loaded saved language={}", languageValue);
         applyTranslation(m_currentLanguage);
     } else {
-        // 如果没有保存的设置，使用默认中文
+        LOG_INFO("TranslationManager: no saved language, using default Chinese");
+       // 如果没有保存的设置，使用默认中文
         applyTranslation(m_currentLanguage);
     }
 }

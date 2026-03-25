@@ -90,18 +90,18 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
 
     // 连接翻译管理器的语言变化信号到AppController和组件服务
-    QObject::connect(TranslationManager::instance(), &TranslationManager::languageChanged, &appController, [&appController, &engine, &componentService](TranslationManager::Language language) {
-        // 通知所有组件语言已变化
-        componentService.notifyLanguageChanged(static_cast<int>(language));
-        // 触发AppController信号
-        Q_EMIT appController.currentLanguageChanged();
-        // 重新设置默认页面标题以应用新翻译
-        appController.setPageTitle(qApp->translate("MainWindow", "小闫客户端"));
-        // 重新翻译UI
-        QMetaObject::invokeMethod(&appController, "retranslateUi");
-        // 触发QML引擎重新翻译
-        QCoreApplication::postEvent(&engine, new QEvent(QEvent::LanguageChange));
-    });
+    // 使用 Qt::QueuedConnection 避免在信号发射的同一事件循环迭代中同步执行，
+    // 防止语言切换期间 QML 组件重绑定/销毁与 translator 安装交叉导致崩溃
+    QObject::connect(TranslationManager::instance(), &TranslationManager::languageChanged, &appController,
+        [&appController, &componentService](TranslationManager::Language language) {
+            // 通知所有组件语言已变化（内部已 post LanguageChange 事件）
+            componentService.notifyLanguageChanged(static_cast<int>(language));
+            // 重新设置默认页面标题以应用新翻译
+            appController.setPageTitle(qApp->translate("MainWindow", "小闫客户端"));
+            // 注意：currentLanguageChanged 信号和 retranslateUi 由 AppController::setLanguage
+            // 通过 QTimer::singleShot(0) 统一触发，避免信号重复发送
+        },
+        Qt::QueuedConnection);
 
     // 连接主题变化信号到ComponentService
     QObject::connect(&appController, &AppController::themeChanged, &componentService, [&componentService](int theme) {

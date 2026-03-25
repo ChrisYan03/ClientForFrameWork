@@ -8,6 +8,7 @@
 
 class QWindow;
 class QTimer;
+class TranslationManager;
 
 /**
  * 纯 QQuickItem：用 QWindow 作为播放区宿主，将 OpenGL 播放器嵌入 QML，不再嵌入 PicMatchWidget。

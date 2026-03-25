@@ -31,6 +31,7 @@ Item {
     // 监听语言变化并重新计算翻译
     Connections {
         target: typeof appController !== "undefined" ? appController : null
+        enabled: typeof appController !== "undefined" && appController !== null
         function onCurrentLanguageChanged() {
             settingsTitle = qsTr("设置")
             languageLabelZh = qsTr("语言切换")

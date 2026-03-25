@@ -46,6 +46,13 @@ public:
 signals:
     void languageChanged(Language language);
 
+public:
+    // 语言/主题切换开始时调用，防止 PlayerHostItem 等组件在切换期间访问已销毁对象
+    static void beginUiTransition();
+    // 语言/主题切换结束后调用
+    static void endUiTransition();
+    static bool isInUiTransition() { return s_inUiTransition; }
+
 private:
     explicit TranslationManager(QObject *parent = nullptr);
     ~TranslationManager();
@@ -58,6 +65,9 @@ private:
     QList<QTranslator*> m_componentTranslators;  // 跟踪组件翻译器，用于切换语言时清理
     Language m_currentLanguage;
     QString m_configPath;
+    bool m_inSetLanguage = false;  // 防重入标志
+
+    inline static bool s_inUiTransition = false;  // 静态标志，所有实例共享
 };
 
 #endif // TRANSLATIONMANAGER_H

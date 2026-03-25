@@ -90,6 +90,26 @@ set_target_properties(PicRecognition PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${COMPONENT_PICMATCH_BIN}"
 )
 
+# VS 多配置生成器下，主程序位于 .../bin/<Config>，组件也必须落在同级目录：
+#   .../bin/<Config>/Component/PicMatch/bin
+# 否则会出现新 DLL 生成在 .../bin/Component/.../<Config>，运行时却加载到旧 DLL 的问题。
+if(CMAKE_CONFIGURATION_TYPES)
+    foreach(cfg ${CMAKE_CONFIGURATION_TYPES})
+        string(TOUPPER "${cfg}" cfg_upper)
+        set(component_cfg_bin "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${cfg}/Component/PicMatch/bin")
+        set_target_properties(PicMatchComponent PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+            LIBRARY_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+            ARCHIVE_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+        )
+        set_target_properties(PicRecognition PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+            LIBRARY_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+            ARCHIVE_OUTPUT_DIRECTORY_${cfg_upper} "${component_cfg_bin}"
+        )
+    endforeach()
+endif()
+
 if(APPLE)
     target_link_libraries(PicMatchComponent PUBLIC
         "-framework OpenGL"
@@ -144,13 +164,15 @@ add_custom_command(TARGET PicMatchComponent POST_BUILD
     COMMENT "Copy PicMatch meta_info (icon + manifest) to Component/PicMatch/meta_info"
 )
 
-# 复制 OpenCV 人脸检测模型到组件输出目录
-set(OPENCV_HAARCASCADES_DIR "${CMAKE_SOURCE_DIR}/../ext/OrginPackage/opencv/install_with_qt681/share/opencv4/haarcascades")
-add_custom_command(TARGET PicMatchComponent POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENCV_HAARCASCADES_DIR}/haarcascade_frontalface_default.xml" "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades/"
-    COMMENT "Copy OpenCV haarcascade files to component output directory"
-)
+# 复制 OpenCV 人脸检测模型到组件输出目录（仅非 Windows：该路径来自 Mac 侧 install 树，Windows 无此目录且运行时可不依赖此拷贝）
+if(NOT WIN32)
+    set(OPENCV_HAARCASCADES_DIR "${CMAKE_SOURCE_DIR}/../ext/OrginPackage/opencv/install_with_qt681/share/opencv4/haarcascades")
+    add_custom_command(TARGET PicMatchComponent POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENCV_HAARCASCADES_DIR}/haarcascade_frontalface_default.xml" "$<TARGET_FILE_DIR:PicMatchComponent>/data/haarcascades/"
+        COMMENT "Copy OpenCV haarcascade files to component output directory"
+    )
+endif()
 
 message(STATUS "PicMatch_Component: built (deps PicPlayer + PicRecognition + UI) -> Component/PicMatch/bin, meta_info -> Component/PicMatch/meta_info")
 

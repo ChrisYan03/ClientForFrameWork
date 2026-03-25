@@ -322,15 +322,21 @@ endforeach()
 add_custom_target(translate_files ALL DEPENDS ${QM_FILES})
 
 # 创建translations目录并复制.qm文件
+# 多配置生成器（VS）下，运行目录是 .../bin/<Config>，翻译文件也必须跟随到该目录
+set(CLIENTFRAME_TRANSLATIONS_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations")
+if(WIN32 AND CMAKE_CONFIGURATION_TYPES)
+    set(CLIENTFRAME_TRANSLATIONS_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/translations")
+endif()
+
 add_custom_command(TARGET translate_files POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CLIENTFRAME_TRANSLATIONS_OUTPUT_DIR}"
     COMMENT "Creating translations directory"
 )
 
 foreach(QM_FILE ${QM_FILES})
     get_filename_component(QM_NAME ${QM_FILE} NAME)
     add_custom_command(TARGET translate_files POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QM_FILE}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations/${QM_NAME}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QM_FILE}" "${CLIENTFRAME_TRANSLATIONS_OUTPUT_DIR}/${QM_NAME}"
         COMMENT "Copying translation file: ${QM_NAME}"
     )
 endforeach()
@@ -353,6 +359,12 @@ endif()
 
 # 让主目标依赖于翻译文件生成
 add_dependencies(ClientForFrame translate_files)
+
+# Windows 下确保主程序构建时组件 DLL 同步更新，避免因旧 PicMatchComponent.dll 与新 Framework/IComponent ABI 不一致
+# 导致运行时虚函数调用落到无效地址（典型症状：onThemeChanged 调用崩溃）。
+if(WIN32 AND TARGET PicMatchComponent)
+    add_dependencies(ClientForFrame PicMatchComponent)
+endif()
 
 # 设置目标属性以包含翻译文件的依赖
 set_target_properties(ClientForFrame PROPERTIES

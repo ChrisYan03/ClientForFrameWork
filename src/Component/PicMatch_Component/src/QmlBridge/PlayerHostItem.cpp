@@ -1,6 +1,7 @@
 #include "PlayerHostItem.h"
 #include "PicPlayerApi.h"
 #include "PicMatchViewModel.h"
+#include "TranslationManager.h"
 #include <QQuickWindow>
 #include <QWindow>
 #include <QVariantMap>
@@ -150,11 +151,13 @@ void PlayerHostItem::geometryChange(const QRectF &newGeometry, const QRectF &old
             m_geometryDeferTimer = new QTimer(this);
             m_geometryDeferTimer->setSingleShot(true);
             connect(m_geometryDeferTimer, &QTimer::timeout, this, [this](){
+                if (TranslationManager::isInUiTransition())
+                    return;  // 语言/主题切换期间跳过，防止访问已销毁对象
                 updateHostWindowGeometry();
                 notifyPlayerWindowSize();
             });
         }
-        m_geometryDeferTimer->start(0);
+        m_geometryDeferTimer->start(10);
         return;
     }
 #endif
@@ -209,7 +212,12 @@ void PlayerHostItem::ensureHostWindowCreated()
     quickWin->update();
     quickWin->requestUpdate();
 #if defined(Q_OS_WIN)
-    QTimer::singleShot(0, this, [this]() { updateHostWindowGeometry(); notifyPlayerWindowSize(); });
+    QTimer::singleShot(10, this, [this]() {
+        if (TranslationManager::isInUiTransition())
+            return;
+        updateHostWindowGeometry();
+        notifyPlayerWindowSize();
+    });
 #endif
     LOG_INFO("PlayerHostItem: created QWindow host for OpenGL player (no QWidget embed)");
     emit widgetReady();
