@@ -23,6 +23,8 @@ class AppController : public QObject
     Q_PROPERTY(QStringList loadedComponents READ loadedComponents NOTIFY loadedComponentsChanged)
     Q_PROPERTY(int currentLanguage READ currentLanguage NOTIFY currentLanguageChanged)
     Q_PROPERTY(QString currentLanguageName READ currentLanguageName NOTIFY currentLanguageChanged)
+    Q_PROPERTY(int componentCount READ componentCount NOTIFY componentCountChanged)
+    Q_PROPERTY(QVariantList componentTabs READ componentTabs NOTIFY componentTabsChanged)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -37,6 +39,8 @@ public:
     QStringList loadedComponents() const { return m_componentPageUrls.keys(); }
     int currentLanguage() const { return static_cast<int>(TranslationManager::instance()->currentLanguage()); }
     QString currentLanguageName() const { return TranslationManager::instance()->getLanguageDisplayName(TranslationManager::instance()->currentLanguage()); }
+    int componentCount() const { return m_componentPageUrls.size(); }
+    QVariantList componentTabs() const;
 
     Q_INVOKABLE void setTheme(int theme);
     Q_INVOKABLE void start();
@@ -71,6 +75,15 @@ public:
     /** 请求主框架在标题栏下显示气泡提示（如「停止运行后可配置」），由主窗口监听 showBubbleMessageRequested 并展示 */
     Q_INVOKABLE void requestShowBubbleMessage(const QString &message);
 
+    /** 打开组件标签页（点击桌面图标时调用），返回标签索引 */
+    Q_INVOKABLE int openComponentTab(const QString &appId);
+    /** 关闭组件标签页（点击标签关闭按钮时调用） */
+    Q_INVOKABLE void closeComponentTab(const QString &appId);
+    /** 切换到指定组件标签页 */
+    Q_INVOKABLE void switchToTab(const QString &appId);
+    /** 获取当前激活的标签 appId */
+    Q_INVOKABLE QString currentTabAppId() const;
+
 signals:
     void statusTextChanged();
     void pageTitleChanged();
@@ -83,6 +96,9 @@ signals:
     void backToDesktopRequested();
     void showBubbleMessageRequested(const QString &message);
     void currentLanguageChanged();
+    void componentCountChanged();
+    void componentTabsChanged();
+    void currentTabChanged(const QString &appId);
 
 private:
     void setStatusText(const QString &text);
@@ -101,6 +117,8 @@ private:
     QMap<QString, QString> m_componentIconPaths;
     QMap<QString, QUrl> m_componentPageUrls;
     QMap<QString, QString> m_componentNames;
+    QStringList m_openedTabs;  // 已打开的标签 appId 列表（保持顺序）
+    QString m_currentTabAppId; // 当前激活的标签 appId
 };
 
 #endif // APPCONTROLLER_H

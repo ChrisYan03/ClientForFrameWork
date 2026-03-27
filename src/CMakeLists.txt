@@ -59,6 +59,7 @@ endif()
 add_subdirectory(Framework)
 add_subdirectory(Component/Common)
 add_subdirectory(Component/PicMatch_Component)
+add_subdirectory(Component/ImageView_Component)
 add_subdirectory(ClientForFrame)
 
 message("project setup complete. Output will be in: ${OUTPUT_DIR}")

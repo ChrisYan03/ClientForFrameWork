@@ -22,7 +22,7 @@ Window {
     property bool toastVisible: false
     property string toastMessage: root.pauseMessage
     property bool settingsOpen: false
-    readonly property int titleBarHeight: 38
+    readonly property int titleBarHeight: (typeof appController !== "undefined" && appController && appController.componentCount > 1) ? 78 : 38
     readonly property int cornerRadius: 8
     readonly property int contentMargin: 0
 
@@ -30,7 +30,6 @@ Window {
     property string appTitle: qsTr("小闫客户端")
     property string pauseMessage: qsTr("请暂停后再回到主界面")
     property string stopConfigMessage: qsTr("停止运行后可配置")
-    property string faceRecogTitle: qsTr("图像人脸识别")
 
     // 监听语言变化
     Connections {
@@ -39,7 +38,6 @@ Window {
             appTitle = qsTr("小闫客户端")
             pauseMessage = qsTr("请暂停后再回到主界面")
             stopConfigMessage = qsTr("停止运行后可配置")
-            faceRecogTitle = qsTr("图像人脸识别")
         }
     }
 
@@ -62,6 +60,7 @@ Window {
             isMaximized: root.isMaximized
             showBackButton: contentStack.depth > 1
             showSettingsButton: contentStack.depth <= 1
+            isOnDesktop: contentStack.depth <= 1
             onRequestMove: (dx, dy) => {
                 if (!root.isMaximized)
                     root.x += dx; root.y += dy
@@ -77,9 +76,13 @@ Window {
                     if (appController && appController.hasRunnableComponent && appController.isRunning) {
                         root.showBubbleMessage(root.pauseMessage)
                     } else if (appController) {
-                        appController.requestBackToDesktop()
+                        root.closeCurrentTab()
                     }
                 }
+            }
+            onSwitchToDesktop: {
+                // 切换到主界面（不关闭组件，只是切换视图）
+                root.popToDesktop()
             }
             onSettingsClicked: {
                 if (appController && appController.hasRunnableComponent && appController.isRunning) {
@@ -87,6 +90,12 @@ Window {
                     return
                 }
                 root.settingsOpen = !root.settingsOpen
+            }
+            onTabClicked: (appId) => {
+                root.switchToComponentTab(appId)
+            }
+            onTabCloseClicked: (appId) => {
+                root.closeComponentTab(appId)
             }
         }
 
@@ -171,13 +180,86 @@ Window {
         root.settingsOpen = false
         if (!appController)
             return
-        var pageUrl = appController.getComponentPageUrl(appId)
-        if (pageUrl && pageUrl.toString()) {
-            contentStack.push(pageUrl)
-            if (appId === "PicMatch")
-                appController.setPageTitle(root.faceRecogTitle)
+
+        // 判断是否为多组件模式
+        if (appController.componentCount > 1) {
+            // 多组件模式：使用标签页管理
+            var idx = appController.openComponentTab(appId)
+            if (idx >= 0) {
+                root.loadComponentPage(appId)
+            }
+        } else {
+            // 单组件模式：保持原有行为
+            var pageUrl = appController.getComponentPageUrl(appId)
+            if (pageUrl && pageUrl.toString()) {
+                contentStack.push(pageUrl)
+                var componentTitle = appController.getComponentName(appId)
+                appController.setPageTitle(componentTitle && componentTitle !== "" ? componentTitle : root.appTitle)
+            }
         }
     }
+
+    function loadComponentPage(appId) {
+        var pageUrl = appController.getComponentPageUrl(appId)
+        if (pageUrl && pageUrl.toString()) {
+            // 先返回桌面
+            while (contentStack.depth > 1)
+                contentStack.pop()
+            // 再加载组件页面
+            contentStack.push(pageUrl)
+        }
+    }
+
+    function switchToComponentTab(appId) {
+        if (!appController)
+            return
+        appController.switchToTab(appId)
+        root.loadComponentPage(appId)
+    }
+
+    function closeComponentTab(appId) {
+        if (!appController)
+            return
+        // 如果关闭的是当前标签且组件正在运行，先提示停止
+        if (appId === appController.currentTabAppId() && appController.hasRunnableComponent && appController.isRunning) {
+            root.showBubbleMessage(root.pauseMessage)
+            return
+        }
+        // 如果关闭的是当前标签，先注销组件
+        if (appId === appController.currentTabAppId()) {
+            appController.unregisterComponentHost()
+        }
+        appController.closeComponentTab(appId)
+        // 返回桌面
+        while (contentStack.depth > 1)
+            contentStack.pop()
+        // 如果还有打开的标签，切换到第一个；否则就留在桌面
+        var currentAppId = appController.currentTabAppId()
+        if (currentAppId && currentAppId !== "") {
+            root.loadComponentPage(currentAppId)
+        }
+        // 所有标签关闭后，已在桌面，不需要额外操作
+    }
+
+    function closeCurrentTab() {
+        if (!appController)
+            return
+        var currentAppId = appController.currentTabAppId()
+        if (currentAppId && currentAppId !== "") {
+            appController.unregisterComponentHost()
+            appController.closeComponentTab(currentAppId)
+        }
+        // 返回桌面
+        while (contentStack.depth > 1)
+            contentStack.pop()
+        // 如果还有打开的标签，切换到第一个
+        var nextAppId = appController.currentTabAppId()
+        if (nextAppId && nextAppId !== "") {
+            root.loadComponentPage(nextAppId)
+        }
+        // 所有标签关闭后，已在桌面
+    }
+
     function popToDesktop() {
         while (contentStack.depth > 1)
             contentStack.pop()
@@ -212,6 +294,12 @@ Window {
             if (appController)
                 appController.unregisterComponentHost()
             root.popToDesktop()
+        }
+        function onCurrentTabChanged(appId) {
+            // 当标签切换时，加载对应的组件页面
+            if (appId && appId !== "") {
+                root.loadComponentPage(appId)
+            }
         }
     }
 

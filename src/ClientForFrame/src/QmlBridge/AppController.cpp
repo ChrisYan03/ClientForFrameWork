@@ -200,6 +200,7 @@ void AppController::registerComponentPage(const QString &appId, const QUrl &page
     if (!appId.isEmpty() && pageUrl.isValid()) {
         m_componentPageUrls.insert(appId, pageUrl);
         emit loadedComponentsChanged();
+        emit componentCountChanged();
     }
 }
 
@@ -243,4 +244,76 @@ void AppController::retranslateUi()
     emit pageTitleChanged();
     // 触发组件列表重新绑定，使 getComponentName 被重新调用
     emit loadedComponentsChanged();
+    emit componentTabsChanged();
+}
+
+QVariantList AppController::componentTabs() const
+{
+    QVariantList tabs;
+    // 只显示已打开的标签
+    for (const QString &appId : m_openedTabs) {
+        QVariantMap tab;
+        tab[QStringLiteral("appId")] = appId;
+        tab[QStringLiteral("name")] = getComponentName(appId);
+        tab[QStringLiteral("iconPath")] = getComponentIconPath(appId);
+        tab[QStringLiteral("isActive")] = (appId == m_currentTabAppId);
+        tab[QStringLiteral("isOpened")] = true;
+        tabs.append(tab);
+    }
+    return tabs;
+}
+
+int AppController::openComponentTab(const QString &appId)
+{
+    if (appId.isEmpty() || !m_componentPageUrls.contains(appId))
+        return -1;
+
+    // 如果标签已存在，直接切换
+    if (m_openedTabs.contains(appId)) {
+        switchToTab(appId);
+        return m_openedTabs.indexOf(appId);
+    }
+
+    // 添加新标签
+    m_openedTabs.append(appId);
+    m_currentTabAppId = appId;
+    emit componentTabsChanged();
+    emit currentTabChanged(appId);
+    return m_openedTabs.size() - 1;
+}
+
+void AppController::closeComponentTab(const QString &appId)
+{
+    int idx = m_openedTabs.indexOf(appId);
+    if (idx < 0)
+        return;
+
+    bool wasActive = (appId == m_currentTabAppId);
+    m_openedTabs.removeAt(idx);
+
+    if (wasActive) {
+        // 如果关闭的是当前标签，切换到前一个或后一个
+        if (!m_openedTabs.isEmpty()) {
+            int newIdx = qMin(idx, m_openedTabs.size() - 1);
+            m_currentTabAppId = m_openedTabs[newIdx];
+        } else {
+            m_currentTabAppId.clear();
+        }
+        emit currentTabChanged(m_currentTabAppId);
+    }
+    emit componentTabsChanged();
+}
+
+void AppController::switchToTab(const QString &appId)
+{
+    if (appId == m_currentTabAppId || !m_openedTabs.contains(appId))
+        return;
+    m_currentTabAppId = appId;
+    emit componentTabsChanged();
+    emit currentTabChanged(appId);
+}
+
+QString AppController::currentTabAppId() const
+{
+    return m_currentTabAppId;
 }

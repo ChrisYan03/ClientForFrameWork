@@ -12,5 +12,9 @@
   "tooltipText": "#3c4043",
   "appTileBackground": "#f1f3f4",
   "appTileBackgroundHover": "#e8f0fe",
-  "appTileBorder": "#1a73e8"
+  "appTileBorder": "#1a73e8",
+  "tabActiveBackground": "#ffffff",
+  "tabActiveBorder": "#1a73e8",
+  "tabHoverBackground": "#f0f0f0",
+  "tabCloseButtonHover": "#e0e0e0"
 }

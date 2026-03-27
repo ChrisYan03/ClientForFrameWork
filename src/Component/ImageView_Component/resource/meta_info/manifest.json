@@ -1,0 +1,12 @@
+{
+  "id": "ImageView",
+  "name": "图像预览",
+  "version": "1.0.0",
+  "description": "图像预览组件，内嵌独立进程 PicPlayer，支持暂停/启动切换",
+  "author": "ClientForFrameWork",
+  "type": "native",
+  "module": "ImageViewComponent.dll",
+  "icon": "image_view.svg",
+  "qmlPage": "qml/ImageViewPage.qml",
+  "dependencies": []
+}

@@ -365,6 +365,16 @@ add_dependencies(ClientForFrame translate_files)
 if(WIN32 AND TARGET PicMatchComponent)
     add_dependencies(ClientForFrame PicMatchComponent)
 endif()
+if(WIN32 AND TARGET ImageViewComponent)
+    add_dependencies(ClientForFrame ImageViewComponent)
+endif()
+
+# 复制组件配置到运行目录（Framework 从 <appDir>/config/components.json 读取）
+add_custom_command(TARGET ClientForFrame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/config"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/config/components.json" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/config/components.json"
+    COMMENT "Copy components.json to runtime config directory"
+)
 
 # 设置目标属性以包含翻译文件的依赖
 set_target_properties(ClientForFrame PROPERTIES
