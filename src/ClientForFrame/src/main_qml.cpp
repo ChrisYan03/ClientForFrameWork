@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
             componentService.notifyLanguageChanged(static_cast<int>(language));
             // 重新设置默认页面标题以应用新翻译
             appController.setPageTitle(qApp->translate("MainWindow", "小闫客户端"));
-            // 注意：currentLanguageChanged 信号和 retranslateUi 由 AppController::setLanguage
-            // 通过 QTimer::singleShot(0) 统一触发，避免信号重复发送
+            // 注意：currentLanguageChanged 与框架绑定刷新由 AppLocaleController::setLanguage
+            // 内 QTimer::singleShot(0) 统一触发，避免信号重复发送
         },
         Qt::QueuedConnection);
 

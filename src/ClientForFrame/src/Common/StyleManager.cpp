@@ -22,5 +22,5 @@ void StyleManager::applyTheme(ThemeType theme)
 {
     m_currentTheme = theme;
     LOG_INFO("applyTheme: {}", theme == DarkTheme ? "Dark" : "Light");
-    // 主框架为 QML，实际主题由 AppController::loadThemeColors() 从 themes/*.json 加载并通过 themeColors 下发
+    // 主框架为 QML，实际主题由 AppThemeController 读 themes/*.json，经 AppController.themeColors 下发
 }

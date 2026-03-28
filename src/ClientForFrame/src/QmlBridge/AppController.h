@@ -1,15 +1,17 @@
 #ifndef APPCONTROLLER_H
 #define APPCONTROLLER_H
 
-#include <QMap>
 #include <QObject>
 #include <QUrl>
 #include <QVariantMap>
-#include "TranslationManager.h"
+
+class AppLocaleController;
+class AppThemeController;
+class ComponentRegistry;
+class ComponentTabManager;
 
 /**
- * @brief 纯 QML 框架的桥接类，暴露主题/状态及组件宿主注册。
- * 组件通过 registerComponentHost 注册，框架通过 invokeMethod 调用组件的 run/quit。
+ * @brief 纯 QML 框架桥接门面：组合主题、组件清单、标签页与宿主运行态，对外保持单一 appController 上下文属性。
  */
 class AppController : public QObject
 {
@@ -34,12 +36,12 @@ public:
     QString pageTitle() const { return m_pageTitle; }
     bool hasRunnableComponent() const { return m_hasRunnableComponent; }
     bool isRunning() const { return m_isRunning; }
-    int theme() const { return m_theme; }
-    QVariantMap themeColors() const { return m_themeColors; }
-    QStringList loadedComponents() const { return m_componentPageUrls.keys(); }
-    int currentLanguage() const { return static_cast<int>(TranslationManager::instance()->currentLanguage()); }
-    QString currentLanguageName() const { return TranslationManager::instance()->getLanguageDisplayName(TranslationManager::instance()->currentLanguage()); }
-    int componentCount() const { return m_componentPageUrls.size(); }
+    int theme() const;
+    QVariantMap themeColors() const;
+    QStringList loadedComponents() const;
+    int currentLanguage() const;
+    QString currentLanguageName() const;
+    int componentCount() const;
     QVariantList componentTabs() const;
 
     Q_INVOKABLE void setTheme(int theme);
@@ -50,38 +52,24 @@ public:
     Q_INVOKABLE QString getLanguageName(int language) const;
     Q_INVOKABLE void retranslateUi();
 
-    /** 组件页加载时调用，注册宿主（QObject 需提供 run/quit 等 Q_INVOKABLE） */
     Q_INVOKABLE void registerComponentHost(QObject *hostItem);
-    /** 组件页卸载时调用 */
     Q_INVOKABLE void unregisterComponentHost();
-    /** 设置当前标题栏标题（如进入组件页时设为组件名，返回桌面时恢复默认） */
     Q_INVOKABLE void setPageTitle(const QString &title);
     Q_INVOKABLE void requestBackToDesktop();
 
-    /** 注册组件桌面图标路径（manifest 的 id -> 本地文件路径），与 Windows 一致从 Component/xxx/meta_info/ 加载 */
     Q_INVOKABLE void registerComponentIcon(const QString &appId, const QString &iconPath);
-    /** 获取组件桌面图标 URL（file://），空则 QML 用主程序 qrc 兜底 */
     Q_INVOKABLE QString getComponentIconPath(const QString &appId) const;
-    /** 注册组件显示名称（从 manifest 读取） */
     Q_INVOKABLE void registerComponentName(const QString &appId, const QString &name);
-    /** 获取组件显示名称（从 manifest 读取） */
     Q_INVOKABLE QString getComponentName(const QString &appId) const;
 
-    /** 由框架加载组件时调用：注册组件页 QML URL，点击桌面图标后按此 URL 加载（仅框架调用） */
     Q_INVOKABLE void registerComponentPage(const QString &appId, const QUrl &pageUrl);
-    /** 获取已注册的组件页 URL，空则表示该组件无独立页 */
     Q_INVOKABLE QUrl getComponentPageUrl(const QString &appId) const;
 
-    /** 请求主框架在标题栏下显示气泡提示（如「停止运行后可配置」），由主窗口监听 showBubbleMessageRequested 并展示 */
     Q_INVOKABLE void requestShowBubbleMessage(const QString &message);
 
-    /** 打开组件标签页（点击桌面图标时调用），返回标签索引 */
     Q_INVOKABLE int openComponentTab(const QString &appId);
-    /** 关闭组件标签页（点击标签关闭按钮时调用） */
     Q_INVOKABLE void closeComponentTab(const QString &appId);
-    /** 切换到指定组件标签页 */
     Q_INVOKABLE void switchToTab(const QString &appId);
-    /** 获取当前激活的标签 appId */
     Q_INVOKABLE QString currentTabAppId() const;
 
 signals:
@@ -104,21 +92,19 @@ private:
     void setStatusText(const QString &text);
     void setHasRunnableComponent(bool on);
     void setRunning(bool on);
-    void loadThemeColors();
-    void applyThemeToPicPlayer();
+    void applyThemeToCurrentHost();
+    void refreshFrameworkBindingsAfterLocaleChange();
 
     QString m_statusText;
     QString m_pageTitle;
     bool m_hasRunnableComponent = false;
     bool m_isRunning = false;
-    int m_theme = 0;
-    QVariantMap m_themeColors;
     QObject *m_componentHost = nullptr;
-    QMap<QString, QString> m_componentIconPaths;
-    QMap<QString, QUrl> m_componentPageUrls;
-    QMap<QString, QString> m_componentNames;
-    QStringList m_openedTabs;  // 已打开的标签 appId 列表（保持顺序）
-    QString m_currentTabAppId; // 当前激活的标签 appId
+
+    ComponentRegistry *m_registry = nullptr;
+    ComponentTabManager *m_tabs = nullptr;
+    AppThemeController *m_theme = nullptr;
+    AppLocaleController *m_locale = nullptr;
 };
 
 #endif // APPCONTROLLER_H

@@ -1,0 +1,10 @@
+# Build / IDE / local output
+build/
+out/
+.vs/
+.qtcreator/
+*.user
+*.user.*
+
+# Local editor (optional; remove if you version shared settings)
+.claude/
