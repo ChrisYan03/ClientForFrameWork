@@ -37,25 +37,53 @@ FaceRecognitionManager::FaceRecognitionManager()
 
 FaceRecognitionManager::~FaceRecognitionManager() 
 {
-    destroy();
+    std::lock_guard<std::mutex> apiLock(m_apiMutex);
+    if (face_cascade) {
+        delete face_cascade;
+        face_cascade = nullptr;
+    }
+    if (profile_face_cascade) {
+        delete profile_face_cascade;
+        profile_face_cascade = nullptr;
+    }
+    faceNet = cv::dnn::Net();
+    ageNet = cv::dnn::Net();
+    use_dnn = false;
+    use_age_estimation = false;
 }
 
 int FaceRecognitionManager::init(const char* data_path) 
 {
+    std::lock_guard<std::mutex> apiLock(m_apiMutex);
     try {
         LogUtil::initLogger("PicRecognition");
+        // 重复 init / destroy 后必须重置标志与网络，避免出现 use_dnn==true 但 faceNet 已空
+        use_dnn = false;
+        use_age_estimation = false;
+        faceNet = cv::dnn::Net();
+        ageNet = cv::dnn::Net();
+        if (face_cascade) {
+            delete face_cascade;
+            face_cascade = nullptr;
+        }
+        if (profile_face_cascade) {
+            delete profile_face_cascade;
+            profile_face_cascade = nullptr;
+        }
         face_cascade = new cv::CascadeClassifier();
         profile_face_cascade = new cv::CascadeClassifier();
         
         std::string exe_dir(data_path);
         std::vector<std::string> frontalPaths = {
             exe_dir + "/data/haarcascades/haarcascade_frontalface_default.xml",
-            exe_dir + "/haarcascade_frontalface_default.xml"
+            exe_dir + "/haarcascade_frontalface_default.xml",
+            exe_dir + "/face_detector/haarcascade_frontalface_default.xml"
         };
 
         std::vector<std::string> profilePaths = {
             exe_dir + "/data/haarcascades/haarcascade_profileface.xml",
-            exe_dir + "/haarcascade_profileface.xml"
+            exe_dir + "/haarcascade_profileface.xml",
+            exe_dir + "/face_detector/haarcascade_profileface.xml"
         };
 
         // 尝试加载DNN模型文件
@@ -114,45 +142,49 @@ int FaceRecognitionManager::init(const char* data_path)
                     use_dnn = true;
                     LOG_INFO("Successfully loaded DNN face detection model");
                 } else {
+                    use_dnn = false;
                     LOG_WARN("Failed to load DNN model, falling back to Haar cascades");
                 }
             } catch (const cv::Exception& e) {
                 LOG_WARN("DNN model loading failed: {}, falling back to Haar cascades", e.what());
+                use_dnn = false;
+                faceNet = cv::dnn::Net();
             }
         }
 
-        // 如果DNN模型未成功加载，继续使用传统方法
-        if (!use_dnn) {
-            bool frontalLoaded = false;
-            for (const auto& path : frontalPaths) {
-                if (face_cascade->load(path)) {
-                    LOG_INFO("Loaded frontal face detector: {}", path);
-                    frontalLoaded = true;
-                    break;
-                }
+        // 无论是否使用 DNN，尽量加载 Haar 作为回退（destroy 清空 DNN 后可能出现 use_dnn 与 net 不一致）
+        bool frontalLoaded = false;
+        for (const auto& path : frontalPaths) {
+            if (face_cascade->load(path)) {
+                LOG_INFO("Loaded frontal face detector: {}", path);
+                frontalLoaded = true;
+                break;
             }
+        }
 
-            if (!frontalLoaded) {
-                LOG_ERROR("Failed to load frontal face detector");
-                delete face_cascade;
-                face_cascade = nullptr;
-                delete profile_face_cascade;
-                profile_face_cascade = nullptr;
-                return -1;
-            }
+        if (!use_dnn && !frontalLoaded) {
+            LOG_ERROR("Failed to load frontal face detector");
+            delete face_cascade;
+            face_cascade = nullptr;
+            delete profile_face_cascade;
+            profile_face_cascade = nullptr;
+            return -1;
+        }
+        if (use_dnn && !frontalLoaded) {
+            LOG_WARN("Haar frontal cascade not loaded; detection relies on DNN only until re-init");
+        }
 
-            bool profileLoaded = false;
-            for (const auto& path : profilePaths) {
-                if (profile_face_cascade->load(path)) {
-                    LOG_INFO("Loaded profile face detector: {}", path);
-                    profileLoaded = true;
-                    break;
-                }
+        bool profileLoaded = false;
+        for (const auto& path : profilePaths) {
+            if (profile_face_cascade->load(path)) {
+                LOG_INFO("Loaded profile face detector: {}", path);
+                profileLoaded = true;
+                break;
             }
+        }
 
-            if (!profileLoaded) {
-                LOG_WARN("Profile face detector not available, using frontal detection only");
-            }
+        if (!profileLoaded) {
+            LOG_WARN("Profile face detector not available, using frontal detection only");
         }
 
         // 尝试加载年龄估计模型
@@ -486,6 +518,8 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
         return -1;
     }
 
+    std::lock_guard<std::mutex> apiLock(m_apiMutex);
+
     try {
         if (result->faces) {
             delete[] result->faces;
@@ -505,6 +539,11 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
         cv::equalizeHist(grayMat, grayMat);
 
         std::vector<FaceQuality> allFaces;
+
+        if (use_dnn && faceNet.empty()) {
+            LOG_WARN("FaceRecognition: use_dnn is true but DNN net is empty; falling back to Haar cascade");
+            use_dnn = false;
+        }
 
         if (use_dnn) {
             LOG_DEBUG("Using DNN for face detection");
@@ -528,7 +567,7 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
         } else {
             LOG_DEBUG("Using Haar cascade for face detection");
             // 传统方法：正面人脸检测
-            if (face_cascade) {
+            if (face_cascade && !face_cascade->empty()) {
                 std::vector<cv::Rect> frontalFaces;
                 // 使用更敏感的检测参数，以检测可能被遮挡或角度不佳的人脸
                 face_cascade->detectMultiScale(grayMat, frontalFaces, 1.08, 5, 0, cv::Size(20, 20));
@@ -580,6 +619,8 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
                         allFaces.emplace_back(face, quality, confidence, true, 2, estimatedAge);
                     }
                 }
+            } else {
+                LOG_WARN("FaceRecognition: Haar cascade not loaded or empty; no faces in cascade path");
             }
         }
 
@@ -688,14 +729,10 @@ int FaceRecognitionManager::detectFacesInRgba(PicShowInfo* picInfo, FaceDetectio
 
 void FaceRecognitionManager::destroy() 
 {
-    if (face_cascade) {
-        delete face_cascade;
-        face_cascade = nullptr;
-    }
-    if (profile_face_cascade) {
-        delete profile_face_cascade;
-        profile_face_cascade = nullptr;
-    }
-    faceNet = cv::dnn::Net(); // 清空人脸检测网络
-    ageNet = cv::dnn::Net();  // 清空年龄估计网络
+    std::lock_guard<std::mutex> apiLock(m_apiMutex);
+    // 仅释放 DNN/年龄模型；保留 Haar 级联，避免 DestroyFaceRecognition 之后、尚未再次 init 时检测无路可走。
+    faceNet = cv::dnn::Net();
+    ageNet = cv::dnn::Net();
+    use_dnn = false;
+    use_age_estimation = false;
 }

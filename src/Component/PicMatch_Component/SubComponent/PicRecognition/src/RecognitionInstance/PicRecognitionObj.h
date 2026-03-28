@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/dnn.hpp>
+#include <mutex>
 
 class FaceRecognitionManager 
 {
@@ -36,4 +37,5 @@ private:
     cv::dnn::Net ageNet;       // 年龄估计网络
     bool use_dnn;
     bool use_age_estimation;   // 是否启用了年龄估计
+    std::mutex m_apiMutex;     // 串行化 init / destroy / detect，避免与 destroy 竞态导致 net 已空仍走 DNN
 };

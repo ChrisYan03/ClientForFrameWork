@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Shapes
 import QtQuick.Window
 
 Rectangle {
@@ -40,15 +41,6 @@ Rectangle {
             closeTooltip = qsTr("关闭应用程序")
             closeTabTooltip = qsTr("关闭标签页")
         }
-    }
-
-    // 底部分隔线
-    Rectangle {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 1
-        color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBorder : "#e0e0e0"
     }
 
     signal requestMove(real dx, real dy)
@@ -325,57 +317,88 @@ Rectangle {
             }
         }
 
-        // 第二层：标签栏（40px，仅多组件时显示）
+        // 第二层：标签栏（背景与第一层标题栏一致；组件标签仍为上圆角样式）
         Rectangle {
             id: secondLayer
             Layout.fillWidth: true
             Layout.preferredHeight: tabBarHeight
             visible: titleBarRoot.showTabBar
-            color: "transparent"
+            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBackground : "#ffffff"
             clip: true
 
-            // 使用 Row 而不是 ListView，以便更好地控制布局
-            Row {
+            readonly property real tabTopRadius: 10
+            readonly property real tabMinWidth: 112
+
+            function tabStripColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors) {
+                    var tc = appController.themeColors
+                    if (tc.tabInactiveBackground !== undefined && String(tc.tabInactiveBackground).length > 0)
+                        return tc.tabInactiveBackground
+                    return tc.titleBarBackground
+                }
+                return "#ffffff"
+            }
+            function tabActiveColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors)
+                    return appController.themeColors.tabActiveBackground
+                return "#ffffff"
+            }
+            function tabHoverColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors)
+                    return appController.themeColors.tabHoverBackground
+                return "#f0f0f0"
+            }
+            function textPrimaryColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors)
+                    return appController.themeColors.textPrimary
+                return "#323232"
+            }
+            function textSecondaryColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors)
+                    return appController.themeColors.textSecondary
+                return "#666666"
+            }
+            function closeHoverColor() {
+                if (typeof appController !== "undefined" && appController && appController.themeColors)
+                    return appController.themeColors.tabCloseButtonHover
+                return "#e0e0e0"
+            }
+
+            RowLayout {
                 anchors.fill: parent
-                anchors.topMargin: 2
-                anchors.bottomMargin: 2
-                anchors.leftMargin: 8
-                anchors.rightMargin: 8
-                spacing: 4
+                anchors.leftMargin: 6
+                anchors.rightMargin: 6
+                anchors.bottomMargin: 0
+                spacing: 2
 
-                // 返回主界面按钮（常驻第一个，类似标签）
-                Rectangle {
-                    width: tabContentRowHome.implicitWidth + 20
-                    height: tabBarHeight - 4
-                    anchors.verticalCenter: parent.verticalCenter
-                    radius: 8
-                    // home 按钮不显示蓝色选中态，只在悬停时显示背景色
-                    color: backToDesktopBtn.containsMouse ?
-                        (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tabHoverBackground : "#f0f0f0") :
-                        "transparent"
-                    border.width: 0
+                // 返回主界面：仅图标尺寸 + 少量内边距，悬停圆角底
+                Item {
+                    id: homeTabItem
+                    readonly property int homeIconSize: 16
+                    readonly property int homeHPadding: 8
+                    Layout.preferredWidth: homeIconSize + homeHPadding * 2
+                    Layout.fillHeight: true
 
-                    RowLayout {
-                        id: tabContentRowHome
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.topMargin: 4
+                        anchors.bottomMargin: 4
+                        anchors.leftMargin: 2
+                        anchors.rightMargin: 2
+                        radius: 6
+                        color: backToDesktopBtn.containsMouse ? secondLayer.tabHoverColor() : "transparent"
+                    }
+
+                    Image {
+                        id: homeIcon
                         anchors.centerIn: parent
-                        spacing: 6
-
-                        Image {
-                            source: (typeof appController !== "undefined" && appController && appController.theme === 1)
-                                ? "qrc:/icons/home_light.svg"
-                                : "qrc:/icons/home.svg"
-                            sourceSize.width: 16
-                            sourceSize.height: 16
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
-                        }
-
-                        Label {
-                            text: titleBarRoot.backTooltip
-                            font.pixelSize: 12
-                            font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-                            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
-                        }
+                        source: (typeof appController !== "undefined" && appController && appController.theme === 1)
+                            ? "qrc:/icons/home_light.svg"
+                            : "qrc:/icons/home.svg"
+                        sourceSize.width: homeTabItem.homeIconSize
+                        sourceSize.height: homeTabItem.homeIconSize
+                        width: homeTabItem.homeIconSize
+                        height: homeTabItem.homeIconSize
                     }
 
                     MouseArea {
@@ -383,6 +406,7 @@ Rectangle {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
+                        z: 1
                         onHoveredChanged: {
                             if (hovered && titleBarRoot.backTooltip.length > 0) {
                                 tooltipWindow.tipText = titleBarRoot.backTooltip
@@ -398,31 +422,53 @@ Rectangle {
                     }
                 }
 
-                // 动态生成的组件标签
                 Repeater {
                     model: typeof appController !== "undefined" && appController ? appController.componentTabs : []
 
-                    Rectangle {
-                        id: tabItem
-                        width: tabContentRow.implicitWidth + 24
-                        height: tabBarHeight - 4
-                        anchors.verticalCenter: parent.verticalCenter
-                        radius: 8
-                        // 只有不在桌面时，标签才显示选中态
-                        color: (modelData.isActive && !titleBarRoot.isOnDesktop) ?
-                            (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tabActiveBackground : "#ffffff") :
-                            (tabMouseArea.containsMouse ?
-                                (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tabHoverBackground : "#f0f0f0") :
-                                "transparent")
-                        border.width: (modelData.isActive && !titleBarRoot.isOnDesktop) ? 1 : 0
-                        border.color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tabActiveBorder : "#e0e0e0"
+                    Item {
+                        id: compTabItem
+                        Layout.preferredWidth: Math.max(secondLayer.tabMinWidth, compTabContent.implicitWidth + 28)
+                        Layout.fillHeight: true
+                        Layout.minimumWidth: secondLayer.tabMinWidth
 
-                        property string tabAppId: modelData.appId
+                        readonly property bool isActiveTab: modelData.isActive && !titleBarRoot.isOnDesktop
+                        property color fillColor: {
+                            if (isActiveTab)
+                                return secondLayer.tabActiveColor()
+                            if (tabMouseArea.containsMouse)
+                                return secondLayer.tabHoverColor()
+                            return secondLayer.tabStripColor()
+                        }
+
+                        Shape {
+                            anchors.fill: parent
+                            antialiasing: true
+                            ShapePath {
+                                strokeWidth: 0
+                                strokeColor: "transparent"
+                                fillColor: compTabItem.fillColor
+                                startX: 0
+                                startY: compTabItem.height
+                                PathLine { x: 0; y: secondLayer.tabTopRadius }
+                                PathQuad { x: secondLayer.tabTopRadius; y: 0; controlX: 0; controlY: 0 }
+                                PathLine { x: compTabItem.width - secondLayer.tabTopRadius; y: 0 }
+                                PathQuad { x: compTabItem.width; y: secondLayer.tabTopRadius; controlX: compTabItem.width; controlY: 0 }
+                                PathLine { x: compTabItem.width; y: compTabItem.height }
+                                PathLine { x: 0; y: compTabItem.height }
+                            }
+                        }
 
                         RowLayout {
-                            id: tabContentRow
-                            anchors.centerIn: parent
-                            spacing: 6
+                            id: compTabContent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 6
+                            anchors.topMargin: 5
+                            anchors.bottomMargin: 1
+                            spacing: 8
 
                             Image {
                                 source: modelData.iconPath || "qrc:/icons/app_default.svg"
@@ -430,76 +476,101 @@ Rectangle {
                                 sourceSize.height: 16
                                 Layout.preferredWidth: 16
                                 Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
                             }
 
                             Label {
                                 text: modelData.name || modelData.appId
                                 font.pixelSize: 12
                                 font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-                                color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
+                                color: secondLayer.textPrimaryColor()
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.maximumWidth: 200
+                                elide: Text.ElideRight
                             }
 
-                            // 关闭按钮（只有已打开的标签才显示）
-                            Rectangle {
+                            Item {
+                                Layout.preferredWidth: 12
+                                Layout.preferredHeight: 1
+                            }
+
+                            Item {
+                                Layout.preferredWidth: modelData.isOpened === true ? 22 : 0
+                                Layout.preferredHeight: 22
+                                Layout.alignment: Qt.AlignVCenter
                                 visible: modelData.isOpened === true
-                                Layout.preferredWidth: 18
-                                Layout.preferredHeight: 18
-                                radius: 9
-                                color: closeTabBtn.containsMouse ?
-                                    (typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.tabCloseButtonHover : "#e0e0e0") :
-                                    "transparent"
-                                z: 10  // 确保在标签 MouseArea 之上
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "×"
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textSecondary : "#666666"
-                                }
-
-                                MouseArea {
-                                    id: closeTabBtn
+                                Rectangle {
                                     anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        tooltipWindow.visible = false
-                                        titleBarRoot.tabCloseClicked(modelData.appId)
+                                    radius: 4
+                                    color: closeTabBtn.containsMouse ? secondLayer.closeHoverColor() : "transparent"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u2715"
+                                        font.pixelSize: 11
+                                        font.weight: Font.Medium
+                                        color: secondLayer.textSecondaryColor()
                                     }
-                                    onEntered: tooltipWindow.visible = false
+
+                                    MouseArea {
+                                        id: closeTabBtn
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        z: 2
+                                        onClicked: {
+                                            tooltipWindow.visible = false
+                                            titleBarRoot.tabCloseClicked(modelData.appId)
+                                        }
+                                        onEntered: tooltipWindow.visible = false
+                                    }
                                 }
                             }
+                        }
+
+                        Rectangle {
+                            visible: compTabItem.isActiveTab
+                            z: 1
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            height: 2
+                            color: "#1A73E8"
                         }
 
                         MouseArea {
                             id: tabMouseArea
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            anchors.right: parent.right
-                            anchors.rightMargin: modelData.isOpened === true ? 24 : 0
+                            anchors.fill: parent
+                            anchors.rightMargin: modelData.isOpened === true ? 28 : 0
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             acceptedButtons: Qt.LeftButton
-                            propagateComposedEvents: true
+                            z: 2
                             onHoveredChanged: {
-                                if (hovered) {
+                                if (hovered)
                                     tooltipWindow.visible = false
-                                }
                             }
-                            onClicked: function(mouse) {
-                                titleBarRoot.tabClicked(modelData.appId)
-                            }
+                            onClicked: titleBarRoot.tabClicked(modelData.appId)
                         }
                     }
                 }
 
-                // 填充剩余空间
                 Item {
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                 }
             }
         }
+    }
+
+    // 底部分隔线（置于内容之上，避免被 ColumnLayout 铺满盖住）
+    Rectangle {
+        z: 10
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1
+        color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.titleBarBorder : "#e0e0e0"
     }
 }

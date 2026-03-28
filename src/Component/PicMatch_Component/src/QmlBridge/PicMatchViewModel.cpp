@@ -154,9 +154,7 @@ void PicMatchViewModel::initialize()
         m_model->setDataPath(dataPath);
     }
     m_model->initializeImageList(dataPath);
-
-    // 初始化人脸识别
-    initFaceRecognition(componentBinPath());
+    // 人脸识别在 run() 中初始化，以便在 DestroyFaceRecognition 之后再次「开始」时能重新加载 DNN 与年龄模型
 }
 
 void PicMatchViewModel::shutdown()
@@ -205,6 +203,8 @@ void PicMatchViewModel::run()
 {
     if (!m_running) {
         m_running = true;
+        // DestroyFaceRecognition 会释放 DNN/年龄模型；每次开始播放前重新加载，确保走深度学习检测与年龄估计
+        initFaceRecognition(componentBinPath());
         initPicPlayer();
         if (m_hostWindowForPlayer)
             doRegisterWindow(m_hostWindowForPlayer);

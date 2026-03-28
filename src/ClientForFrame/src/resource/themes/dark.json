@@ -13,8 +13,10 @@
   "appTileBackground": "#2d2d30",
   "appTileBackgroundHover": "#094771",
   "appTileBorder": "#007acc",
+  "tabBarStripBackground": "#252526",
+  "tabInactiveBackground": "#252526",
   "tabActiveBackground": "#1e1e1e",
-  "tabActiveBorder": "#007acc",
-  "tabHoverBackground": "#3c3c3c",
+  "tabActiveBorder": "transparent",
+  "tabHoverBackground": "#3c3c41",
   "tabCloseButtonHover": "#4a4a4a"
 }
