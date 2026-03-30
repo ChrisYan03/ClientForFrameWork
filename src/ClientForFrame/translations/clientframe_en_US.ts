@@ -33,6 +33,17 @@
     </message>
 </context>
 <context>
+    <name>ComponentManifest</name>
+    <message>
+        <source>图像预览</source>
+        <translation>Image Preview</translation>
+    </message>
+    <message>
+        <source>图像人脸识别</source>
+        <translation>Face Recognition</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>小闫客户端</source>
@@ -43,12 +54,8 @@
         <translation>Please pause before returning to the main screen</translation>
     </message>
     <message>
-        <source>停止运行后可配置</source>
-        <translation>Settings available after stopping</translation>
-    </message>
-    <message>
-        <source>图像人脸识别</source>
-        <translation>Face Recognition</translation>
+        <source>组件运行时不可设置</source>
+        <translation>Settings are unavailable while a component is running</translation>
     </message>
 </context>
 <context>

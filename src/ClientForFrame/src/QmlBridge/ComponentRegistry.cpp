@@ -46,7 +46,8 @@ QString ComponentRegistry::getComponentName(const QString &appId) const
     QString name = m_componentNames.value(appId, QString());
     if (name.isEmpty())
         return QString();
-    return qApp->translate("PicMatchComponent", name.toUtf8().constData());
+    // manifest 中的中文名作为 source，译文见 clientframe_* 的 ComponentManifest
+    return qApp->translate("ComponentManifest", name.toUtf8().constData());
 }
 
 void ComponentRegistry::registerComponentPage(const QString &appId, const QUrl &pageUrl)

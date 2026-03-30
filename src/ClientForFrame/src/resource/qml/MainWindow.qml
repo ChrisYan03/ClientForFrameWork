@@ -29,7 +29,7 @@ Window {
     // 翻译文本
     property string appTitle: qsTr("小闫客户端")
     property string pauseMessage: qsTr("请暂停后再回到主界面")
-    property string stopConfigMessage: qsTr("停止运行后可配置")
+    property string stopConfigMessage: qsTr("组件运行时不可设置")
 
     // 监听语言变化
     Connections {
@@ -37,7 +37,7 @@ Window {
         function onCurrentLanguageChanged() {
             appTitle = qsTr("小闫客户端")
             pauseMessage = qsTr("请暂停后再回到主界面")
-            stopConfigMessage = qsTr("停止运行后可配置")
+            stopConfigMessage = qsTr("组件运行时不可设置")
         }
     }
 

@@ -33,6 +33,17 @@
     </message>
 </context>
 <context>
+    <name>ComponentManifest</name>
+    <message>
+        <source>图像预览</source>
+        <translation>图像预览</translation>
+    </message>
+    <message>
+        <source>图像人脸识别</source>
+        <translation>图像人脸识别</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>小闫客户端</source>
@@ -43,12 +54,8 @@
         <translation>请暂停后再回到主界面</translation>
     </message>
     <message>
-        <source>停止运行后可配置</source>
-        <translation>停止运行后可配置</translation>
-    </message>
-    <message>
-        <source>图像人脸识别</source>
-        <translation>图像人脸识别</translation>
+        <source>组件运行时不可设置</source>
+        <translation>组件运行时不可设置</translation>
     </message>
 </context>
 <context>

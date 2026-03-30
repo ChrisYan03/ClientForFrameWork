@@ -1,4 +1,4 @@
-﻿#ifndef PICGEOMETRY_H
+#ifndef PICGEOMETRY_H
 #define PICGEOMETRY_H
 
 #include "../PicPlayerDataDef.h"
@@ -26,6 +26,8 @@ public:
 
     // 绘制图片接口
     void DrawImageForVideo(const ImVec2& drawStart, const ImVec2& drawEnd, double scale);
+    /// 将纹理子矩形 (uvMin..uvMax) 绘制到屏幕矩形（用于静态缩放/平移视图）
+    void DrawImageToRectUv(const ImRect& dstScreen, const ImVec2& uvMin, const ImVec2& uvMax) const;
     // 绘制矩形框
     void DrawRectForPic(const ImVec2& drawStart, const ImVec2& drawEnd);
     // 增加数据接口
@@ -38,6 +40,12 @@ public:
     int GetPicWidth() const { return static_cast<int>(m_picWidth * (m_uvMax.x - m_uvMin.x));  }
     // 获取图片的高
     int GetPicHeight() const { return m_picHeight; }
+
+    /// 内容区像素宽高（已考虑 UV 裁剪，与滚动条场景一致）
+    float GetContentWidthPx() const { return static_cast<float>(m_picWidth) * (m_uvMax.x - m_uvMin.x); }
+    float GetContentHeightPx() const { return static_cast<float>(m_picHeight) * (m_uvMax.y - m_uvMin.y); }
+    ImVec2 GetUvMin() const { return m_uvMin; }
+    ImVec2 GetUvMax() const { return m_uvMax; }
 
     float GetPicContentScale(float displayHeight);
 

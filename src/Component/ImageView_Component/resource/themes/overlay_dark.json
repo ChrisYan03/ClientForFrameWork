@@ -1,0 +1,8 @@
+{
+  "buttonBg": "rgba(67, 71, 75, 0.92)",
+  "buttonHover": "rgba(92, 97, 102, 0.96)",
+  "buttonPressed": "rgba(49, 52, 56, 0.96)",
+  "likeButtonBg": "rgba(197, 54, 69, 0.94)",
+  "likeButtonHover": "rgba(219, 76, 91, 0.96)",
+  "likeButtonPressed": "rgba(167, 38, 53, 0.96)"
+}

@@ -31,6 +31,10 @@ Item {
                 picMatchViewModel.initialize()
                 picMatchViewModel.setComponentTheme(appController.theme)
             }
+            Qt.callLater(function () {
+                if (appController && picMatchViewModel)
+                    appController.setComponentRuntimeActive(picMatchViewModel.running)
+            })
         }
     }
 
@@ -142,6 +146,15 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    // 与主窗口「组件运行时不可设置」等逻辑同步（工具栏 run/stop 不经过 appController.start/stop 时也需要）
+    Connections {
+        target: picMatchViewModel
+        function onRunningChanged() {
+            if (typeof appController !== "undefined" && appController)
+                appController.setComponentRuntimeActive(picMatchViewModel.running)
         }
     }
 

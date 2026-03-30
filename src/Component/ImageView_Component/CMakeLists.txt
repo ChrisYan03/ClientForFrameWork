@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Qml Quick)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Qml Quick)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Qml Quick Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Qml Quick Widgets)
 
 set(IMAGEVIEW_COMPONENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(IMAGEVIEW_SOURCE_DIR ${IMAGEVIEW_COMPONENT_DIR}/src)
@@ -10,6 +10,7 @@ set(IMAGEVIEW_DEPS_DIR ${IMAGEVIEW_COMPONENT_DIR}/deps/PicPlayer/include)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 include_directories(
     ${IMAGEVIEW_SOURCE_DIR}
@@ -25,6 +26,7 @@ set(IMAGEVIEW_SOURCES
     ${IMAGEVIEW_SOURCE_DIR}/ImageViewComponentGlobal.h
     ${IMAGEVIEW_SOURCE_DIR}/QmlBridge/ImageViewHostItem.h
     ${IMAGEVIEW_SOURCE_DIR}/QmlBridge/ImageViewHostItem.cpp
+    ${IMAGEVIEW_RESOURCE_DIR}/ImageView.qrc
 )
 
 add_library(ImageViewComponent SHARED ${IMAGEVIEW_SOURCES})
@@ -37,15 +39,30 @@ target_link_libraries(ImageViewComponent PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Qml
     Qt${QT_VERSION_MAJOR}::Quick
+    Qt${QT_VERSION_MAJOR}::Widgets
 )
 
-# 独立进程播放器宿主
-add_executable(ImageViewPlayerHost ${IMAGEVIEW_SOURCE_DIR}/ImageViewPlayerHost.cpp)
+# 独立进程播放器宿主（stb_image 解码 + PicPlayer 静态双图）
+add_executable(ImageViewPlayerHost
+    ${IMAGEVIEW_SOURCE_DIR}/ImageViewPlayerHost.cpp
+    ${IMAGEVIEW_SOURCE_DIR}/ImageViewPlayerHostPicLoader.cpp
+    ${IMAGEVIEW_SOURCE_DIR}/ImageViewStbImageImpl.cpp
+)
 target_link_libraries(ImageViewPlayerHost PRIVATE
     PicPlayer
     Qt${QT_VERSION_MAJOR}::Core
 )
 add_dependencies(ImageViewComponent ImageViewPlayerHost)
+
+# Windows：宿主 exe 在 Component/ImageView/bin，PicPlayer.dll 默认在全局输出目录；若不同目录会误加载 PATH/工作目录下的旧 DLL，仍表现为滚动模式
+if(WIN32)
+    add_custom_command(TARGET ImageViewPlayerHost POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:PicPlayer>"
+            "$<TARGET_FILE_DIR:ImageViewPlayerHost>"
+        COMMENT "Copy PicPlayer.dll next to ImageViewPlayerHost.exe"
+    )
+endif()
 
 set(COMPONENT_IMAGEVIEW_BIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Component/ImageView/bin")
 set_target_properties(ImageViewComponent PROPERTIES

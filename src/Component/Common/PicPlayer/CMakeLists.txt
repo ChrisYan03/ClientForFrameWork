@@ -75,8 +75,6 @@ file(GLOB PROJECT_SOURCES
     "${PLAYERINS_DIR}/*.h"
     "${IMGUI_DIR}/*.cpp"
     "${IMGUI_DIR}/*.h"
-    "${RENDER_DIR}/*.cpp"
-    "${RENDER_DIR}/*.h"
     "${NODES_DIR}/*.cpp"
     "${NODES_DIR}/*.h"
 )
@@ -92,8 +90,8 @@ file(GLOB_RECURSE IMGUI_SOURCES
     "${IMGUI_DIR}/*.c"
     "${IMGUI_DIR}/*.h"
 )
-# 使用 file(GLOB_RECURSE ...) 递归收集 RENDER_DIR 中的所有 .cpp 和 .h 文件
-file(GLOB_RECURSE RENDER_SOURCES
+# 递归收集 Render 下全部源文件（含 DrawPicByImgui 等子目录）；CONFIGURE_DEPENDS 在新增文件后触发重新配置
+file(GLOB_RECURSE RENDER_SOURCES CONFIGURE_DEPENDS
     "${RENDER_DIR}/*.cpp"
     "${RENDER_DIR}/*.h"
 )

@@ -15,52 +15,32 @@ Item {
 
     ImageViewHostItem {
         id: playerHostItem
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        // Windows 原生子窗口会覆盖同层 QML，预留顶部区域用于显示悬浮按钮。
-        anchors.topMargin: 64
+        anchors.fill: parent
+        // 与设置里「语言」一致（TranslationManager：0=中文，1=英文）；无框架上下文时 -1 回退系统区域
+        frameworkLanguage: (typeof appController !== "undefined" && appController) ? appController.currentLanguage : -1
     }
 
-    Button {
-        id: floatingBtn
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.topMargin: 12
-        anchors.rightMargin: 12
-        implicitWidth: 46
-        implicitHeight: 38
-        topPadding: 0
-        bottomPadding: 0
-        leftPadding: 0
-        rightPadding: 0
-        hoverEnabled: true
-        display: AbstractButton.TextOnly
-        text: playerHostItem.running ? qsTr("暂停") : qsTr("启动")
-        contentItem: Label {
-            text: floatingBtn.text
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 13
-            font.family: "Segoe UI, SF Pro Text, Helvetica Neue, Microsoft YaHei UI, sans-serif"
-            color: typeof appController !== "undefined" && appController && appController.themeColors ? appController.themeColors.textPrimary : "#323232"
-            opacity: floatingBtn.hovered ? 1 : 0.9
-        }
-        background: Rectangle {
-            anchors.fill: parent
-            color: floatingBtn.hovered && appController && appController.themeColors ? appController.themeColors.buttonHover : "transparent"
-            radius: 0
-        }
-        onClicked: playerHostItem.toggle()
-   }
-
     Component.onCompleted: {
-        // 进入组件不自动启动，等待用户点击“启动”按钮。
+        if (typeof appController !== "undefined" && appController) {
+            appController.registerComponentHost(playerHostItem)
+            Qt.callLater(function () {
+                if (appController && playerHostItem.running)
+                    appController.setComponentRuntimeActive(true)
+            })
+        }
     }
 
     Component.onDestruction: {
-        playerHostItem.stop()
+        if (typeof appController !== "undefined" && appController)
+            appController.unregisterComponentHost()
+    }
+
+    Connections {
+        target: playerHostItem
+        function onRunningChanged() {
+            if (typeof appController !== "undefined" && appController)
+                appController.setComponentRuntimeActive(playerHostItem.running)
+        }
     }
 
     onVisibleChanged: {

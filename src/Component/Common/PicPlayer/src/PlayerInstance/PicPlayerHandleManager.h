@@ -9,7 +9,7 @@ class PicPlayerHandleManager : public Singleton<PicPlayerHandleManager>
 {
     friend class Singleton<PicPlayerHandleManager>;
 public:
-    int CreatePlayer(int cacheNum);
+    int CreatePlayer(int cacheNum, PicShowType showType);
     void SetPlayerCallback(int handle, PlayerMsgCallback callback, void* pUser);
     PicPlayer* GetPlayer(int handle);
     void RemovePlayer(int handle);

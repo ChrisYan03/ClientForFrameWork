@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="/ImageView">
+    <file>icons/preview_start.svg</file>
+    <file>icons/preview_pause.svg</file>
+    <file>icons/preview_heart.svg</file>
+    <file>icons/preview_close.svg</file>
+    <file>styles/overlay_circle_button.qss</file>
+    <file>i18n/overlay_zh_CN.json</file>
+    <file>i18n/overlay_en_US.json</file>
+    <file>themes/overlay_light.json</file>
+    <file>themes/overlay_dark.json</file>
+  </qresource>
+</RCC>

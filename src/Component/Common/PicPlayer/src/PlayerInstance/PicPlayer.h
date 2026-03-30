@@ -10,7 +10,7 @@ class PicPlayerCtrlDelegate;
 class PicPlayer : public PicPlayerGui::IRenderFactory
 {
 public:
-    PicPlayer(int cacheNum);
+    PicPlayer(int cacheNum, PicShowType showType);
     virtual ~PicPlayer();
 
     inline void SetWid(Window_ShowID wid) { m_wid = wid; }
@@ -35,6 +35,7 @@ protected:
 
 private:
     int m_cacheNum;
+    PicShowType m_showType;
     int m_handle;
 
     bool m_bStop;

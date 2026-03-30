@@ -139,6 +139,11 @@ void AppController::registerComponentHost(QObject *hostItem)
     applyThemeToCurrentHost();
 }
 
+void AppController::setComponentRuntimeActive(bool active)
+{
+    setRunning(active);
+}
+
 void AppController::unregisterComponentHost()
 {
     QObject *host = m_componentHost;

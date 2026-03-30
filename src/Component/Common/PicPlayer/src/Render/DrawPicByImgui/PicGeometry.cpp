@@ -1,4 +1,4 @@
-﻿#include "PicGeometry.h"
+#include "PicGeometry.h"
 #include "PicTexture.h"
 #include "LogUtil.h"
 
@@ -77,6 +77,13 @@ void PicGeometry::DrawImageForVideo(const ImVec2& drawStart, const ImVec2& drawE
             PicTexture::instance()->DrawRecogResult(ageLabelPos, ageLabel, IM_COL32(0, 255, 0, 255)); // 使用绿色显示年龄
         }
     }
+}
+
+void PicGeometry::DrawImageToRectUv(const ImRect& dstScreen, const ImVec2& uvMin, const ImVec2& uvMax) const
+{
+    if (m_uTexId == 0)
+        return;
+    PicTexture::instance()->DrawPicTexture(m_uTexId, dstScreen.Min, dstScreen.Max, uvMin, uvMax);
 }
 
 // 绘制矩形框

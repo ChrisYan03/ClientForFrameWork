@@ -35,6 +35,12 @@ enum CallbackType
 };
 
 // 输入 图片数据
+enum PicShowType
+{
+    PicShowType_Move,
+    PicShowType_Image,
+};
+
 struct PicShowInfo
 {
     uint32_t picReadTime;

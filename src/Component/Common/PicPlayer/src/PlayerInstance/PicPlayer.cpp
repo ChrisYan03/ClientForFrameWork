@@ -9,8 +9,9 @@
 #include <pthread.h>
 #endif
 
-PicPlayer::PicPlayer(int cacheNum)
+PicPlayer::PicPlayer(int cacheNum, PicShowType showType)
     : m_cacheNum(cacheNum)
+    , m_showType(showType)
     , m_handle(-1)
     , m_bStop(true)
     , m_wid(0)
@@ -61,7 +62,7 @@ bool PicPlayer::StartPlayer()
         return false;
     m_bStop = false;
 
-    m_renderPtr = std::make_shared<PicPlayerVideoRender>(m_cacheNum);
+    m_renderPtr = std::make_shared<PicPlayerVideoRender>(m_cacheNum, m_showType);
     if (m_ctrlDelPtr) {
         m_ctrlDelPtr->SetRenderSync(m_renderPtr->GetSynchronizer());
     }

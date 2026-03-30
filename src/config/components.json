@@ -1,0 +1,6 @@
+{
+  "components": [
+    { "id": "PicMatch", "enabled": true },
+    { "id": "ImageView", "enabled": true }
+  ]
+}

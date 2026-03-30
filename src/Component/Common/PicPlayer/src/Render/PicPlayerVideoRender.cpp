@@ -1,21 +1,22 @@
-﻿#include "PicPlayerVideoRender.h"
+#include "PicPlayerVideoRender.h"
 #include "PicPlayerMovieByScene.h"
+#include "PicPlayerImageByScene.h"
 
-PicPlayerVideoRender::PicPlayerVideoRender(int cacheNum)
+PicPlayerVideoRender::PicPlayerVideoRender(int cacheNum, PicShowType showType)
     : PicPlayerRender()
     , m_cacheNum(cacheNum)
-{
+    , m_showType(showType)
+{}
 
-}
-
-PicPlayerVideoRender::~PicPlayerVideoRender()
-{
-
-}
+PicPlayerVideoRender::~PicPlayerVideoRender() {}
 
 void PicPlayerVideoRender::InitScene(const ImRect& rc)
 {
-    m_playScene = std::make_unique<PicPlayerMovieByScene>(rc, m_cacheNum);
+    if (m_showType == PicShowType_Move) {
+        m_playScene = std::make_unique<PicPlayerMovieByScene>(rc, m_cacheNum);
+    } else {
+        m_playScene = std::make_unique<PicPlayerImageByScene>(rc, m_cacheNum);
+    }
     m_playScene->SetRenderSync(GetSynchronizer());
 }
 

@@ -54,6 +54,8 @@ public:
 
     Q_INVOKABLE void registerComponentHost(QObject *hostItem);
     Q_INVOKABLE void unregisterComponentHost();
+    /// 仅同步「组件是否在运行」供主窗口拦截设置等；不调用宿主 run/quit（与 start/stop 区分）
+    Q_INVOKABLE void setComponentRuntimeActive(bool active);
     Q_INVOKABLE void setPageTitle(const QString &title);
     Q_INVOKABLE void requestBackToDesktop();
 

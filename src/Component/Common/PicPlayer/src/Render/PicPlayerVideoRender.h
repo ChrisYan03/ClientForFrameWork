@@ -1,13 +1,14 @@
-﻿#ifndef PICPLAYERVIDEORENDER_H
+#ifndef PICPLAYERVIDEORENDER_H
 #define PICPLAYERVIDEORENDER_H
 
 #include "PicPlayerRender.h"
+#include "PicPlayerDataDef.h"
 #include "imgui_internal.h"
 
 class PicPlayerVideoRender : public PicPlayerRender
 {
 public:
-    PicPlayerVideoRender(int cacheNum);
+    PicPlayerVideoRender(int cacheNum, PicShowType showType = PicShowType_Move);
     ~PicPlayerVideoRender();
 
     virtual void InitScene(const ImRect& rc) override;
@@ -15,6 +16,7 @@ public:
 
 protected:
     int m_cacheNum;
+    PicShowType m_showType;
 };
 
 #endif // PICPLAYERVIDEORENDER_H

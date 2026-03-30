@@ -14,11 +14,11 @@ PicPlayerHandleManager::~PicPlayerHandleManager()
 }
 
 // public
-int PicPlayerHandleManager::CreatePlayer(int cacheNum)
+int PicPlayerHandleManager::CreatePlayer(int cacheNum, PicShowType showType)
 {
     int playerHandle = -1;
     try {
-        std::unique_ptr<PicPlayer> playerPtr = std::make_unique<PicPlayer>(cacheNum);
+        std::unique_ptr<PicPlayer> playerPtr = std::make_unique<PicPlayer>(cacheNum, showType);
         playerHandle = m_handleRegister.RegisterObjInstance(std::move(playerPtr));
         if (-1 == playerHandle) {
             return playerHandle;

@@ -20,7 +20,7 @@ PICPLAYER_API void PICPLAYER_CALL PicPlayer_Shutdown();
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_RegisterCallback(int handle, PlayerMsgCallback callback, void* pUser);
 
 // 创建对象实例
-PICPLAYER_API int PICPLAYER_CALL PicPlayer_CreateInstance(int cacheNum = 10);
+PICPLAYER_API int PICPLAYER_CALL PicPlayer_CreateInstance(int cacheNum = 10, PicShowType showType = PicShowType_Move);
 
 // 销毁指定对象实例
 PICPLAYER_API bool PICPLAYER_CALL PicPlayer_DestroyInstance(int handle);

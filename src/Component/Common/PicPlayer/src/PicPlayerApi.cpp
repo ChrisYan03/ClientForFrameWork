@@ -49,9 +49,9 @@ PICPLAYER_API bool PICPLAYER_CALL PicPlayer_RegisterCallback(int handle, PlayerM
 }
 
 // 创建对象实例
-PICPLAYER_API int PICPLAYER_CALL PicPlayer_CreateInstance(int cacheNum)
+PICPLAYER_API int PICPLAYER_CALL PicPlayer_CreateInstance(int cacheNum, PicShowType showType)
 {
-    return PicPlayerHandleManager::instance()->CreatePlayer(cacheNum);
+    return PicPlayerHandleManager::instance()->CreatePlayer(cacheNum, showType);
 }
 
 // 销毁指定对象实例
