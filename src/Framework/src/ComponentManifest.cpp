@@ -4,7 +4,7 @@
  *
  * 此文件包含 xpack 相关代码，不应在 MOC 处理的头文件中包含。
  */
-#include "../include/ComponentTypes.h"
+#include "../include/main/ComponentTypes.h"
 #include "xpack/json.h"
 
 // ==================== 辅助函数实现 ====================

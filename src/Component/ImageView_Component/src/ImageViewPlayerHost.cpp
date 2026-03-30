@@ -1,8 +1,11 @@
 #include "ImageViewPlayerHostPicLoader.h"
 #include "PicPlayerApi.h"
+#include "ipc/ComponentIpcClient.h"
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTimer>
 #include "LogUtil.h"
 
@@ -87,6 +90,9 @@ int main(int argc, char* argv[])
     parser.addOption({{"w", "width"}, "Initial width", "width", "800"});
     parser.addOption({{"H", "height"}, "Initial height", "height", "600"});
     parser.addOption({{"d", "picdata-dir"}, "Folder with JPG/PNG (default: E:/ClientForFrameWork/picdata or ./picdata)", "dir"});
+    parser.addOption(QCommandLineOption(QStringList{QStringLiteral("ipc-endpoint")}, QStringLiteral("Framework IPC endpoint"), QStringLiteral("ipc-endpoint")));
+    parser.addOption(QCommandLineOption(QStringList{QStringLiteral("ipc-token")}, QStringLiteral("Framework IPC token"), QStringLiteral("ipc-token")));
+    parser.addOption(QCommandLineOption(QStringList{QStringLiteral("component-id")}, QStringLiteral("Component id"), QStringLiteral("component-id"), QStringLiteral("ImageView")));
     parser.process(app);
 
     LogUtil::initLogger("ImageViewPlayerHost");
@@ -123,7 +129,39 @@ int main(int argc, char* argv[])
         : resolvePicDataDir();
     QTimer::singleShot(400, [handle, picDir]() { pushPicFolderToPlayer(handle, picDir); });
 
+    ComponentIpcClient ipcClient;
+    if (parser.isSet(QStringLiteral("ipc-endpoint")) && parser.isSet(QStringLiteral("ipc-token"))) {
+        const QString endpoint = parser.value(QStringLiteral("ipc-endpoint"));
+        const QString token = parser.value(QStringLiteral("ipc-token"));
+        const QString componentId = parser.value(QStringLiteral("component-id"));
+        if (ipcClient.connectToHost(endpoint, token, componentId, 3000)) {
+            ipcClient.sendEvent(QStringLiteral("component.state.running"), QJsonObject{});
+            QObject::connect(&ipcClient, &ComponentIpcClient::notificationReceived, &app,
+                [&](const QString& method, const QJsonObject& payload) {
+                    if (method == QStringLiteral("framework.sync.fullState")) {
+                        const int language = payload.value(QStringLiteral("language")).toInt(-1);
+                        const QJsonObject theme = payload.value(QStringLiteral("theme")).toObject();
+                        LOG_INFO("ImageViewPlayerHost: recv fullState language={} themeKeys={}",
+                            language,
+                            theme.keys().size());
+                    } else if (method == QStringLiteral("framework.sync.language")) {
+                        const int language = payload.value(QStringLiteral("language")).toInt(-1);
+                        LOG_INFO("ImageViewPlayerHost: recv language={}", language);
+                    } else if (method == QStringLiteral("framework.sync.theme")) {
+                        const QJsonObject theme = payload.value(QStringLiteral("theme")).toObject();
+                        LOG_INFO("ImageViewPlayerHost: recv theme update keys={}", theme.keys().size());
+                    } else if (method == QStringLiteral("framework.lifecycle.stop")) {
+                        QCoreApplication::quit();
+                    }
+                });
+        } else {
+            LOG_WARN("ImageViewPlayerHost: IPC connect failed, continue without runtime bridge");
+        }
+    }
+
     QObject::connect(&app, &QCoreApplication::aboutToQuit, [&]() {
+        if (ipcClient.isConnected())
+            ipcClient.sendEvent(QStringLiteral("component.state.stopped"), QJsonObject{});
         PicPlayer_DestroyInstance(handle);
         PicPlayer_UnInit();
     });

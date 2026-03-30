@@ -22,7 +22,7 @@
 #include <cstdint>
 
 // 包含组件类型定义（ComponentManifest等）
-#include "../include/ComponentTypes.h"
+#include "../include/main/ComponentTypes.h"
 
 /**
  * @brief 组件接口

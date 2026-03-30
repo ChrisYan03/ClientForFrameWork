@@ -8,7 +8,7 @@
 #define COMPONENT_LOADER_FACTORY_H
 
 #include "IComponentLoader.h"
-#include "../include/ComponentTypes.h"
+#include "../include/main/ComponentTypes.h"
 #include <QMap>
 #include <QObject>
 

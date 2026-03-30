@@ -5,35 +5,56 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_AUTOMOC ON)
 
 # 查找 Qt 模块
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Qml)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Qml)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Qml Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Qml Network)
 
 # 目录定义
 set(FRAMEWORK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(FRAMEWORK_MAIN_INCLUDE_DIR ${FRAMEWORK_INCLUDE_DIR}/main)
+set(FRAMEWORK_IPC_INCLUDE_DIR ${FRAMEWORK_INCLUDE_DIR}/ipc)
 set(FRAMEWORK_INTERFACE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/interface)
 set(FRAMEWORK_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(FRAMEWORK_LOADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Loaders)
+set(FRAMEWORK_LOADERS_DLL_DIR ${FRAMEWORK_LOADERS_DIR}/dll)
+set(FRAMEWORK_LOADERS_PROCESS_DIR ${FRAMEWORK_LOADERS_DIR}/process)
+set(FRAMEWORK_LOADERS_WEB_DIR ${FRAMEWORK_LOADERS_DIR}/web)
 
-# Framework 源文件
-set(FRAMEWORK_SOURCES
-    # 核心实现
+# Framework 源文件（按职责分组）
+set(FRAMEWORK_MAIN_SOURCES
     ${FRAMEWORK_SRC_DIR}/ComponentManager.cpp
     ${FRAMEWORK_SRC_DIR}/ComponentLoaderFactory.cpp
     ${FRAMEWORK_SRC_DIR}/ComponentManifest.cpp
     ${FRAMEWORK_SRC_DIR}/ComponentService.cpp
+    ${FRAMEWORK_SRC_DIR}/runtime/dispatch/ComponentRuntimeDispatcher.cpp
+)
 
-    # 组件加载器
-    ${FRAMEWORK_LOADERS_DIR}/NativeDllComponentLoader.cpp
-    ${FRAMEWORK_LOADERS_DIR}/StandaloneExeComponentLoader.cpp
-    ${FRAMEWORK_LOADERS_DIR}/WebUrlComponentLoader.cpp
-    ${FRAMEWORK_LOADERS_DIR}/EmbeddedExeComponentLoader.cpp
+set(FRAMEWORK_IPC_SOURCES
+    ${FRAMEWORK_SRC_DIR}/runtime/ipc/ComponentIpcMessage.cpp
+    ${FRAMEWORK_SRC_DIR}/runtime/ipc/ComponentIpcHostSession.cpp
+    ${FRAMEWORK_SRC_DIR}/runtime/ipc/ComponentIpcClient.cpp
+)
+
+set(FRAMEWORK_DLL_SOURCES
+    ${FRAMEWORK_LOADERS_DLL_DIR}/NativeDllComponentLoader.cpp
+    ${FRAMEWORK_LOADERS_PROCESS_DIR}/StandaloneExeComponentLoader.cpp
+    ${FRAMEWORK_LOADERS_WEB_DIR}/WebUrlComponentLoader.cpp
+    ${FRAMEWORK_LOADERS_PROCESS_DIR}/EmbeddedExeComponentLoader.cpp
+)
+
+set(FRAMEWORK_SOURCES
+    ${FRAMEWORK_MAIN_SOURCES}
+    ${FRAMEWORK_IPC_SOURCES}
+    ${FRAMEWORK_DLL_SOURCES}
 )
 
 # Framework 对外暴露的头文件
 set(FRAMEWORK_PUBLIC_HEADERS
     # 主框架接口
-    ${FRAMEWORK_INCLUDE_DIR}/ComponentService.h
-    ${FRAMEWORK_INCLUDE_DIR}/ComponentTypes.h
+    ${FRAMEWORK_MAIN_INCLUDE_DIR}/ComponentService.h
+    ${FRAMEWORK_MAIN_INCLUDE_DIR}/ComponentTypes.h
+    ${FRAMEWORK_IPC_INCLUDE_DIR}/ComponentIpcMessage.h
+    ${FRAMEWORK_IPC_INCLUDE_DIR}/ComponentIpcHostSession.h
+    ${FRAMEWORK_IPC_INCLUDE_DIR}/ComponentIpcClient.h
 
     # 组件接口
     ${FRAMEWORK_INTERFACE_DIR}/IComponent.h
@@ -43,10 +64,11 @@ set(FRAMEWORK_PUBLIC_HEADERS
 set(FRAMEWORK_PRIVATE_HEADERS
     ${FRAMEWORK_SRC_DIR}/ComponentManager.h
     ${FRAMEWORK_SRC_DIR}/ComponentLoaderFactory.h
-    ${FRAMEWORK_LOADERS_DIR}/NativeDllComponentLoader.h
-    ${FRAMEWORK_LOADERS_DIR}/StandaloneExeComponentLoader.h
-    ${FRAMEWORK_LOADERS_DIR}/WebUrlComponentLoader.h
-    ${FRAMEWORK_LOADERS_DIR}/EmbeddedExeComponentLoader.h
+    ${FRAMEWORK_SRC_DIR}/runtime/dispatch/ComponentRuntimeDispatcher.h
+    ${FRAMEWORK_LOADERS_DLL_DIR}/NativeDllComponentLoader.h
+    ${FRAMEWORK_LOADERS_PROCESS_DIR}/StandaloneExeComponentLoader.h
+    ${FRAMEWORK_LOADERS_WEB_DIR}/WebUrlComponentLoader.h
+    ${FRAMEWORK_LOADERS_PROCESS_DIR}/EmbeddedExeComponentLoader.h
 )
 
 # 创建静态库
@@ -55,6 +77,8 @@ add_library(Framework STATIC ${FRAMEWORK_SOURCES} ${FRAMEWORK_PUBLIC_HEADERS} ${
 # 对外暴露的include目录
 target_include_directories(Framework PUBLIC
     $<BUILD_INTERFACE:${FRAMEWORK_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${FRAMEWORK_MAIN_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${FRAMEWORK_IPC_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${FRAMEWORK_INTERFACE_DIR}>
 )
 
@@ -62,6 +86,9 @@ target_include_directories(Framework PUBLIC
 target_include_directories(Framework PRIVATE
     ${FRAMEWORK_SRC_DIR}
     ${FRAMEWORK_LOADERS_DIR}
+    ${FRAMEWORK_LOADERS_DLL_DIR}
+    ${FRAMEWORK_LOADERS_PROCESS_DIR}
+    ${FRAMEWORK_LOADERS_WEB_DIR}
     ${CMAKE_SOURCE_DIR}/../ext/include  # xpack 头文件路径
 )
 
@@ -69,6 +96,7 @@ target_include_directories(Framework PRIVATE
 target_link_libraries(Framework PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Qml
+    Qt${QT_VERSION_MAJOR}::Network
 )
 
 # 设置头文件属性

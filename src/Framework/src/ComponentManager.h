@@ -7,7 +7,7 @@
 #ifndef COMPONENT_MANAGER_H
 #define COMPONENT_MANAGER_H
 
-#include "../include/ComponentTypes.h"
+#include "../include/main/ComponentTypes.h"
 #include "../Interface/IComponent.h"
 #include "IComponentLoader.h"
 #include "ComponentLoaderFactory.h"

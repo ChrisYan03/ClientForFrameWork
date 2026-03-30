@@ -4,7 +4,7 @@
 #include "Common/MainWindowSetup.h"
 #include "Common/CrashpadInit.h"
 #include "TranslationManager.h"
-#include "ComponentService.h"
+#include "main/ComponentService.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>

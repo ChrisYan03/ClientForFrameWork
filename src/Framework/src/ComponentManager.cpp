@@ -6,10 +6,6 @@
  */
 #include "ComponentManager.h"
 #include "../Interface/IComponent.h"
-#include "Loaders/NativeDllComponentLoader.h"
-#include "Loaders/StandaloneExeComponentLoader.h"
-#include "Loaders/WebUrlComponentLoader.h"
-#include "Loaders/EmbeddedExeComponentLoader.h"
 #include "ComponentLoaderFactory.h"
 #include <QFile>
 #include <QDir>

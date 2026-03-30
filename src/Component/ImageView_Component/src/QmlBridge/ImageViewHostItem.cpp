@@ -1,4 +1,5 @@
 #include "ImageViewHostItem.h"
+#include "ipc/ComponentIpcHostSession.h"
 #include <QQuickWindow>
 #include <QWindow>
 #include <QQuickItem>
@@ -12,6 +13,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QLocale>
 #include "LogUtil.h"
 
@@ -39,9 +41,26 @@ const char* kIconClose = ":/ImageView/icons/preview_close.svg";
 ImageViewHostItem::ImageViewHostItem(QQuickItem* parent)
     : QQuickItem(parent)
 {
+    m_ipcSession = new ComponentIpcHostSession(this);
     setFlag(ItemHasContents, false);
     connect(this, &QQuickItem::windowChanged, this, &ImageViewHostItem::onWindowChanged);
     connect(this, &ImageViewHostItem::runningChanged, this, &ImageViewHostItem::updateButtonStyleAndText);
+    connect(m_ipcSession, &ComponentIpcHostSession::clientReady, this, [this]() {
+        sendIpcFullState();
+    });
+    connect(m_ipcSession, &ComponentIpcHostSession::eventReceived, this, [this](const QString& method, const QJsonObject&) {
+        if (method == QStringLiteral("component.state.running")) {
+            if (!m_running) {
+                m_running = true;
+                emit runningChanged();
+            }
+        } else if (method == QStringLiteral("component.state.stopped")) {
+            if (m_running) {
+                m_running = false;
+                emit runningChanged();
+            }
+        }
+    });
 }
 
 void ImageViewHostItem::setFrameworkLanguage(int lang)
@@ -52,6 +71,26 @@ void ImageViewHostItem::setFrameworkLanguage(int lang)
     emit frameworkLanguageChanged();
     loadI18nAndThemeResources();
     updateButtonStyleAndText();
+    if (m_ipcSession && m_ipcSession->isClientReady()) {
+        QJsonObject payload;
+        payload.insert(QStringLiteral("language"), m_frameworkLanguage);
+        m_ipcSession->sendNotification(QStringLiteral("framework.sync.language"), payload);
+    }
+}
+
+void ImageViewHostItem::applyTheme(const QVariantMap& themeColors)
+{
+    m_frameworkThemeColors = themeColors;
+    if (m_ipcSession && m_ipcSession->isClientReady()) {
+        QJsonObject themeObj;
+        for (auto it = m_frameworkThemeColors.constBegin(); it != m_frameworkThemeColors.constEnd(); ++it) {
+            if (it.value().canConvert<QString>())
+                themeObj.insert(it.key(), it.value().toString());
+        }
+        QJsonObject payload;
+        payload.insert(QStringLiteral("theme"), themeObj);
+        m_ipcSession->sendNotification(QStringLiteral("framework.sync.theme"), payload);
+    }
 }
 
 QString ImageViewHostItem::overlayI18nJsonPath() const
@@ -94,6 +133,8 @@ void ImageViewHostItem::syncOverlayGeometry()
 ImageViewHostItem::~ImageViewHostItem()
 {
     stop();
+    if (m_ipcSession)
+        m_ipcSession->stop();
     for (const auto& it : m_buttonWidgets) {
         if (it.second) {
             it.second->hide();
@@ -146,15 +187,24 @@ void ImageViewHostItem::start()
         m_process = new QProcess(this);
         connect(m_process, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this,
                 [this](int, QProcess::ExitStatus) {
+                    if (m_ipcSession)
+                        m_ipcSession->stop();
                     m_stopping = false;
                     m_running = false;
                     emit runningChanged();
                 });
     }
 
+    if (!m_ipcSession->start(QStringLiteral("ImageView"))) {
+        LOG_ERROR("ImageViewHostItem: failed to start IPC host session");
+        return;
+    }
+
     syncOverlayGeometry();
     m_process->start(program, hostProgramArgs());
     if (!m_process->waitForStarted(3000)) {
+        if (m_ipcSession)
+            m_ipcSession->stop();
         LOG_ERROR("ImageViewHostItem: failed to start process: {}", m_process->errorString().toStdString());
         return;
     }
@@ -165,6 +215,9 @@ void ImageViewHostItem::start()
 
 void ImageViewHostItem::stop()
 {
+    if (m_ipcSession && m_ipcSession->isClientReady()) {
+        m_ipcSession->sendNotification(QStringLiteral("framework.lifecycle.stop"), QJsonObject{});
+    }
     if (m_hostWindow) {
         m_hostWindow->hide();
     }
@@ -452,6 +505,11 @@ QString ImageViewHostItem::hostProgramPath() const
 QStringList ImageViewHostItem::hostProgramArgs() const
 {
     QStringList args;
+    if (m_ipcSession) {
+        args << "--ipc-endpoint" << m_ipcSession->endpointName();
+        args << "--ipc-token" << m_ipcSession->token();
+        args << "--component-id" << QStringLiteral("ImageView");
+    }
 #if defined(Q_OS_WIN)
     const quintptr wid = m_hostWindow ? static_cast<quintptr>(m_hostWindow->winId()) : 0;
     args << "--parent-hwnd" << QString::number(wid);
@@ -459,4 +517,19 @@ QStringList ImageViewHostItem::hostProgramArgs() const
     args << "--height" << QString::number(qRound(height()));
 #endif
     return args;
+}
+
+void ImageViewHostItem::sendIpcFullState()
+{
+    if (!m_ipcSession || !m_ipcSession->isClientReady())
+        return;
+    QJsonObject themeObj;
+    for (auto it = m_frameworkThemeColors.constBegin(); it != m_frameworkThemeColors.constEnd(); ++it) {
+        if (it.value().canConvert<QString>())
+            themeObj.insert(it.key(), it.value().toString());
+    }
+    QJsonObject payload;
+    payload.insert(QStringLiteral("theme"), themeObj);
+    payload.insert(QStringLiteral("language"), m_frameworkLanguage);
+    m_ipcSession->sendNotification(QStringLiteral("framework.sync.fullState"), payload);
 }

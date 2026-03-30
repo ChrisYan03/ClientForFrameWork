@@ -7,7 +7,7 @@
 #ifndef ICOMPONENT_LOADER_H
 #define ICOMPONENT_LOADER_H
 
-#include "../include/ComponentTypes.h"
+#include "../include/main/ComponentTypes.h"
 #include <QObject>
 #include <QString>
 

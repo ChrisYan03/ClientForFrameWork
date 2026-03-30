@@ -16,6 +16,7 @@ include_directories(
     ${IMAGEVIEW_SOURCE_DIR}
     ${IMAGEVIEW_SOURCE_DIR}/QmlBridge
     ${IMAGEVIEW_DEPS_DIR}
+    ${CMAKE_SOURCE_DIR}/Framework/include
     ${CMAKE_SOURCE_DIR}/Framework/interface
 )
 include_directories(${CMAKE_SOURCE_DIR}/LogUtil)
@@ -49,6 +50,7 @@ add_executable(ImageViewPlayerHost
     ${IMAGEVIEW_SOURCE_DIR}/ImageViewStbImageImpl.cpp
 )
 target_link_libraries(ImageViewPlayerHost PRIVATE
+    Framework
     PicPlayer
     Qt${QT_VERSION_MAJOR}::Core
 )

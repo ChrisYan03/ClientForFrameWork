@@ -2,9 +2,9 @@
  * @file ComponentService.cpp
  * @brief 组件服务实现
  */
-#include "../include/ComponentService.h"
+#include "../include/main/ComponentService.h"
 #include "ComponentManager.h"
-#include "../Interface/IComponent.h"
+#include "runtime/dispatch/ComponentRuntimeDispatcher.h"
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
@@ -221,12 +221,7 @@ void ComponentService::notifyThemeChanged(int theme)
     QStringList components = d->manager->getLoadedComponentIds();
     for (const QString& componentId : components) {
         ComponentInstanceV2* instance = d->manager->getComponent(componentId);
-        if (instance && instance->componentObject) {
-            IComponent* component = dynamic_cast<IComponent*>(instance->componentObject);
-            if (component) {
-                component->onThemeChanged(theme);
-            }
-        }
+        ComponentRuntimeDispatcher::notifyTheme(instance, d->appController, theme);
     }
 }
 
@@ -235,12 +230,7 @@ void ComponentService::notifyLanguageChanged(int language)
     QStringList components = d->manager->getLoadedComponentIds();
     for (const QString& componentId : components) {
         ComponentInstanceV2* instance = d->manager->getComponent(componentId);
-        if (instance && instance->componentObject) {
-            IComponent* component = dynamic_cast<IComponent*>(instance->componentObject);
-            if (component) {
-                component->onLanguageChanged(language);
-            }
-        }
+        ComponentRuntimeDispatcher::notifyLanguage(instance, language);
     }
     // 向QML引擎发送语言变化事件，触发所有qsTr()重新求值
     if (d->qmlEngine) {

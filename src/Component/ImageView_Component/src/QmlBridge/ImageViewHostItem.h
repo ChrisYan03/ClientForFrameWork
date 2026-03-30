@@ -5,11 +5,13 @@
 #include <QProcess>
 #include <QPointer>
 #include <QMap>
+#include <QVariantMap>
 #include <map>
 
 class QWindow;
 class QWidget;
 class QPushButton;
+class ComponentIpcHostSession;
 
 class ImageViewHostItem : public QQuickItem
 {
@@ -37,6 +39,7 @@ public:
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
     Q_INVOKABLE void toggle();
+    Q_INVOKABLE void applyTheme(const QVariantMap& themeColors);
     /// 与框架 AppController::start/stop 通过 QMetaObject::invokeMethod 对接（同 start/stop）
     Q_INVOKABLE void run() { start(); }
     Q_INVOKABLE void quit() { stop(); }
@@ -71,6 +74,7 @@ private:
     bool isDarkMode() const;
     QString hostProgramPath() const;
     QStringList hostProgramArgs() const;
+    void sendIpcFullState();
 
     static QString s_componentBasePath;
 
@@ -79,8 +83,10 @@ private:
     std::map<OverlayButtonType, QPointer<QPushButton>> m_buttonControls;
     QPointer<QQuickWindow> m_boundWindow;
     QProcess* m_process = nullptr;
+    ComponentIpcHostSession* m_ipcSession = nullptr;
     QMap<QString, QString> m_i18n;
     QMap<QString, QString> m_theme;
+    QVariantMap m_frameworkThemeColors;
     bool m_running = false;
     bool m_stopping = false;
     int m_frameworkLanguage = -1;

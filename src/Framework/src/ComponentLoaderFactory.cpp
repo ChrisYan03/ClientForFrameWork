@@ -3,10 +3,10 @@
  * @brief 组件加载器工厂实现
  */
 #include "ComponentLoaderFactory.h"
-#include "Loaders/NativeDllComponentLoader.h"
-#include "Loaders/StandaloneExeComponentLoader.h"
-#include "Loaders/WebUrlComponentLoader.h"
-#include "Loaders/EmbeddedExeComponentLoader.h"
+#include "Loaders/dll/NativeDllComponentLoader.h"
+#include "Loaders/process/StandaloneExeComponentLoader.h"
+#include "Loaders/web/WebUrlComponentLoader.h"
+#include "Loaders/process/EmbeddedExeComponentLoader.h"
 
 ComponentLoaderFactory::ComponentLoaderFactory(QObject* parent)
     : QObject(parent)
